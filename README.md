@@ -46,6 +46,6 @@
 Built on a broken laptop to prove the gospel spreads regardless of circumstances. Now seeking funding to scale to 2.3B Christians.
 
 ## Demo
-**Live App**: https://your-username.github.io/gospel-swipe-pro/
+**Live App**: https://GPmulticoncept.github.io/gospel-swipe-pro/
 
 **Pitch Video**: [Upload to Google Drive and add link here]
