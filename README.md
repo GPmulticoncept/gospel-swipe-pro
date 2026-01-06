@@ -48,4 +48,4 @@ Built on a broken laptop to prove the gospel spreads regardless of circumstances
 ## Demo
 **Live App**: https://github.com/GPmulticoncept/gospel-swipe-pro.git
 
-**Pitch Video**: [Upload to Google Drive and add link here]
+**Pitch Video**: https://drive.google.com/file/d/1RFgCVdGFJCha86ihN5q0J3MP4UWafWrK/view?usp=drivesdk
