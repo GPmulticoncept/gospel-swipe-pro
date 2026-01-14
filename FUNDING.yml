@@ -1,3 +1,105 @@
-# GospelSwipe Funding
+# GospelSwipe Pro - Funding Information
+# Platform: Global (Nigeria-based)
+
+name: GospelSwipe Pro
+description: AI-powered digital evangelism platform
+website: https://gpmulticoncept.github.io/gospel-swipe-pro/
+
+# Current Funding Channels
 ko_fi: gospelswipe
-custom: ["https://ko-fi.com/gospelswipe", "https://gpmulticoncept.github.io/gospel-swipe-pro/"]
+github: ["gpmulticoncept"]
+open_collective: gospelswipe
+
+# Custom Donation Links
+custom:
+  - "https://ko-fi.com/gospelswipe"
+  - "https://paystack.com/pay/gospelswipe"
+  - "https://flutterwave.com/pay/gospelswipe"
+
+# Grant Targets
+grants:
+  - name: "Initial Development"
+    amount: "$5,000"
+    purpose: "API costs, developer laptops, hosting"
+    status: "seeking"
+    
+  - name: "Multi-language Expansion"
+    amount: "$10,000"
+    purpose: "Native speakers, content translation, voice recording"
+    status: "planned"
+    
+  - name: "Church Dashboard"
+    amount: "$15,000"
+    purpose: "Advanced analytics, group features, admin tools"
+    status: "future"
+
+# Budget Allocation (when funded)
+budget_allocation:
+  development: 40%
+  content_creation: 25%
+  infrastructure: 20%
+  outreach: 10%
+  contingency: 5%
+
+# Impact Metrics (to show grant givers)
+impact_metrics:
+  - metric: "Users Reached"
+    current: "100+"
+    target: "10,000+"
+    
+  - metric: "Bible Verses Shared"
+    current: "500+"
+    target: "1,000,000+"
+    
+  - metric: "Prayers Logged"
+    current: "200+"
+    target: "100,000+"
+    
+  - metric: "Languages Supported"
+    current: "5"
+    target: "50+"
+
+# Team Information
+team:
+  - role: "Lead Developer"
+    name: "GP MultiConcept"
+    country: "Nigeria"
+    
+  - role: "Content Creator"
+    name: "Volunteers Needed"
+    country: "Global"
+
+# Project Roadmap
+roadmap:
+  phase_1:
+    name: "Core MVP"
+    status: "completed"
+    features: ["PWA", "Offline Support", "Basic AI", "Prayer Journal"]
+    
+  phase_2:
+    name: "Enhanced Platform"
+    status: "in_development"
+    features: ["Multi-language", "Gamification", "Advanced Stats", "Social Sharing"]
+    
+  phase_3:
+    name: "Community Features"
+    status: "planned"
+    features: ["Church Dashboard", "Group Study", "Pastor Tools", "Event Management"]
+    
+  phase_4:
+    name: "Global Expansion"
+    status: "future"
+    features: ["100+ Languages", "AR Features", "Voice Recognition", "Global Partnerships"]
+
+# Transparency Pledge
+transparency:
+  - "Open source core components"
+  - "Regular progress updates"
+  - "Financial transparency"
+  - "Community involvement"
+
+# Contact for Grant Inquiries
+contact:
+  email: "gospelswipe@example.com"
+  github: "https://github.com/gpmulticoncept"
+  twitter: "@GospelSwipePro"
