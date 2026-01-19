@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <!-- ENHANCED: Added Content Security Policy for security -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; img-src 'self' data:;">
+  
   <title>GospelSwipe Pro - Digital Evangelism Platform</title>
   
   <!-- PWA Meta Tags -->
@@ -60,6 +64,29 @@
     
     body.dark-mode {
       background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%);
+    }
+    
+    /* ENHANCED: Added skeleton loader styles */
+    .skeleton-text {
+      height: 20px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    
+    .skeleton-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius);
+      padding: 20px;
+      min-height: 140px;
+      margin-bottom: 15px;
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: 200px 0; }
     }
     
     /* ===== SWITCH TOGGLE STYLES ===== */
@@ -158,7 +185,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      padding: 20px 20px 90px; /* Space for bottom nav */
+      padding: 20px 20px 90px;
       display: flex;
       flex-direction: column;
       overflow-y: auto;
@@ -175,6 +202,7 @@
       text-align: center;
       margin-top: 20px;
       flex-shrink: 0;
+      position: relative;
     }
     
     .header h1 {
@@ -190,6 +218,30 @@
       font-size: 1rem;
       opacity: 0.8;
       margin-bottom: 30px;
+    }
+    
+    /* ===== SETTINGS BUTTON IN HEADER ===== */
+    .header-settings-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: var(--light);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 10;
+    }
+    
+    .header-settings-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: rotate(30deg);
     }
     
     /* ===== FEATURE CARDS ===== */
@@ -644,6 +696,14 @@
       cursor: pointer;
       margin: 5px;
       transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
     }
     
     .home-bottom-buttons button:hover {
@@ -776,6 +836,9 @@
     <!-- Home Screen -->
     <div id="home-screen" class="screen active">
       <div class="header">
+        <button class="header-settings-btn" onclick="showScreen('settings-screen')" title="Settings">
+          <i class="fas fa-cog"></i>
+        </button>
         <h1><i class="fas fa-cross"></i> GospelSwipe Pro</h1>
         <p class="tagline">Your pocket evangelism toolkit</p>
         
@@ -832,14 +895,11 @@
       </div>
       
       <div class="home-bottom-buttons">
-        <div style="opacity: 0.7; font-size: 0.9rem; margin-bottom: 10px;">
+        <div style="opacity: 0.7; font-size: 0.9rem; margin-bottom: 10px; text-align: center;">
           🔒 Works 100% Offline • ⚡ Instant Load
         </div>
         <button onclick="installApp()" id="installBtn">
           <i class="fas fa-download"></i> Install App
-        </button>
-        <button onclick="showScreen('settings-screen')" class="secondary">
-          <i class="fas fa-cog"></i> Settings
         </button>
       </div>
     </div>
@@ -876,7 +936,11 @@
       
       <h3 style="margin-bottom: 15px;">Your Prayer History</h3>
       <div id="prayerList" class="prayer-list">
-        <!-- Prayers will be loaded here -->
+        <!-- ENHANCED: Skeleton loader while loading prayers -->
+        <div id="prayerSkeleton" style="display: none;">
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
       </div>
     </div>
     
@@ -911,7 +975,9 @@
       <div class="settings-section">
         <div class="settings-title">Recent Achievements</div>
         <div id="achievementsList">
-          <!-- Achievements will be loaded here -->
+          <!-- ENHANCED: Skeleton loader for achievements -->
+          <div class="skeleton-text" style="width: 80%;"></div>
+          <div class="skeleton-text" style="width: 60%;"></div>
         </div>
       </div>
       
@@ -1033,7 +1099,8 @@
           verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
           reference: "John 3:16",
           topic: "god-love",
-          color: "#3498db"
+          color: "#3498db",
+          category: "gospel-core"
         },
         {
           id: 2,
@@ -1041,7 +1108,8 @@
           verse: "For all have sinned and fall short of the glory of God.",
           reference: "Romans 3:23",
           topic: "sin-problem",
-          color: "#e74c3c"
+          color: "#e74c3c",
+          category: "gospel-core"
         },
         {
           id: 3,
@@ -1049,7 +1117,8 @@
           verse: "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.",
           reference: "Romans 5:8",
           topic: "jesus-solution",
-          color: "#2ecc71"
+          color: "#2ecc71",
+          category: "gospel-core"
         },
         {
           id: 4,
@@ -1057,7 +1126,8 @@
           verse: "For it is by grace you have been saved, through faith—and this is not from yourselves, it is the gift of God.",
           reference: "Ephesians 2:8-9",
           topic: "faith-response",
-          color: "#9b59b6"
+          color: "#9b59b6",
+          category: "gospel-core"
         },
         {
           id: 5,
@@ -1065,7 +1135,8 @@
           verse: "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!",
           reference: "2 Corinthians 5:17",
           topic: "new-life",
-          color: "#1abc9c"
+          color: "#1abc9c",
+          category: "discipleship"
         },
         {
           id: 6,
@@ -1073,7 +1144,8 @@
           verse: "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit.",
           reference: "Matthew 28:19",
           topic: "trinity",
-          color: "#34495e"
+          color: "#34495e",
+          category: "doctrine"
         },
         {
           id: 7,
@@ -1081,7 +1153,8 @@
           verse: "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness.",
           reference: "2 Timothy 3:16",
           topic: "scripture",
-          color: "#d35400"
+          color: "#d35400",
+          category: "doctrine"
         },
         {
           id: 8,
@@ -1089,7 +1162,8 @@
           verse: "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.",
           reference: "Romans 8:28",
           topic: "suffering",
-          color: "#7f8c8d"
+          color: "#7f8c8d",
+          category: "comfort"
         },
         {
           id: 9,
@@ -1097,7 +1171,8 @@
           verse: "Jesus answered, 'I am the way and the truth and the life. No one comes to the Father except through me.'",
           reference: "John 14:6",
           topic: "only-way",
-          color: "#f39c12"
+          color: "#f39c12",
+          category: "gospel-core"
         },
         {
           id: 10,
@@ -1105,7 +1180,8 @@
           verse: "If you declare with your mouth, 'Jesus is Lord,' and believe in your heart that God raised him from the dead, you will be saved.",
           reference: "Romans 10:9",
           topic: "salvation-prayer",
-          color: "#27ae60"
+          color: "#27ae60",
+          category: "gospel-core"
         }
       ],
       
@@ -1120,7 +1196,7 @@
         "sin-problem": {
           en: "Sin is rebellion against God (Isaiah 59:2). It separates us from God, but Jesus paid the penalty on the cross (Romans 6:23).",
           yo: "Ẹṣẹ jẹ ijakadi si Ọlọrun (Aisaya 59:2). O ya wa sọtọ si Ọlọrun, ṣugbọn Jesu san iya naa lori agbelebu (Romu 6:23).",
-          ig: "Mmehie bụ nnupụisi megide Chineke (Aịsaịa 59:2). Ọ na-ekewa anyị na Chineke, mana Jizọ kwụrụ ụgwọ ahụ n'obe (Rom 6:23).",
+          ig: "Mmehie bụ nnupụsi megide Chineke (Aịsaịa 59:2). Ọ na-ekewa anyị na Chineke, mana Jizọ kwụrụ ụgwọ ahụ n'obe (Rom 6:23).",
           ha: "Zunubi saɓo ne ga Allah (Ishaya 59:2). Yana raba mu da Allah, amma Yesu ya biya diyya a kan gicciye (Romawa 6:23).",
           pcm: "Sin na disobedience against God. E separate us from God, but Jesus pay di penalty for cross."
         },
@@ -1193,11 +1269,13 @@
       },
       
       dailyVerses: [
-        { verse: "The LORD is my shepherd, I lack nothing.", ref: "Psalm 23:1" },
-        { verse: "I can do all this through him who gives me strength.", ref: "Philippians 4:13" },
-        { verse: "For I know the plans I have for you, declares the LORD.", ref: "Jeremiah 29:11" },
-        { verse: "Trust in the LORD with all your heart.", ref: "Proverbs 3:5" },
-        { verse: "Be strong and courageous. Do not be afraid.", ref: "Joshua 1:9" }
+        { verse: "The LORD is my shepherd, I lack nothing.", ref: "Psalm 23:1", topic: "trust" },
+        { verse: "I can do all this through him who gives me strength.", ref: "Philippians 4:13", topic: "strength" },
+        { verse: "For I know the plans I have for you, declares the LORD.", ref: "Jeremiah 29:11", topic: "hope" },
+        { verse: "Trust in the LORD with all your heart.", ref: "Proverbs 3:5", topic: "wisdom" },
+        { verse: "Be strong and courageous. Do not be afraid.", ref: "Joshua 1:9", topic: "courage" },
+        { verse: "The joy of the LORD is your strength.", ref: "Nehemiah 8:10", topic: "joy" },
+        { verse: "Cast all your anxiety on him because he cares for you.", ref: "1 Peter 5:7", topic: "peace" }
       ]
     };
 
@@ -1426,6 +1504,10 @@
               <button onclick="shareVerse('${slide.verse}', '${slide.reference}')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 12px 20px; border-radius: 25px; cursor: pointer; min-width: 100px;">
                 <i class="fas fa-share"></i> Share
               </button>
+              <!-- ENHANCED: Add share as image button -->
+              <button onclick="shareVersePicture('${slide.verse}', '${slide.reference}', '${slide.title}')" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; color: white; padding: 12px 20px; border-radius: 25px; cursor: pointer; min-width: 100px;">
+                <i class="fas fa-image"></i> Share Image
+              </button>
             </div>
             <div class="swipe-indicator">
               <div class="swipe-left" ${index === 0 ? 'style="opacity: 0.3;"' : ''}>
@@ -1484,6 +1566,9 @@
     }
 
     function exitPresentation() {
+      // ENHANCED: Vibrate on exit
+      navigator.vibrate?.(30);
+      
       // Show bottom nav again
       document.querySelector('.bottom-nav').style.display = 'flex';
       
@@ -1491,9 +1576,12 @@
       showScreen('home-screen');
     }
 
-    // FIXED: Slide navigation functions
+    // FIXED: Slide navigation functions - ENHANCED with haptics
     function nextSlide() {
       if (appState.currentSlide < APP_DATA.slides.length - 1) {
+        // ENHANCED: Vibrate on slide change
+        navigator.vibrate?.(50);
+        
         const currentSlide = document.querySelector(`#slide-${appState.currentSlide + 1}`);
         const nextSlide = document.querySelector(`#slide-${appState.currentSlide + 2}`);
         
@@ -1512,6 +1600,9 @@
 
     function prevSlide() {
       if (appState.currentSlide > 0) {
+        // ENHANCED: Vibrate on slide change
+        navigator.vibrate?.(50);
+        
         const currentSlide = document.querySelector(`#slide-${appState.currentSlide + 1}`);
         const prevSlide = document.querySelector(`#slide-${appState.currentSlide}`);
         
@@ -1527,6 +1618,9 @@
 
     // ==================== FIXED SHARE SYSTEM ====================
     function shareApp() {
+      // ENHANCED: Vibrate on share
+      navigator.vibrate?.(30);
+      
       const shareData = {
         title: 'GospelSwipe Pro',
         text: 'Check out this amazing gospel presentation app! Perfect for evangelism and personal devotion.',
@@ -1539,6 +1633,9 @@
           .then(() => {
             trackEvent('app_shared');
             showNotification('Thank you for sharing the gospel!', 'success');
+            // ENHANCED: Update share count
+            appState.userStats.shares = (appState.userStats.shares || 0) + 1;
+            saveUserStats();
           })
           .catch((error) => {
             console.log('Web Share failed:', error);
@@ -1584,6 +1681,9 @@
     }
 
     function shareVerse(verse, reference) {
+      // ENHANCED: Vibrate on share
+      navigator.vibrate?.(30);
+      
       const shareData = {
         title: 'Bible Verse',
         text: `${verse} - ${reference}\n\nShared via GospelSwipe Pro 📖`,
@@ -1595,6 +1695,10 @@
           .then(() => {
             trackEvent('verse_shared');
             showNotification('Verse shared successfully!', 'success');
+            // ENHANCED: Update share count
+            appState.userStats.shares = (appState.userStats.shares || 0) + 1;
+            saveUserStats();
+            updateUserStats();
           })
           .catch((error) => {
             console.log('Verse share failed:', error);
@@ -1697,6 +1801,9 @@
         
         // Track event
         trackEvent('voice_played', { slide: slideId });
+        
+        // ENHANCED: Vibrate when audio starts
+        navigator.vibrate?.(30);
       } else {
         showNotification('Voice synthesis not supported in your browser', 'error');
       }
@@ -1715,7 +1822,8 @@
         text: text,
         date: new Date().toISOString(),
         answered: false,
-        language: appState.language
+        language: appState.language,
+        category: 'general'
       };
       
       appState.prayers.unshift(prayer);
@@ -1727,34 +1835,46 @@
       showNotification('Prayer saved! God hears you 🙏', 'success');
       trackEvent('prayer_saved');
       updateUserStats();
+      
+      // ENHANCED: Vibrate on save
+      navigator.vibrate?.(50);
     }
 
     function loadPrayers() {
+      // ENHANCED: Show skeleton loader first
       const container = document.getElementById('prayerList');
+      const skeleton = document.getElementById('prayerSkeleton');
+      
       if (!container) return;
       
-      if (appState.prayers.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 40px; opacity: 0.5;">
-            <i class="fas fa-pray" style="font-size: 3rem; margin-bottom: 20px;"></i>
-            <p>No prayers yet. Write your first prayer!</p>
-          </div>
-        `;
-        return;
-      }
+      // Show skeleton
+      skeleton.style.display = 'block';
+      container.innerHTML = skeleton.outerHTML;
       
-      container.innerHTML = appState.prayers.map(prayer => `
-        <div class="prayer-item ${prayer.answered ? 'answered' : ''}">
-          <div class="prayer-date">
-            ${new Date(prayer.date).toLocaleDateString()} • 
-            ${getLanguageName(prayer.language)}
-            <button onclick="toggleAnswered(${prayer.id})" style="float: right; background: none; border: none; color: ${prayer.answered ? '#e74c3c' : '#2ecc71'}; cursor: pointer;">
-              <i class="fas fa-${prayer.answered ? 'times' : 'check'}"></i>
-            </button>
-          </div>
-          <div>${prayer.text}</div>
-        </div>
-      `).join('');
+      // Load actual content after brief delay
+      setTimeout(() => {
+        if (appState.prayers.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 40px; opacity: 0.5;">
+              <i class="fas fa-pray" style="font-size: 3rem; margin-bottom: 20px;"></i>
+              <p>No prayers yet. Write your first prayer!</p>
+            </div>
+          `;
+        } else {
+          container.innerHTML = appState.prayers.map(prayer => `
+            <div class="prayer-item ${prayer.answered ? 'answered' : ''}">
+              <div class="prayer-date">
+                ${new Date(prayer.date).toLocaleDateString()} • 
+                ${getLanguageName(prayer.language)}
+                <button onclick="toggleAnswered(${prayer.id})" style="float: right; background: none; border: none; color: ${prayer.answered ? '#e74c3c' : '#2ecc71'}; cursor: pointer;">
+                  <i class="fas fa-${prayer.answered ? 'times' : 'check'}"></i>
+                </button>
+              </div>
+              <div>${prayer.text}</div>
+            </div>
+          `).join('');
+        }
+      }, 300);
     }
 
     function toggleAnswered(prayerId) {
@@ -1767,6 +1887,8 @@
         if (prayer.answered) {
           showNotification('Prayer marked as answered! Praise God!', 'success');
           trackEvent('prayer_answered');
+          // ENHANCED: Vibrate on answered
+          navigator.vibrate?.([50, 50, 100]); // Morse code for "yes"
         }
       }
     }
@@ -1804,6 +1926,19 @@
           <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
             <i class="fas fa-info-circle"></i> Based on biblical principles
           </div>
+          <!-- ENHANCED: Add share AI answer button -->
+          <div style="margin-top: 20px; text-align: center;">
+            <button onclick="shareVersePicture('${answerText}', 'AI Insight', 'GospelSwipe AI')" style="
+              background: linear-gradient(135deg, #3498db, #2980b9);
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              border-radius: 25px;
+              cursor: pointer;
+            ">
+              <i class="fas fa-share"></i> Share This Insight
+            </button>
+          </div>
         </div>
       `;
       
@@ -1814,6 +1949,9 @@
       appState.userStats.aiQuestions++;
       saveUserStats();
       trackEvent('ai_question_asked', { topic: topic });
+      
+      // ENHANCED: Vibrate on AI answer
+      navigator.vibrate?.(40);
     }
 
     // ==================== STATISTICS & GAMIFICATION ====================
@@ -1827,7 +1965,9 @@
           aiQuestions: 0,
           shares: 0,
           installDate: new Date().toISOString(),
-          events: []
+          events: [],
+          level: 'Beginner',
+          levelProgress: 0
         };
       }
       
@@ -1855,15 +1995,32 @@
       // Calculate user level
       const totalPoints = (appState.userStats.slidesViewed?.length || 0) + 
                          (appState.prayers.length * 2) + 
-                         (appState.userStats.aiQuestions || 0) * 3;
+                         (appState.userStats.aiQuestions || 0) * 3 +
+                         (appState.userStats.shares || 0) * 2;
       
       let level = 'Beginner';
-      if (totalPoints > 50) level = 'Evangelist';
-      if (totalPoints > 100) level = 'Minister';
-      if (totalPoints > 200) level = 'Revivalist';
-      if (totalPoints > 500) level = 'Apostle';
+      let levelProgress = Math.min((totalPoints / 50) * 100, 100);
+      
+      if (totalPoints > 50) {
+        level = 'Evangelist';
+        levelProgress = Math.min(((totalPoints - 50) / 50) * 100, 100);
+      }
+      if (totalPoints > 100) {
+        level = 'Minister';
+        levelProgress = Math.min(((totalPoints - 100) / 100) * 100, 100);
+      }
+      if (totalPoints > 200) {
+        level = 'Revivalist';
+        levelProgress = Math.min(((totalPoints - 200) / 200) * 100, 100);
+      }
+      if (totalPoints > 500) {
+        level = 'Apostle';
+        levelProgress = 100;
+      }
       
       document.getElementById('userLevel').textContent = level;
+      appState.userStats.level = level;
+      appState.userStats.levelProgress = levelProgress;
       
       // Update achievements display
       updateAchievementsDisplay();
@@ -1917,6 +2074,10 @@
 
     function checkAchievements() {
       const newAchievements = [];
+      const totalPoints = (appState.userStats.slidesViewed?.length || 0) + 
+                         (appState.prayers.length * 2) + 
+                         (appState.userStats.aiQuestions || 0) * 3 +
+                         (appState.userStats.shares || 0) * 2;
       
       if (appState.userStats.slidesViewed?.length >= 5 && !appState.achievements.includes('first_5')) {
         newAchievements.push('Learner - Viewed 5 slides');
@@ -1933,11 +2094,28 @@
         appState.achievements.push('prayer_warrior');
       }
       
+      if (totalPoints >= 50 && !appState.achievements.includes('evangelist')) {
+        newAchievements.push('Evangelist - Earned 50 points');
+        appState.achievements.push('evangelist');
+      }
+      
+      if (appState.userStats.shares >= 5 && !appState.achievements.includes('sharer')) {
+        newAchievements.push('Sharer - Shared 5 verses');
+        appState.achievements.push('sharer');
+      }
+      
+      if (appState.streak.count >= 7 && !appState.achievements.includes('faithful')) {
+        newAchievements.push('Faithful - 7 day streak');
+        appState.achievements.push('faithful');
+      }
+      
       if (newAchievements.length > 0) {
         localStorage.setItem('achievements', JSON.stringify(appState.achievements));
         
         newAchievements.forEach(achievement => {
           showNotification(`🏆 Achievement Unlocked: ${achievement}`, 'success');
+          // ENHANCED: Vibrate pattern for achievement
+          navigator.vibrate?.([100, 50, 100, 50, 200]);
         });
         
         // Update achievements display
@@ -1967,6 +2145,9 @@
       appState.darkMode = !appState.darkMode;
       document.body.classList.toggle('dark-mode', appState.darkMode);
       localStorage.setItem('darkMode', appState.darkMode);
+      
+      // ENHANCED: Vibrate on toggle
+      navigator.vibrate?.(20);
     }
 
     function changeLanguage() {
@@ -1976,6 +2157,9 @@
       
       showNotification(`Language changed to ${getLanguageName(appState.language)}`, 'success');
       trackEvent('language_changed', { language: appState.language });
+      
+      // ENHANCED: Vibrate on language change
+      navigator.vibrate?.(20);
     }
 
     function getLanguageName(code) {
@@ -1991,6 +2175,8 @@
 
     function updateVoiceSettings() {
       showNotification('Voice settings updated', 'info');
+      // ENHANCED: Vibrate on setting change
+      navigator.vibrate?.(15);
     }
 
     // ==================== DATA MANAGEMENT ====================
@@ -2002,7 +2188,9 @@
         userStats: appState.userStats,
         prayers: appState.prayers,
         streak: appState.streak,
-        achievements: appState.achievements
+        achievements: appState.achievements,
+        language: appState.language,
+        darkMode: appState.darkMode
       };
       
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -2016,6 +2204,10 @@
       URL.revokeObjectURL(url);
       
       showNotification('Data exported successfully!', 'success');
+      trackEvent('data_exported');
+      
+      // ENHANCED: Vibrate on export
+      navigator.vibrate?.(50);
     }
 
     function clearData() {
@@ -2045,6 +2237,10 @@
             appState.installed = true;
             localStorage.setItem('installed', 'true');
             document.getElementById('installBtn').style.display = 'none';
+            trackEvent('app_installed');
+            
+            // ENHANCED: Vibrate on install
+            navigator.vibrate?.([100, 50, 100]);
           }
           deferredPrompt = null;
         });
@@ -2069,6 +2265,13 @@
       notification.style.background = colors[type] || colors.info;
       messageEl.textContent = message;
       notification.classList.add('show');
+      
+      // ENHANCED: Vibrate based on notification type
+      if (type === 'success') {
+        navigator.vibrate?.([30, 30, 50]); // Success pattern
+      } else if (type === 'error') {
+        navigator.vibrate?.([100, 50, 100]); // Error pattern
+      }
       
       // Auto hide after 3 seconds
       setTimeout(() => {
@@ -2121,6 +2324,18 @@
             ">
               <i class="fas fa-share"></i> Share
             </button>
+            <button onclick="shareVersePicture('${randomVerse.verse}', '${randomVerse.ref}', 'Verse of the Day')" style="
+              background: #e74c3c;
+              color: white;
+              border: none;
+              padding: 12px 25px;
+              border-radius: 25px;
+              cursor: pointer;
+              flex: 1;
+              min-width: 120px;
+            ">
+              <i class="fas fa-image"></i> Share Image
+            </button>
             <button onclick="closeModal()" style="
               background: rgba(255,255,255,0.1); 
               color: white; 
@@ -2147,6 +2362,132 @@
       setTimeout(() => {
         document.getElementById('languageSelect').focus();
       }, 100);
+    }
+
+    // ==================== ENHANCED: CANVAS VERSE SHARING ====================
+    async function shareVersePicture(verseText, reference, title = 'Gospel Verse') {
+      // ENHANCED: Vibrate on button press
+      navigator.vibrate?.(20);
+      
+      // Create canvas (digital paper)
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080; // High resolution for sharing
+      canvas.height = 1080;
+      const ctx = canvas.getContext('2d');
+      
+      // Draw background gradient based on verse topic
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#2c3e50');
+      gradient.addColorStop(1, '#5D4E86');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Add decorative elements
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.beginPath();
+      ctx.arc(canvas.width/2, canvas.height/2, 300, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw main title if provided
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = 'bold 48px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(title, canvas.width/2, 120);
+      
+      // Draw verse text - wrap if too long
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 56px Arial';
+      ctx.textAlign = 'center';
+      
+      const maxWidth = canvas.width - 200;
+      const lineHeight = 80;
+      const lines = wrapText(ctx, `"${verseText}"`, maxWidth);
+      
+      lines.forEach((line, index) => {
+        ctx.fillText(line, canvas.width/2, 400 + (index * lineHeight));
+      });
+      
+      // Draw reference
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.font = '36px Arial';
+      ctx.fillText(reference, canvas.width/2, canvas.height - 250);
+      
+      // Add GospelSwipe branding
+      ctx.fillStyle = '#3498db';
+      ctx.font = 'bold 32px Arial';
+      ctx.fillText('GospelSwipe Pro', canvas.width/2, canvas.height - 100);
+      
+      // Add app tagline
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = '24px Arial';
+      ctx.fillText('Digital Evangelism Platform', canvas.width/2, canvas.height - 60);
+      
+      // Add logo/emoji
+      ctx.fillStyle = '#f39c12';
+      ctx.font = '64px sans-serif';
+      ctx.fillText('✝️', canvas.width/2, canvas.height - 20);
+      
+      // Turn into picture and share
+      canvas.toBlob(blob => {
+        const file = new File([blob], "verse.png", { type: "image/png" });
+        
+        // ENHANCED: Try to use Web Share API with files
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({
+            files: [file],
+            title: 'Gospel Verse',
+            text: `Shared via GospelSwipe Pro 📖`
+          }).then(() => {
+            trackEvent('verse_shared_as_image');
+            showNotification('Verse image shared successfully!', 'success');
+            // ENHANCED: Update share stats
+            appState.userStats.shares = (appState.userStats.shares || 0) + 1;
+            saveUserStats();
+            updateUserStats();
+          }).catch(err => {
+            console.log('Image share failed:', err);
+            fallbackImageShare(blob);
+          });
+        } else {
+          fallbackImageShare(blob);
+        }
+      });
+      
+      function fallbackImageShare(blob) {
+        // Create download link as fallback
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`;
+        a.click();
+        
+        showNotification('Verse image saved to downloads!', 'success');
+        trackEvent('verse_image_downloaded');
+        
+        URL.revokeObjectURL(url);
+      }
+    }
+    
+    // Helper function to wrap text on canvas
+    function wrapText(context, text, maxWidth) {
+      const words = text.split(' ');
+      const lines = [];
+      let line = '';
+      
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n] + ' ';
+        const metrics = context.measureText(testLine);
+        const testWidth = metrics.width;
+        
+        if (testWidth > maxWidth && n > 0) {
+          lines.push(line);
+          line = words[n] + ' ';
+        } else {
+          line = testLine;
+        }
+      }
+      lines.push(line);
+      return lines;
     }
 
     function darkenColor(color, percent) {
