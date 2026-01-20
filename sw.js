@@ -4,7 +4,7 @@
 
 const CACHE_NAME = 'gospel-swipe-v2';
 const APP_VERSION = '2.0.0';
-const OFFLINE_PAGE = '/';
+const OFFLINE_PAGE = './index.html';
 
 // Files to cache immediately
 const CORE_ASSETS = [
@@ -27,6 +27,9 @@ self.addEventListener('install', event => {
       .then(() => {
         console.log('[Service Worker] Install completed');
         return self.skipWaiting();
+      })
+      .catch(error => {
+        console.error('[Service Worker] Install failed:', error);
       })
   );
 });
@@ -107,7 +110,8 @@ async function cacheFirstStrategy(request) {
     
     // If both cache and network fail, serve offline page
     if (request.mode === 'navigate') {
-      return caches.match(OFFLINE_PAGE);
+      const offlineResponse = await caches.match(OFFLINE_PAGE);
+      if (offlineResponse) return offlineResponse;
     }
     
     // For non-navigation requests, return error
@@ -183,8 +187,8 @@ async function syncPrayers() {
 self.addEventListener('push', event => {
   const options = {
     body: event.data ? event.data.text() : 'Daily reminder to read your Bible',
-    icon: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/271d.svg',
-    badge: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/271d.svg',
+    icon: './icon-192.png',
+    badge: './icon-96.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -214,7 +218,7 @@ self.addEventListener('notificationclick', event => {
 
   if (event.action === 'open') {
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow('./')
     );
   }
 });
@@ -225,17 +229,3 @@ self.addEventListener('message', event => {
     self.skipWaiting();
   }
 });
-
-// Periodic background sync (if supported)
-if ('periodicSync' in self.registration) {
-  self.addEventListener('periodicsync', event => {
-    if (event.tag === 'update-content') {
-      event.waitUntil(updateContent());
-    }
-  });
-}
-
-async function updateContent() {
-  console.log('[Service Worker] Periodic sync - updating content');
-  // Update daily verses or other dynamic content
-}

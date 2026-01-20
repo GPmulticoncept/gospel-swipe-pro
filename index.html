@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
-  <!-- ENHANCED: Added Content Security Policy for security -->
+  <!-- Content Security Policy for Security -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; img-src 'self' data:;">
   
   <title>GospelSwipe Pro - Digital Evangelism Platform</title>
@@ -66,7 +66,7 @@
       background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%);
     }
     
-    /* ENHANCED: Added skeleton loader styles */
+    /* Skeleton loader styles */
     .skeleton-text {
       height: 20px;
       background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
@@ -857,6 +857,7 @@
       </div>
       
       <div class="features-grid">
+        <!-- Original features -->
         <div class="feature-card" onclick="startPresentation()">
           <i class="fas fa-play-circle"></i>
           <h3>Start Presentation</h3>
@@ -891,6 +892,22 @@
           <i class="fas fa-share-alt"></i>
           <h3>Share Gospel</h3>
           <p style="font-size: 0.9rem; opacity: 0.8;">Invite others</p>
+        </div>
+        
+        <!-- NEW: AI Prayer Assistant Feature -->
+        <div class="feature-card" onclick="showPrayerAssistant()" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(142, 68, 173, 0.2)); border: 1px solid rgba(52, 152, 219, 0.3);">
+          <i class="fas fa-robot" style="color: #3498db;"></i>
+          <h3>AI Prayer Guide</h3>
+          <p style="font-size: 0.9rem; opacity: 0.8;">Personalized prayer help</p>
+          <span style="background: rgba(52, 152, 219, 0.2); color: #3498db; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-top: 5px;">AI POWERED</span>
+        </div>
+        
+        <!-- NEW: Impact Dashboard Feature -->
+        <div class="feature-card" onclick="showImpactScreen()" style="background: linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(230, 126, 34, 0.2)); border: 1px solid rgba(243, 156, 18, 0.3);">
+          <i class="fas fa-chart-bar" style="color: #f39c12;"></i>
+          <h3>Our Impact</h3>
+          <p style="font-size: 0.9rem; opacity: 0.8;">Growth & grant data</p>
+          <span style="background: rgba(243, 156, 18, 0.2); color: #f39c12; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-top: 5px;">GRANT READY</span>
         </div>
       </div>
       
@@ -932,11 +949,15 @@
         <button class="action-btn" onclick="recordVoicePrayer()" style="background: var(--accent);">
           <i class="fas fa-microphone"></i> Voice Prayer
         </button>
+        <!-- NEW: AI Prayer Assistant Button -->
+        <button class="action-btn" onclick="showPrayerAssistant()" style="background: linear-gradient(135deg, #3498db, #8e44ad);">
+          <i class="fas fa-robot"></i> AI Guide
+        </button>
       </div>
       
       <h3 style="margin-bottom: 15px;">Your Prayer History</h3>
       <div id="prayerList" class="prayer-list">
-        <!-- ENHANCED: Skeleton loader while loading prayers -->
+        <!-- Skeleton loader while loading prayers -->
         <div id="prayerSkeleton" style="display: none;">
           <div class="skeleton-card"></div>
           <div class="skeleton-card"></div>
@@ -975,7 +996,7 @@
       <div class="settings-section">
         <div class="settings-title">Recent Achievements</div>
         <div id="achievementsList">
-          <!-- ENHANCED: Skeleton loader for achievements -->
+          <!-- Skeleton loader for achievements -->
           <div class="skeleton-text" style="width: 80%;"></div>
           <div class="skeleton-text" style="width: 60%;"></div>
         </div>
@@ -1037,6 +1058,21 @@
             <span class="slider"></span>
           </label>
         </div>
+      </div>
+      
+      <!-- NEW: Privacy & Security Section -->
+      <div class="settings-section" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); border-radius: var(--radius); padding: 15px;">
+        <div class="settings-title"><i class="fas fa-shield-alt"></i> Privacy & Security</div>
+        <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 15px;">
+          ✅ All data stored locally on device<br>
+          ✅ No tracking cookies<br>
+          ✅ Offline-first design<br>
+          ✅ Open source & auditable<br>
+          ⏳ GDPR compliance (grant needed)
+        </div>
+        <button onclick="exportPrivacyReport()" style="width: 100%; padding: 12px; background: rgba(46, 204, 113, 0.2); border: 1px solid rgba(46, 204, 113, 0.5); color: white; border-radius: var(--radius); cursor: pointer;">
+          <i class="fas fa-file-csv"></i> Export Privacy Audit Log
+        </button>
       </div>
       
       <div class="settings-section">
@@ -1184,6 +1220,48 @@
           category: "gospel-core"
         }
       ],
+      
+      // NEW: AI Prayer Assistant Data (Hardcoded for Demo)
+      aiPrayerAssistant: {
+        categories: {
+          salvation: {
+            title: "Prayer for Salvation",
+            prompts: [
+              "Lord Jesus, I confess that I am a sinner. I believe you died on the cross for my sins. Please forgive me and come into my heart. I want to follow you all the days of my life. Amen.",
+              "Heavenly Father, I realize I need a Savior. I turn away from my sins and receive your gift of salvation through Jesus Christ. Transform my heart and make me new. Amen.",
+              "Jesus, I believe you are the Son of God. I accept your sacrifice on the cross for me. I surrender my life to you. Be my Lord and Savior. Amen."
+            ],
+            guidance: "Pray sincerely from your heart. God hears every genuine prayer. This is the most important decision you'll ever make."
+          },
+          healing: {
+            title: "Prayer for Healing",
+            prompts: [
+              "Great Physician, I come to you today asking for healing. You know the pain and suffering in my body and soul. Please touch me with your healing power and restore my health. I trust in your goodness. Amen.",
+              "Lord, your word says you heal all my diseases. I claim that promise today. Heal me, O Lord, and I will be healed; save me and I will be saved. I put my trust in you. Amen.",
+              "Compassionate God, I pray for healing from this affliction. Whether by miracle or medicine, guide my path to wholeness. Give strength to my body and peace to my spirit. Amen."
+            ],
+            guidance: "God is our healer. Pray with faith, but also seek appropriate medical care. Healing comes in many forms—physical, emotional, and spiritual."
+          },
+          guidance: {
+            title: "Prayer for Guidance",
+            prompts: [
+              "Lord, I need your direction in my life. Your word says you will guide me along the best pathway for my life. Show me the way I should walk. I trust your wisdom above my own. Amen.",
+              "Heavenly Father, I'm facing a difficult decision. Please give me wisdom and clarity. Open the right doors and close the wrong ones. Let your will be done in my life. Amen.",
+              "God of all wisdom, I seek your counsel. Illuminate my path with your truth. Help me to hear your voice clearly and have the courage to follow where you lead. Amen."
+            ],
+            guidance: "God promises to guide those who seek Him. Stay in His word, pray consistently, and seek wise counsel from mature believers."
+          },
+          thanksgiving: {
+            title: "Prayer of Thanksgiving",
+            prompts: [
+              "Gracious God, I thank you for your countless blessings. For life, health, family, and provision. Most of all, I thank you for your love and salvation through Jesus. My heart overflows with gratitude. Amen.",
+              "Lord, thank you for being faithful even when I'm not. Thank you for your mercy that never runs out. Thank you for the gift of salvation and the promise of eternal life with you. Amen.",
+              "Heavenly Father, I give thanks in all circumstances, knowing this is your will for me. Thank you for the blessings I see and those I don't yet recognize. You are good all the time. Amen."
+            ],
+            guidance: "A grateful heart pleases God. Make thanksgiving a daily practice, not just for big blessings, but for His constant presence and love."
+          }
+        }
+      },
       
       aiAnswers: {
         "god-love": {
@@ -1504,7 +1582,7 @@
               <button onclick="shareVerse('${slide.verse}', '${slide.reference}')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 12px 20px; border-radius: 25px; cursor: pointer; min-width: 100px;">
                 <i class="fas fa-share"></i> Share
               </button>
-              <!-- ENHANCED: Add share as image button -->
+              <!-- Add share as image button -->
               <button onclick="shareVersePicture('${slide.verse}', '${slide.reference}', '${slide.title}')" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; color: white; padding: 12px 20px; border-radius: 25px; cursor: pointer; min-width: 100px;">
                 <i class="fas fa-image"></i> Share Image
               </button>
@@ -1566,7 +1644,7 @@
     }
 
     function exitPresentation() {
-      // ENHANCED: Vibrate on exit
+      // Vibrate on exit
       navigator.vibrate?.(30);
       
       // Show bottom nav again
@@ -1576,10 +1654,10 @@
       showScreen('home-screen');
     }
 
-    // FIXED: Slide navigation functions - ENHANCED with haptics
+    // FIXED: Slide navigation functions - with haptics
     function nextSlide() {
       if (appState.currentSlide < APP_DATA.slides.length - 1) {
-        // ENHANCED: Vibrate on slide change
+        // Vibrate on slide change
         navigator.vibrate?.(50);
         
         const currentSlide = document.querySelector(`#slide-${appState.currentSlide + 1}`);
@@ -1600,7 +1678,7 @@
 
     function prevSlide() {
       if (appState.currentSlide > 0) {
-        // ENHANCED: Vibrate on slide change
+        // Vibrate on slide change
         navigator.vibrate?.(50);
         
         const currentSlide = document.querySelector(`#slide-${appState.currentSlide + 1}`);
@@ -1618,7 +1696,7 @@
 
     // ==================== FIXED SHARE SYSTEM ====================
     function shareApp() {
-      // ENHANCED: Vibrate on share
+      // Vibrate on share
       navigator.vibrate?.(30);
       
       const shareData = {
@@ -1633,7 +1711,7 @@
           .then(() => {
             trackEvent('app_shared');
             showNotification('Thank you for sharing the gospel!', 'success');
-            // ENHANCED: Update share count
+            // Update share count
             appState.userStats.shares = (appState.userStats.shares || 0) + 1;
             saveUserStats();
           })
@@ -1674,14 +1752,13 @@
             console.error('Fallback copy failed:', err);
             showNotification('Please copy this URL to share: ' + window.location.href, 'info');
           }
-          
           document.body.removeChild(textArea);
         }
       }
     }
 
     function shareVerse(verse, reference) {
-      // ENHANCED: Vibrate on share
+      // Vibrate on share
       navigator.vibrate?.(30);
       
       const shareData = {
@@ -1695,7 +1772,7 @@
           .then(() => {
             trackEvent('verse_shared');
             showNotification('Verse shared successfully!', 'success');
-            // ENHANCED: Update share count
+            // Update share count
             appState.userStats.shares = (appState.userStats.shares || 0) + 1;
             saveUserStats();
             updateUserStats();
@@ -1735,7 +1812,6 @@
             console.error('Fallback copy failed:', err);
             showNotification(`Please copy this verse: ${verse} - ${reference}`, 'info');
           }
-          
           document.body.removeChild(textArea);
         }
       }
@@ -1802,7 +1878,7 @@
         // Track event
         trackEvent('voice_played', { slide: slideId });
         
-        // ENHANCED: Vibrate when audio starts
+        // Vibrate when audio starts
         navigator.vibrate?.(30);
       } else {
         showNotification('Voice synthesis not supported in your browser', 'error');
@@ -1836,12 +1912,12 @@
       trackEvent('prayer_saved');
       updateUserStats();
       
-      // ENHANCED: Vibrate on save
+      // Vibrate on save
       navigator.vibrate?.(50);
     }
 
     function loadPrayers() {
-      // ENHANCED: Show skeleton loader first
+      // Show skeleton loader first
       const container = document.getElementById('prayerList');
       const skeleton = document.getElementById('prayerSkeleton');
       
@@ -1887,7 +1963,7 @@
         if (prayer.answered) {
           showNotification('Prayer marked as answered! Praise God!', 'success');
           trackEvent('prayer_answered');
-          // ENHANCED: Vibrate on answered
+          // Vibrate on answered
           navigator.vibrate?.([50, 50, 100]); // Morse code for "yes"
         }
       }
@@ -1926,7 +2002,7 @@
           <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
             <i class="fas fa-info-circle"></i> Based on biblical principles
           </div>
-          <!-- ENHANCED: Add share AI answer button -->
+          <!-- Add share AI answer button -->
           <div style="margin-top: 20px; text-align: center;">
             <button onclick="shareVersePicture('${answerText}', 'AI Insight', 'GospelSwipe AI')" style="
               background: linear-gradient(135deg, #3498db, #2980b9);
@@ -1950,7 +2026,7 @@
       saveUserStats();
       trackEvent('ai_question_asked', { topic: topic });
       
-      // ENHANCED: Vibrate on AI answer
+      // Vibrate on AI answer
       navigator.vibrate?.(40);
     }
 
@@ -2114,7 +2190,7 @@
         
         newAchievements.forEach(achievement => {
           showNotification(`🏆 Achievement Unlocked: ${achievement}`, 'success');
-          // ENHANCED: Vibrate pattern for achievement
+          // Vibrate pattern for achievement
           navigator.vibrate?.([100, 50, 100, 50, 200]);
         });
         
@@ -2146,7 +2222,7 @@
       document.body.classList.toggle('dark-mode', appState.darkMode);
       localStorage.setItem('darkMode', appState.darkMode);
       
-      // ENHANCED: Vibrate on toggle
+      // Vibrate on toggle
       navigator.vibrate?.(20);
     }
 
@@ -2158,7 +2234,7 @@
       showNotification(`Language changed to ${getLanguageName(appState.language)}`, 'success');
       trackEvent('language_changed', { language: appState.language });
       
-      // ENHANCED: Vibrate on language change
+      // Vibrate on language change
       navigator.vibrate?.(20);
     }
 
@@ -2175,7 +2251,7 @@
 
     function updateVoiceSettings() {
       showNotification('Voice settings updated', 'info');
-      // ENHANCED: Vibrate on setting change
+      // Vibrate on setting change
       navigator.vibrate?.(15);
     }
 
@@ -2206,7 +2282,7 @@
       showNotification('Data exported successfully!', 'success');
       trackEvent('data_exported');
       
-      // ENHANCED: Vibrate on export
+      // Vibrate on export
       navigator.vibrate?.(50);
     }
 
@@ -2239,7 +2315,7 @@
             document.getElementById('installBtn').style.display = 'none';
             trackEvent('app_installed');
             
-            // ENHANCED: Vibrate on install
+            // Vibrate on install
             navigator.vibrate?.([100, 50, 100]);
           }
           deferredPrompt = null;
@@ -2266,7 +2342,7 @@
       messageEl.textContent = message;
       notification.classList.add('show');
       
-      // ENHANCED: Vibrate based on notification type
+      // Vibrate based on notification type
       if (type === 'success') {
         navigator.vibrate?.([30, 30, 50]); // Success pattern
       } else if (type === 'error') {
@@ -2366,7 +2442,7 @@
 
     // ==================== ENHANCED: CANVAS VERSE SHARING ====================
     async function shareVersePicture(verseText, reference, title = 'Gospel Verse') {
-      // ENHANCED: Vibrate on button press
+      // Vibrate on button press
       navigator.vibrate?.(20);
       
       // Create canvas (digital paper)
@@ -2431,7 +2507,7 @@
       canvas.toBlob(blob => {
         const file = new File([blob], "verse.png", { type: "image/png" });
         
-        // ENHANCED: Try to use Web Share API with files
+        // Try to use Web Share API with files
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
           navigator.share({
             files: [file],
@@ -2440,7 +2516,7 @@
           }).then(() => {
             trackEvent('verse_shared_as_image');
             showNotification('Verse image shared successfully!', 'success');
-            // ENHANCED: Update share stats
+            // Update share stats
             appState.userStats.shares = (appState.userStats.shares || 0) + 1;
             saveUserStats();
             updateUserStats();

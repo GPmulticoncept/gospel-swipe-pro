@@ -1,8 +1,8 @@
 {
   "name": "GospelSwipe Pro",
   "short_name": "GospelSwipe",
-  "description": "AI-powered gospel presentation with prayer journal, multi-language support, and offline evangelism tools",
-  "start_url": "/",
+  "description": "AI-powered gospel presentation with prayer journal, apologetics Q&A, and global Christian community - 100% offline",
+  "start_url": "./",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "browser"],
   "orientation": "portrait",
@@ -11,27 +11,24 @@
   "categories": ["lifestyle", "education", "productivity"],
   "lang": "en",
   "dir": "ltr",
-  "id": "/?source=pwa",
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
+  "id": "./",
   "icons": [
     {
-      "src": "https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/271d.svg",
+      "src": "./icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/271d.svg",
+      "src": "./icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/271d.svg",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✝️</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
     }
   ],
   "shortcuts": [
@@ -39,34 +36,34 @@
       "name": "Start Presentation",
       "short_name": "Present",
       "description": "Start gospel presentation",
-      "url": "/?start=true",
-      "icons": [{ "src": "https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/play-circle.svg", "sizes": "96x96" }]
+      "url": "./?start=true",
+      "icons": [{ "src": "./icon-96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Prayer Journal",
       "short_name": "Pray",
       "description": "Open prayer journal",
-      "url": "/?screen=prayer",
-      "icons": [{ "src": "https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/journal.svg", "sizes": "96x96" }]
+      "url": "./?screen=prayer",
+      "icons": [{ "src": "./icon-96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "Daily Verse",
       "short_name": "Verse",
       "description": "View today's verse",
-      "url": "/?verse=daily",
-      "icons": [{ "src": "https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/book.svg", "sizes": "96x96" }]
+      "url": "./?verse=daily",
+      "icons": [{ "src": "./icon-96.png", "sizes": "96x96", "type": "image/png" }]
     }
   ],
   "screenshots": [
     {
-      "src": "https://via.placeholder.com/540x720/2c3e50/FFFFFF?text=GospelSwipe+Pro",
+      "src": "./screenshot-narrow.png",
       "sizes": "540x720",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Home Screen"
     },
     {
-      "src": "https://via.placeholder.com/720x540/2c3e50/FFFFFF?text=Gospel+Presentation",
+      "src": "./screenshot-wide.png",
       "sizes": "720x540",
       "type": "image/png",
       "form_factor": "wide",
