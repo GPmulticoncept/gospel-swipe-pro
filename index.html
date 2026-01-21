@@ -52,7 +52,6 @@
     html {
       height: 100%;
       overflow: hidden;
-      touch-action: pan-y;
     }
 
     body {
@@ -73,7 +72,7 @@
       background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%);
     }
 
-    /* ========== LOADING SCREEN (Flight Mode Ready) ========== */
+    /* ========== LOADING SCREEN (Flight Mode Ready - FIXED) ========== */
     #loading {
       position: fixed;
       inset: 0;
@@ -1734,62 +1733,125 @@
       isOnline: navigator.onLine
     };
 
-    // ========== INITIALIZATION (Flight Mode Optimized) ==========
+    // ========== INITIALIZATION (Flight Mode Optimized - FIXED) ==========
     document.addEventListener('DOMContentLoaded', () => {
-      // Progressive loading with randomness for realism
-      const progressEl = document.getElementById('loadingProgress');
-      let progress = 0;
+      console.log('🔥 GospelSwipe Pro initializing...');
       
-      const interval = setInterval(() => {
-        progress = Math.min(progress + Math.random() * 18, 100);
-        progressEl.textContent = `${Math.round(progress)}%`;
-        
-        if (progress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            document.getElementById('loading').style.opacity = '0';
-            setTimeout(() => {
-              document.getElementById('loading').style.display = 'none';
-              document.getElementById('appContainer').classList.add('active');
-              initApp();
-            }, 500);
-          }, 300);
+      // Error handling wrapper
+      try {
+        // Progressive loading with minimum speed guarantee
+        const progressEl = document.getElementById('loadingProgress');
+        if (!progressEl) {
+          console.error('Loading progress element not found!');
+          return;
         }
-      }, 90);
+        
+        let progress = 0;
+        let lastUpdate = Date.now();
+        
+        const interval = setInterval(() => {
+          // Ensure minimum progress of 5% per 100ms to prevent hanging
+          const now = Date.now();
+          const timeDelta = now - lastUpdate;
+          lastUpdate = now;
+          
+          // Minimum 3% progress per interval regardless of random
+          progress = Math.min(progress + Math.max(3, Math.random() * 15), 100);
+          progressEl.textContent = `${Math.round(progress)}%`;
+          
+          if (progress >= 100) {
+            clearInterval(interval);
+            console.log('✅ Loading complete, transitioning to app...');
+            
+            setTimeout(() => {
+              const loading = document.getElementById('loading');
+              const appContainer = document.getElementById('appContainer');
+              
+              if (loading && appContainer) {
+                loading.style.opacity = '0';
+                setTimeout(() => {
+                  loading.style.display = 'none';
+                  appContainer.classList.add('active');
+                  initApp();
+                }, 400);
+              } else {
+                console.error('Critical DOM elements missing!');
+              }
+            }, 200);
+          }
+        }, 100);
+        
+        // Safety timeout: if progress stalls, force show app after 5 seconds
+        setTimeout(() => {
+          if (progress < 100) {
+            console.warn('⚠️ Loading timeout reached, forcing app display...');
+            clearInterval(interval);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('appContainer').classList.add('active');
+            initApp();
+          }
+        }, 5000);
+        
+      } catch (error) {
+        console.error('❌ Fatal loading error:', error);
+        // Emergency fallback: show app anyway
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('appContainer').classList.add('active');
+        initApp();
+      }
     });
 
     function initApp() {
-      // Apply saved preferences
-      if (AppState.darkMode) {
-        document.body.classList.add('dark-mode');
-        document.getElementById('darkModeToggle').checked = true;
+      console.log('🚀 Initializing app components...');
+      
+      try {
+        // Apply saved preferences
+        if (AppState.darkMode) {
+          document.body.classList.add('dark-mode');
+          const toggle = document.getElementById('darkModeToggle');
+          if (toggle) toggle.checked = true;
+        }
+        
+        const langSelect = document.getElementById('languageSelect');
+        if (langSelect) {
+          langSelect.value = AppState.language;
+        } else {
+          console.warn('Language select not found');
+        }
+        
+        // Initialize components
+        updateUserStats();
+        checkStreak();
+        initializeSlides();
+        setupEventListeners();
+        checkInstallPrompt();
+        setupServiceWorker();
+        
+        // Welcome notification
+        setTimeout(() => {
+          showNotification('Welcome to GospelSwipe Pro! Ready to share the gospel?', 'success');
+          console.log('✅ App fully initialized');
+        }, 800);
+        
+        trackEvent('app_opened');
+        
+      } catch (error) {
+        console.error('❌ Error during initApp:', error);
+        showNotification('Some features may not load properly', 'warning');
       }
-      
-      document.getElementById('languageSelect').value = AppState.language;
-      
-      // Initialize components
-      updateUserStats();
-      checkStreak();
-      initializeSlides();
-      setupEventListeners();
-      checkInstallPrompt();
-      setupServiceWorker();
-      
-      // Welcome notification
-      setTimeout(() => showNotification('Welcome to GospelSwipe Pro! Ready to share the gospel?', 'success'), 1000);
-      
-      trackEvent('app_opened');
     }
 
     // ========== SERVICE WORKER (100% Offline) ==========
     function setupServiceWorker() {
-      if (!('serviceWorker' in navigator)) return;
+      if (!('serviceWorker' in navigator)) {
+        console.log('Service Worker not supported');
+        return;
+      }
       
       navigator.serviceWorker.register('sw.js')
         .then(registration => {
           console.log('✅ Service Worker registered:', registration);
           
-          // Handle updates
           if (registration.waiting) {
             showUpdateNotification();
           }
@@ -1804,16 +1866,9 @@
           });
         })
         .catch(err => {
-          console.error('❌ Service Worker registration failed:', err);
-          showNotification('Offline mode may not work properly', 'warning');
+          console.warn('Service Worker registration failed:', err);
+          // Don't block app loading if SW fails
         });
-      
-      // Handle messages from SW
-      navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data && event.data.type === 'CACHE_UPDATED') {
-          showNotification('Content updated in background', 'info');
-        }
-      });
     }
 
     function showUpdateNotification() {
@@ -1831,17 +1886,18 @@
       `);
     }
 
-    // ========== EVENT LISTENERS (Consolidated) ==========
+    // ========== EVENT LISTENERS (Consolidated - FIXED TOUCH) ==========
     function setupEventListeners() {
       let touchStartX = 0;
       let touchStartY = 0;
       let isSwiping = false;
       
-      // Touch events for swipe
       document.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        isSwiping = true;
+        if (e.touches && e.touches.length > 0) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          isSwiping = true;
+        }
       }, { passive: true });
       
       document.addEventListener('touchmove', (e) => {
@@ -1940,6 +1996,11 @@
     // ========== SLIDE SYSTEM (Fixed Bug: Slides 11-15) ==========
     function initializeSlides() {
       const container = document.getElementById('slidesContainer');
+      if (!container) {
+        console.error('Slides container not found!');
+        return;
+      }
+      
       container.innerHTML = '';
       
       APP_DATA.slides.forEach((slide, index) => {
@@ -2272,17 +2333,25 @@
       AppState.userStats.prayers = AppState.prayers.length;
       
       // Update display
-      document.getElementById('streakCount').textContent = AppState.streak.count || 0;
-      document.getElementById('versesShared').textContent = AppState.userStats.slidesViewed?.length || 0;
+      const streakEl = document.getElementById('streakCount');
+      const versesEl = document.getElementById('versesShared');
+      
+      if (streakEl) streakEl.textContent = AppState.streak.count || 0;
+      if (versesEl) versesEl.textContent = AppState.userStats.slidesViewed?.length || 0;
       
       saveAllData();
     }
 
     function updateStatsDisplay() {
-      document.getElementById('totalSlides').textContent = AppState.userStats.slidesViewed?.length || 0;
-      document.getElementById('prayerCount').textContent = AppState.prayers.length;
-      document.getElementById('streakDays').textContent = AppState.streak.count || 0;
-      document.getElementById('aiQuestions').textContent = AppState.userStats.aiQuestions || 0;
+      const totalSlidesEl = document.getElementById('totalSlides');
+      const prayerCountEl = document.getElementById('prayerCount');
+      const streakDaysEl = document.getElementById('streakDays');
+      const aiQuestionsEl = document.getElementById('aiQuestions');
+      
+      if (totalSlidesEl) totalSlidesEl.textContent = AppState.userStats.slidesViewed?.length || 0;
+      if (prayerCountEl) prayerCountEl.textContent = AppState.prayers.length;
+      if (streakDaysEl) streakDaysEl.textContent = AppState.streak.count || 0;
+      if (aiQuestionsEl) aiQuestionsEl.textContent = AppState.userStats.aiQuestions || 0;
       
       // Calculate level
       const totalPoints = (AppState.userStats.slidesViewed?.length || 0) + 
@@ -2291,26 +2360,14 @@
                          (AppState.userStats.shares || 0) * 2;
       
       let level = 'Beginner';
-      let levelProgress = Math.min((totalPoints / 50) * 100, 100);
       
-      if (totalPoints >= 50) {
-        level = 'Evangelist';
-        levelProgress = Math.min(((totalPoints - 50) / 50) * 100, 100);
-      }
-      if (totalPoints >= 100) {
-        level = 'Minister';
-        levelProgress = Math.min(((totalPoints - 100) / 100) * 100, 100);
-      }
-      if (totalPoints >= 200) {
-        level = 'Revivalist';
-        levelProgress = Math.min(((totalPoints - 200) / 200) * 100, 100);
-      }
-      if (totalPoints >= 500) {
-        level = 'Apostle';
-        levelProgress = 100;
-      }
+      if (totalPoints >= 500) level = 'Apostle';
+      else if (totalPoints >= 200) level = 'Revivalist';
+      else if (totalPoints >= 100) level = 'Minister';
+      else if (totalPoints >= 50) level = 'Evangelist';
       
-      document.getElementById('userLevel').textContent = level;
+      const userLevelEl = document.getElementById('userLevel');
+      if (userLevelEl) userLevelEl.textContent = level;
       AppState.userStats.level = level;
       
       checkAchievements();
@@ -2420,6 +2477,8 @@
 
     function changeLanguage() {
       const select = document.getElementById('languageSelect');
+      if (!select) return;
+      
       AppState.language = select.value;
       localStorage.setItem('language', AppState.language);
       showNotification(`Language: ${getLanguageName(AppState.language)}`, 'success');
@@ -2439,7 +2498,10 @@
 
     function showLanguageSettings() {
       showScreen('settings-screen');
-      setTimeout(() => document.getElementById('languageSelect').focus(), 300);
+      setTimeout(() => {
+        const langSelect = document.getElementById('languageSelect');
+        if (langSelect) langSelect.focus();
+      }, 300);
     }
 
     // ========== SHARING (Offline Compatible) ==========
@@ -2510,56 +2572,33 @@
       canvas.width = 1080;
       canvas.height = 1080;
       const ctx = canvas.getContext('2d');
-();
+      
       // Background gradient
-      const gradient = ctx.createLinearGradient(0, 0 function fallbackVerseShare() {
-        const textToCopy = `${shareData.text}`;
-        copyToClipboard(textToCopy);
-        showNotification('Verse copied!', ' '#2c3verse50_shared_fallbackStop(1, '#5D4E86');
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#2c3e50');
+      gradient.addColorStop(1, '#5D4E86');
       ctx.fillStyle = gradient;
-      ctx.fillRectse0, 0, reference, title = 'Gospel Verse') {
-      vibrate(20);
-);
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // Title
-      ctx.fillStyle = 'rgba(255,255,0;
-      canvas.height = 1080;
-      const ctx = canvas.getContext('2d');
-      
-      // Background gradient
-      const gradient = ctx.createLinearGradient(0,.font 0, canvas 48px.width, canvas.height);
-      gradient.addColorStop(-serif';
-      ctx.textAlign = 'centerc3e';
-');
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = 'bold 48px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.textAlign = 'center';
       ctx.fillText(title, canvas.width/2, 120);
       
-Stop // Ver(1,)
-      ctx.fill4E86');
-      ctxfffStyle = gradient;
-      ctx.fill '(0, 0,px -apple-system      
-      //MacSystemFont      ctx';
-     .fillStyle = 'rgba(255,255,255,0. lines = wrap)';
-      ctx.font = 'bold 48px.width - 200apple-system, BlinkMacSystemFont, sans-serif';
- i      ctx.textAlign = 'center';
-      ctx.fillText(title, 400 + (i * 80));
+      // Verse text (wrapped)
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 56px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.textAlign = 'center';
+      
+      const lines = wrapText(ctx, `"${verseText}"`, canvas.width - 200);
+      lines.forEach((line, i) => {
+        ctx.fillText(line, canvas.width/2, 400 + (i * 80));
       });
       
-      //120 Reference);
-      
-      // Verse text (wrapped)
-      ctx.fillStyle)';
-      ctx.font = '36px -apple      ctx.font BlinkMacSystemFont 'bold , sans-serif';
-      ctx.fillText(reference,-serif.width/2, canvas.heightcenter';
-      
-      const lines = wrap      
-Text(ctx,      // Branding
-      ctx.fillStyle = '#3498db';
-      ctx.font = ' => {
-        ctx.fillText(line, canvas.widthpx/apple-system, Blinki * 80));
-, sans-serif      // Reference
-      ctx.fillStyle = 'rgba(255,255,255,0.9, canvas      ctx.font = '36px -apple-system, Blink100);
-      
-SystemFont, sans-serif';
+      // Reference
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.font = '36px -apple-system, BlinkMacSystemFont, sans-serif';
       ctx.fillText(reference, canvas.width/2, canvas.height - 250);
       
       // Branding
@@ -2606,102 +2645,6 @@ SystemFont, sans-serif';
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    }
-
-    function updateShareCount() {
-      AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
-      updateUserStats();
-    }
-
-    function copyToClipboard(text) {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
-      } else {
-        fallbackCopy(text);
-      }
-    }
-
-    function fallbackCopy(text) {
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-    }
-
-    // ========== MODAL SYSTEM (Fixed) ==========
-    function showModal(content) {
-      // Remove existing modals first
-      const existing = document.querySelector('.modal-overlay');
-      if (existing) existing.remove();
-      
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      
-      // If content is a function, call it
-      if (typeof content === 'function') {
-        modal.innerHTML = content();
-      } else {
-        modal.innerHTML = content;
-      }
-      
-      document.body.appendChild(modal);
-      setTimeout(() => modal.classList.add('active'), 10);
-      
-      // Prevent background scroll
-      document.body.style.overflow = 'hidden';
-      
-      // Close on escapergba(255 (255,255,0 =>6)';
-      (e.key === 'Escape') {
-         ', canvas.width/2, canvas.height - 60);
-      
-      // Logo
-      ctx.font = '64px sans-serif';
-     .addEventListener('keydown', escapeListener);
-   ️', canvas.width/2Modal() {
-      const modal = document.query20);
-      
- ( canvas.toBlob(async blob => {
-) {
-        modal.class        try {
-          if (navigator.share && navigatorTimeout(() => {
-          modal.remove();
-          document.body.style.overflow = '';
-        }, 300);
-      }
-    { type: "image/png" });
-            await navigator.share({
-              filesUM FEATURES (Gated) ==========
-    function showPremiumDetails() {
-      const modalContent = `
-        <button class="modal            AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
-            updateUserStats();
-            trackEvent('verse_shared_as_image');
-            vibrate([50, 50, 100]);
-          } else {
-            downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
-          }
-        } catch (err) {
-          downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
-        }
-      });
-    }
-
-    function downloadBlob(blob, filename) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    function updateShareCount() {
-      AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
-      updateUserStats();
     }
 
     function copyToClipboard(text) {
@@ -2984,12 +2927,16 @@ SystemFont, sans-serif';
 
     // ========== SERVICE WORKER MESSAGE (Cache Management) ==========
     function saveAllData() {
-      localStorage.setItem('userStats', JSON.stringify(AppState.userStats));
-      localStorage.setItem('prayers', JSON.stringify(AppState.prayers));
-      localStorage.setItem('streak', JSON.stringify(AppState.streak));
-      localStorage.setItem('achievements', JSON.stringify(AppState.achievements));
-      localStorage.setItem('language', AppState.language);
-      localStorage.setItem('darkMode', AppState.darkMode);
+      try {
+        localStorage.setItem('userStats', JSON.stringify(AppState.userStats));
+        localStorage.setItem('prayers', JSON.stringify(AppState.prayers));
+        localStorage.setItem('streak', JSON.stringify(AppState.streak));
+        localStorage.setItem('achievements', JSON.stringify(AppState.achievements));
+        localStorage.setItem('language', AppState.language);
+        localStorage.setItem('darkMode', AppState.darkMode);
+      } catch (error) {
+        console.warn('Failed to save data to localStorage:', error);
+      }
     }
 
     // ========== UTILITY FUNCTIONS ==========
@@ -3093,12 +3040,14 @@ SystemFont, sans-serif';
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        document.getElementById('installBtn').classList.remove('hidden');
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) installBtn.classList.remove('hidden');
       });
       
       // Hide if already installed
       if (window.matchMedia('(display-mode: standalone)').matches) {
-        document.getElementById('installBtn').classList.add('hidden');
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) installBtn.classList.add('hidden');
       }
     }
 
@@ -3117,7 +3066,8 @@ SystemFont, sans-serif';
           vibrate([100, 50, 100]);
         }
         deferredPrompt = null;
-        document.getElementById('installBtn').classList.add('hidden');
+        const installBtn = document.getElementById('installBtn');
+        if (installBtn) installBtn.classList.add('hidden');
       } catch (error) {
         console.error('Installation failed:', error);
         showNotification('Installation failed. Use browser menu.', 'error');
@@ -3128,6 +3078,11 @@ SystemFont, sans-serif';
     function showNotification(message, type = 'info', duration = 4000) {
       const notification = document.getElementById('notification');
       const messageEl = document.getElementById('notificationMessage');
+      
+      if (!notification || !messageEl) {
+        console.error('Notification elements not found!');
+        return;
+      }
       
       const colors = { success: '#2ecc71', error: '#e74c3c', info: '#3498db', warning: '#f39c12' };
       notification.style.background = colors[type] || colors.info;
@@ -3141,8 +3096,6 @@ SystemFont, sans-serif';
     }
 
     function trackEvent(eventName, data = {}) {
-      console.log(`[Analytics] ${eventName}:`, data);
-      
       if (!AppState.userStats.events) AppState.userStats.events = [];
       AppState.userStats.events.push({
         event: eventName,
