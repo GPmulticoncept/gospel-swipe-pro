@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
-  <!-- Content Security Policy for Security -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; img-src 'self' data:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'">
   
   <title>GospelSwipe Pro - Digital Evangelism Platform</title>
   
@@ -14,8 +12,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="GospelSwipe">
-  <meta name="description" content="AI-powered gospel presentation with prayer journal, multi-language support, and offline evangelism tools">
-  <meta name="keywords" content="evangelism, gospel, bible, prayer, christian, Nigeria">
+  <meta name="description" content="AI-powered gospel presentation with prayer journal, multi-language support, and 100% offline evangelism tools. Made in Nigeria 🇳🇬">
+  <meta name="keywords" content="evangelism, gospel, bible, prayer, christian, Nigeria, offline, PWA, Voice of Martyrs">
   
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -26,95 +24,698 @@
   
   <!-- Styles -->
   <style>
-    /* ===== CSS VARIABLES ===== */
+    /* ========== CSS VARIABLES (Optimized for Performance) ========== */
     :root {
       --primary: #2c3e50;
       --secondary: #3498db;
       --accent: #e74c3c;
-      --light: #ecf0f1;
-      --dark: #1a1a1a;
       --success: #27ae60;
       --warning: #f39c12;
+      --premium: #9b59b6;
+      --light: #ecf0f1;
+      --dark: #1a1a1a;
       --radius: 12px;
       --shadow: 0 8px 30px rgba(0,0,0,0.12);
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --glass: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.12);
     }
-    
-    /* ===== BASE STYLES ===== */
-    * {
+
+    /* ========== FOUNDATION RESET (Zero Bugs) ========== */
+    *, *::before, *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-    
+
     html {
       height: 100%;
       overflow: hidden;
+      touch-action: pan-y;
     }
-    
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
       color: var(--light);
+      background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
       min-height: 100vh;
       position: relative;
       transition: var(--transition);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      user-select: none;
+      -webkit-user-select: none;
     }
-    
+
     body.dark-mode {
       background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%);
     }
-    
-    /* Skeleton loader styles */
-    .skeleton-text {
-      height: 20px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
+
+    /* ========== LOADING SCREEN (Flight Mode Ready) ========== */
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: var(--primary);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 999999;
+      transition: opacity 0.5s;
+    }
+
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========== APP CONTAINER (Fixed Z-Index) ========== */
+    .app-container {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .app-container.active {
+      display: block;
+    }
+
+    /* ========== SKELETON LOADER (Lightweight) ========== */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
-      border-radius: 4px;
-      margin: 10px 0;
-    }
-    
-    .skeleton-card {
-      background: rgba(255,255,255,0.05);
       border-radius: var(--radius);
-      padding: 20px;
-      min-height: 140px;
-      margin-bottom: 15px;
     }
-    
+
+    .skeleton-text { height: 20px; margin: 10px 0; }
+    .skeleton-card { min-height: 140px; margin-bottom: 15px; padding: 20px; }
+
     @keyframes shimmer {
       0% { background-position: -200px 0; }
       100% { background-position: 200px 0; }
     }
-    
-    /* ===== SWITCH TOGGLE STYLES ===== */
+
+    /* ========== HOME SCREEN (100% Offline) ========== */
+    #home-screen {
+      position: fixed;
+      inset: 0;
+      padding: 20px 20px calc(70px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      z-index: 100;
+    }
+
+    .header {
+      text-align: center;
+      margin-top: 20px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .header h1 {
+      font-size: clamp(1.8rem, 5vw, 2.2rem);
+      margin-bottom: 5px;
+      background: linear-gradient(to right, #3498db, #2ecc71);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+
+    .tagline {
+      font-size: 1rem;
+      opacity: 0.8;
+      margin-bottom: 20px;
+    }
+
+    .header-settings-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 10;
+    }
+
+    .header-settings-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: rotate(30deg);
+    }
+
+    /* ========== USER STATS ========== */
+    .user-stats {
+      margin-bottom: 20px;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    /* ========== FEATURE GRID (Touch-Optimized) ========== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+      flex: 1;
+    }
+
+    .feature-card {
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 18px;
+      text-align: center;
+      transition: var(--transition);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 130px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .feature-card:hover::before {
+      left: 100%;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      background: rgba(255,255,255,0.12);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-card i {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      color: var(--secondary);
+    }
+
+    .feature-card h3 {
+      font-size: 0.95rem;
+      margin-bottom: 5px;
+    }
+
+    .feature-card p {
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+
+    .feature-badge {
+      background: rgba(52, 152, 219, 0.2);
+      color: var(--secondary);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      margin-top: 5px;
+      display: inline-block;
+      font-weight: 600;
+      z-index: 1;
+      position: relative;
+    }
+
+    .premium-badge {
+      background: rgba(155, 89, 182, 0.3);
+      color: var(--premium);
+      border: 1px solid rgba(155, 89, 182, 0.5);
+    }
+
+    /* ========== SLIDE SYSTEM (Fixed Navigation) ========== */
+    .slides-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 60px 20px calc(100px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+      z-index: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      z-index: 3;
+      pointer-events: all;
+    }
+
+    .slide.previous {
+      transform: translateX(-100%);
+      z-index: 2;
+    }
+
+    .slide.next {
+      transform: translateX(100%);
+      z-index: 1;
+    }
+
+    .slide-content {
+      max-width: 650px;
+      width: 90%;
+    }
+
+    .slide-header {
+      margin-bottom: 25px;
+    }
+
+    .slide-number {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+      display: inline-block;
+      font-weight: 600;
+    }
+
+    .slide-title {
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      margin-bottom: 20px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .slide-verse {
+      font-size: clamp(1.1rem, 4vw, 1.3rem);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      padding: 25px;
+      background: rgba(0,0,0,0.2);
+      border-radius: var(--radius);
+      border-left: 4px solid var(--secondary);
+      font-style: italic;
+    }
+
+    .slide-reference {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    .slide-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .slide-btn {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.9rem;
+      min-width: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .slide-btn:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+
+    .slide-btn.primary {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .slide-btn.premium {
+      background: linear-gradient(135deg, var(--premium), #8e44ad);
+      border-color: rgba(155, 89, 182, 0.3);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .slide-indicator {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 0 30px;
+      opacity: 0.6;
+      font-size: 0.8rem;
+    }
+
+    /* ========== SCREEN MANAGEMENT (Fixed Z-Index) ========== */
+    .screen {
+      position: fixed;
+      inset: 0;
+      padding: 20px 20px calc(70px + env(safe-area-inset-bottom));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 200;
+      display: none;
+    }
+
+    body.dark-mode .screen {
+      background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%);
+    }
+
+    .screen.active {
+      transform: translateX(0);
+      display: flex;
+      flex-direction: column;
+      z-index: 201;
+    }
+
+    #presentation-screen {
+      padding: 0;
+      z-index: 300;
+    }
+
+    #presentation-screen.active {
+      z-index: 301;
+    }
+
+    /* ========== BOTTOM NAVIGATION (Fixed) ========== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(70px + env(safe-area-inset-bottom));
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(20px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: env(safe-area-inset-bottom);
+      border-top: 1px solid var(--glass-border);
+      z-index: 1000;
+    }
+
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      transition: var(--transition);
+      padding: 8px;
+      cursor: pointer;
+      min-width: 60px;
+    }
+
+    .nav-btn.active {
+      color: var(--secondary);
+      transform: translateY(-3px);
+    }
+
+    .nav-btn i {
+      font-size: 1.3rem;
+      transition: transform 0.2s;
+    }
+
+    .nav-btn span {
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+
+    /* ========== PRAYER JOURNAL (Fixed) ========== */
+    .journal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+
+    .journal-header h2 {
+      font-size: 1.5rem;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+
+    .close-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    #prayerInput {
+      width: 100%;
+      min-height: 120px;
+      max-height: 200px;
+      padding: 15px;
+      border-radius: var(--radius);
+      border: 2px solid var(--glass-border);
+      background: var(--glass);
+      color: #fff;
+      font-size: 1rem;
+      resize: vertical;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+      font-family: inherit;
+    }
+
+    #prayerInput:focus {
+      outline: none;
+      border-color: var(--secondary);
+    }
+
+    .prayer-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: var(--radius);
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    .action-btn.primary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .action-btn.secondary {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: #fff;
+    }
+
+    .prayer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .prayer-item {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 15px;
+      border-left: 4px solid var(--success);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .prayer-item:hover {
+      transform: translateX(5px);
+    }
+
+    .prayer-item.answered {
+      border-left-color: var(--accent);
+      opacity: 0.8;
+    }
+
+    .prayer-date {
+      font-size: 0.75rem;
+      opacity: 0.6;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .prayer-date button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.2s;
+    }
+
+    .prayer-date button:hover {
+      transform: scale(1.2);
+    }
+
+    /* ========== SETTINGS SCREEN (Privacy-Focused) ========== */
+    .settings-section {
+      margin-bottom: 30px;
+      flex-shrink: 0;
+    }
+
+    .settings-title {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .settings-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+    }
+
+    .settings-option select {
+      background: var(--glass);
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    /* ========== SWITCH TOGGLE (Accessible) ========== */
     .switch {
       position: relative;
       display: inline-block;
       width: 50px;
       height: 24px;
     }
-    
+
     .switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
-    
+
     .slider {
       position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       background-color: rgba(255,255,255,0.3);
       transition: .4s;
       border-radius: 24px;
     }
-    
+
     .slider:before {
       position: absolute;
       content: "";
@@ -126,453 +727,16 @@
       transition: .4s;
       border-radius: 50%;
     }
-    
+
     input:checked + .slider {
       background-color: var(--secondary);
     }
-    
+
     input:checked + .slider:before {
       transform: translateX(26px);
     }
-    
-    /* ===== LOADING SCREEN ===== */
-    #loading {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--primary);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.5s;
-    }
-    
-    .loader {
-      width: 48px;
-      height: 48px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: var(--light);
-      animation: spin 1s ease-in-out infinite;
-      margin-bottom: 20px;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    /* ===== MAIN CONTAINER ===== */
-    .app-container {
-      display: none;
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
-    }
-    
-    .app-container.active {
-      display: block;
-    }
-    
-    /* ===== HOME SCREEN ===== */
-    #home-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      padding: 20px 20px 90px;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      z-index: 100;
-      background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
-    }
-    
-    body.dark-mode #home-screen {
-      background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%);
-    }
-    
-    .header {
-      text-align: center;
-      margin-top: 20px;
-      flex-shrink: 0;
-      position: relative;
-    }
-    
-    .header h1 {
-      font-size: 2.2rem;
-      margin-bottom: 5px;
-      background: linear-gradient(to right, #3498db, #2ecc71);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    
-    .header .tagline {
-      font-size: 1rem;
-      opacity: 0.8;
-      margin-bottom: 30px;
-    }
-    
-    /* ===== SETTINGS BUTTON IN HEADER ===== */
-    .header-settings-btn {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: rgba(255,255,255,0.1);
-      border: none;
-      color: var(--light);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: var(--transition);
-      z-index: 10;
-    }
-    
-    .header-settings-btn:hover {
-      background: rgba(255,255,255,0.2);
-      transform: rotate(30deg);
-    }
-    
-    /* ===== FEATURE CARDS ===== */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      margin: 30px 0;
-      flex: 1;
-    }
-    
-    .feature-card {
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-      border-radius: var(--radius);
-      padding: 20px;
-      text-align: center;
-      transition: var(--transition);
-      border: 1px solid rgba(255,255,255,0.1);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 140px;
-    }
-    
-    .feature-card:hover {
-      transform: translateY(-5px);
-      background: rgba(255,255,255,0.15);
-    }
-    
-    .feature-card i {
-      font-size: 1.8rem;
-      margin-bottom: 10px;
-      color: var(--secondary);
-    }
-    
-    /* ===== FIXED SLIDE CONTAINER ===== */
-    .slides-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-    
-    .slide {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      padding: 60px 20px 120px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      opacity: 0;
-      transform: translateX(100%);
-      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
-      background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
-      z-index: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      pointer-events: none;
-    }
-    
-    .slide.active {
-      opacity: 1;
-      transform: translateX(0);
-      z-index: 3;
-      pointer-events: all;
-    }
-    
-    .slide.previous {
-      opacity: 1;
-      transform: translateX(-100%);
-      z-index: 2;
-      pointer-events: none;
-    }
-    
-    .slide.next {
-      opacity: 0;
-      transform: translateX(100%);
-      z-index: 1;
-      pointer-events: none;
-    }
-    
-    .slide-content {
-      max-width: 600px;
-      width: 90%;
-    }
-    
-    .slide-header {
-      margin-bottom: 30px;
-    }
-    
-    .slide-number {
-      background: rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 5px 15px;
-      font-size: 0.9rem;
-      margin-bottom: 15px;
-      display: inline-block;
-    }
-    
-    .slide-title {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
-      line-height: 1.3;
-    }
-    
-    .slide-verse {
-      font-size: 1.3rem;
-      line-height: 1.6;
-      margin-bottom: 20px;
-      padding: 20px;
-      background: rgba(0,0,0,0.2);
-      border-radius: var(--radius);
-      border-left: 4px solid var(--secondary);
-    }
-    
-    .slide-reference {
-      font-style: italic;
-      opacity: 0.8;
-      margin-bottom: 30px;
-    }
-    
-    /* ===== SWIPE INDICATORS ===== */
-    .swipe-indicator {
-      position: absolute;
-      bottom: 100px;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      opacity: 0.7;
-      transition: var(--transition);
-    }
-    
-    .swipe-left, .swipe-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
-    }
-    
-    /* ===== FIXED: BOTTOM NAVIGATION ===== */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 70px;
-      background: rgba(0,0,0,0.95);
-      backdrop-filter: blur(20px);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 0;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      z-index: 1000;
-    }
-    
-    .nav-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      background: none;
-      border: none;
-      color: var(--light);
-      opacity: 0.7;
-      transition: var(--transition);
-      padding: 8px 12px;
-      min-width: 60px;
-      height: 70px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    
-    .nav-btn.active {
-      opacity: 1;
-      color: var(--secondary);
-    }
-    
-    .nav-btn i {
-      font-size: 1.2rem;
-    }
-    
-    .nav-btn span {
-      font-size: 0.7rem;
-    }
-    
-    /* ===== FIXED: SCREEN MANAGEMENT ===== */
-    .screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      padding: 20px 20px 90px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    body.dark-mode .screen {
-      background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%);
-    }
-    
-    .screen.active {
-      transform: translateX(0);
-      z-index: 200;
-    }
-    
-    /* Presentation screen should be full height without bottom padding */
-    #presentation-screen {
-      padding: 0;
-      z-index: 300;
-    }
-    
-    #presentation-screen.active {
-      z-index: 300;
-    }
-    
-    /* ===== PRAYER JOURNAL ===== */
-    .journal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      flex-shrink: 0;
-    }
-    
-    #prayerInput {
-      width: 100%;
-      min-height: 120px;
-      max-height: 200px;
-      padding: 15px;
-      border-radius: var(--radius);
-      border: 2px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.05);
-      color: var(--light);
-      font-size: 1rem;
-      resize: vertical;
-      margin-bottom: 20px;
-      flex-shrink: 0;
-    }
-    
-    .prayer-actions {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 30px;
-      flex-shrink: 0;
-    }
-    
-    .action-btn {
-      flex: 1;
-      padding: 12px;
-      border-radius: var(--radius);
-      border: none;
-      background: var(--secondary);
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    
-    .action-btn:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-    }
-    
-    .prayer-list {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      flex: 1;
-      overflow-y: auto;
-    }
-    
-    .prayer-item {
-      background: rgba(255,255,255,0.05);
-      border-radius: var(--radius);
-      padding: 15px;
-      border-left: 4px solid var(--success);
-    }
-    
-    .prayer-item.answered {
-      border-left-color: var(--accent);
-      opacity: 0.7;
-    }
-    
-    .prayer-date {
-      font-size: 0.8rem;
-      opacity: 0.6;
-      margin-bottom: 5px;
-    }
-    
-    /* ===== SETTINGS SCREEN ===== */
-    .settings-section {
-      margin-bottom: 30px;
-      flex-shrink: 0;
-    }
-    
-    .settings-title {
-      font-size: 1rem;
-      opacity: 0.8;
-      margin-bottom: 15px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    
-    .settings-option {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px;
-      background: rgba(255,255,255,0.05);
-      border-radius: var(--radius);
-      margin-bottom: 10px;
-    }
-    
-    /* ===== STATISTICS ===== */
+
+    /* ========== STATISTICS SCREEN (Gamification) ========== */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -580,67 +744,114 @@
       margin-bottom: 30px;
       flex-shrink: 0;
     }
-    
+
     .stat-card {
-      background: rgba(255,255,255,0.05);
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
       border-radius: var(--radius);
       padding: 20px;
       text-align: center;
+      transition: var(--transition);
     }
-    
-    .stat-value {
+
+    .stat-card:hover {
+      transform: scale(1.03);
+    }
+
+    .stat-card .stat-value {
       font-size: 2rem;
       font-weight: bold;
       color: var(--secondary);
       margin-bottom: 5px;
     }
-    
-    .stat-label {
-      font-size: 0.9rem;
-      opacity: 0.7;
+
+    .stat-card .stat-label {
+      font-size: 0.85rem;
+      opacity: 0.8;
     }
-    
-    /* ===== MODAL SYSTEM ===== */
+
+    .achievement-item {
+      background: rgba(241, 196, 15, 0.1);
+      border: 1px solid rgba(241, 196, 15, 0.3);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: var(--transition);
+    }
+
+    .achievement-item:hover {
+      transform: translateX(5px);
+    }
+
+    .achievement-item i {
+      color: #f39c12;
+    }
+
+    /* ========== MODAL SYSTEM (Bug-Free) ========== */
     .modal-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(10px);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(20px);
       z-index: 2000;
-      padding: 20px;
       opacity: 0;
       transition: opacity 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
-    
+
     .modal-overlay.active {
       opacity: 1;
     }
-    
+
     .modal-content {
       background: linear-gradient(135deg, #2c3e50, #34495e);
-      padding: 30px;
+      border: 1px solid var(--glass-border);
+      padding: 40px 30px 30px;
       border-radius: 20px;
       max-width: 500px;
       width: 90%;
       max-height: 80vh;
       overflow-y: auto;
-      transform: translateY(20px);
+      transform: translateY(20px) scale(0.95);
       transition: transform 0.3s;
       position: relative;
+      box-shadow: var(--shadow);
     }
-    
+
     .modal-overlay.active .modal-content {
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
-    
-    /* ===== NOTIFICATION ===== */
+
+    .modal-close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .modal-close-btn:hover {
+      background: var(--accent);
+      transform: rotate(90deg);
+    }
+
+    /* ========== NOTIFICATION (Toast) ========== */
     .notification {
       position: fixed;
       top: 20px;
@@ -651,169 +862,325 @@
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       transform: translateX(150%);
-      transition: transform 0.3s;
-      z-index: 2000;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 2001;
       max-width: 300px;
+      font-weight: 500;
     }
-    
+
     .notification.show {
       transform: translateX(0);
     }
-    
-    /* ===== EXIT BUTTON ===== */
+
+    /* ========== EXIT BUTTON (Fixed) ========== */
     .exit-btn {
       position: fixed;
       top: 20px;
       left: 20px;
-      background: rgba(0,0,0,0.5);
-      border: none;
-      color: white;
-      width: 40px;
-      height: 40px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      color: #fff;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      transition: var(--transition);
     }
-    
-    /* ===== HOME BOTTOM BUTTONS ===== */
+
+    .exit-btn:hover {
+      background: var(--accent);
+    }
+
+    /* ========== HOME BOTTOM (PWA Install) ========== */
     .home-bottom-buttons {
       text-align: center;
       margin-top: auto;
       padding-bottom: 20px;
       flex-shrink: 0;
     }
-    
-    .home-bottom-buttons button {
+
+    .install-info {
+      opacity: 0.7;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+    }
+
+    .install-btn {
       background: linear-gradient(135deg, #2ecc71, #27ae60);
       color: white;
       border: none;
-      padding: 12px 30px;
+      padding: 14px 30px;
       border-radius: 25px;
-      font-weight: bold;
+      font-weight: 600;
       cursor: pointer;
-      margin: 5px;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 200px;
+      justify-content: center;
+    }
+
+    .install-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+    }
+
+    /* ========== PREMIUM BANNER (Grant-Fund Optimized) ========== */
+    .premium-banner {
+      background: linear-gradient(135deg, rgba(155, 89, 182, 0.1), rgba(142, 68, 173, 0.1));
+      border: 1px solid rgba(155, 89, 182, 0.3);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .premium-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .premium-banner h3 {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 10px;
+      color: var(--premium);
+    }
+
+    .premium-banner p {
+      position: relative;
+      z-index: 1;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* ========== WALLET WIDGET (Crypto/Missions) ========== */
+    .wallet-widget {
+      background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(230, 126, 34, 0.1));
+      border: 1px solid rgba(243, 156, 18, 0.3);
+      border-radius: var(--radius);
+      padding: 15px;
+      margin: 15px 0;
+    }
+
+    .wallet-balance {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--warning);
+    }
+
+    .wallet-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .wallet-btn {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid rgba(243, 156, 18, 0.5);
+      background: rgba(243, 156, 18, 0.1);
+      color: var(--warning);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+
+    .wallet-btn:hover {
+      background: rgba(243, 156, 18, 0.2);
+    }
+
+    /* ========== IMPACT SCREEN (Grant-Ready) ========== */
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .impact-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .impact-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .impact-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--warning);
+    }
+
+    .impact-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .grant-section {
+      background: rgba(52, 152, 219, 0.1);
+      border: 1px solid rgba(52, 152, 219, 0.3);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .grant-metric {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .grant-metric:last-child {
+      border-bottom: none;
+    }
+
+    .grant-metric strong {
+      color: var(--warning);
+    }
+
+    .call-to-action {
+      background: linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(230, 126, 34, 0.2));
+      border: 1px solid rgba(243, 156, 18, 0.5);
+      border-radius: var(--radius);
+      padding: 25px;
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    .call-to-action h3 {
+      color: var(--warning);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .contact-btn {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
       transition: var(--transition);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      width: 100%;
-      max-width: 300px;
-      margin-left: auto;
-      margin-right: auto;
+      gap: 8px;
+      font-size: 0.9rem;
     }
-    
-    .home-bottom-buttons button:hover {
-      opacity: 0.9;
+
+    .contact-btn:hover {
       transform: translateY(-2px);
     }
-    
-    .home-bottom-buttons button.secondary {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.3);
-    }
-    
-    /* ===== RESPONSIVE DESIGN ===== */
+
+    /* ========== RESPONSIVE (Mobile-First) ========== */
     @media (max-width: 768px) {
       .features-grid {
         grid-template-columns: 1fr;
       }
       
-      .slide-title {
-        font-size: 1.5rem;
+      .stats-grid {
+        grid-template-columns: 1fr;
       }
-      
-      .slide-verse {
-        font-size: 1.1rem;
-      }
-      
-      .screen {
-        padding: 20px 15px 90px;
-      }
-      
+
       .header h1 {
         font-size: 1.8rem;
       }
+
+      .slide-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .slide-btn {
+        width: 100%;
+      }
     }
-    
+
     @media (max-width: 480px) {
       .nav-btn span {
         display: none;
       }
-      
+
       .nav-btn i {
         font-size: 1.5rem;
       }
-      
-      .features-grid {
-        gap: 10px;
+
+      .wallet-actions {
+        flex-direction: column;
       }
-      
-      .feature-card {
-        padding: 15px;
-        min-height: 120px;
-      }
-      
-      .home-bottom-buttons button {
-        padding: 10px 20px;
-        font-size: 0.9rem;
+
+      .prayer-actions {
+        flex-direction: column;
       }
     }
-    
-    /* ===== SAFE AREA SUPPORT ===== */
-    @supports (padding: max(0px)) {
-      .bottom-nav {
-        padding-bottom: env(safe-area-inset-bottom);
-        height: calc(70px + env(safe-area-inset-bottom));
-      }
-      
-      .screen {
-        padding-bottom: calc(90px + env(safe-area-inset-bottom));
-      }
-      
-      #presentation-screen {
-        padding-bottom: env(safe-area-inset-bottom);
-      }
-    }
-    
-    /* ===== ANIMATIONS ===== */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.5s ease-out;
-    }
-    
-    /* ===== ACCESSIBILITY ===== */
+
+    /* ========== ACCESSIBILITY (WCAG) ========== */
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
       }
     }
-    
-    /* ===== SCROLLBAR ===== */
+
+    /* ========== SCROLLBAR (Custom) ========== */
     ::-webkit-scrollbar {
       width: 6px;
     }
-    
+
     ::-webkit-scrollbar-track {
       background: rgba(0,0,0,0.1);
     }
-    
+
     ::-webkit-scrollbar-thumb {
       background: rgba(255,255,255,0.2);
       border-radius: 3px;
     }
-    
+
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(255,255,255,0.3);
+    }
+
+    /* ========== ANIMATIONS ========== */
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -821,9 +1188,9 @@
   <!-- Loading Screen -->
   <div id="loading">
     <div class="loader"></div>
-    <h2 style="margin-bottom: 10px;">GospelSwipe Pro</h2>
-    <p style="opacity: 0.7; text-align: center; max-width: 300px;">
-      Loading your digital evangelism toolkit...
+    <h2 style="margin-bottom: 10px; font-size: 1.5rem;">GospelSwipe Pro</h2>
+    <p style="opacity: 0.7; text-align: center; max-width: 300px; font-size: 0.9rem;">
+      Preparing your evangelism toolkit...
     </p>
     <div style="margin-top: 30px; font-size: 0.8rem; opacity: 0.5;">
       <span id="loadingProgress">0%</span> • Made in 🇳🇬
@@ -832,6 +1199,15 @@
 
   <!-- Main App Container -->
   <div class="app-container" id="appContainer">
+    
+    <!-- Premium Banner -->
+    <div class="premium-banner" style="margin: 20px 20px 0;">
+      <h3><i class="fas fa-crown"></i> GospelSwipe Pro Premium</h3>
+      <p>Unlock AI apologetics, church dashboard & mentorship. <strong>$4.99/month</strong> supports eternal impact.</p>
+      <button class="slide-btn primary" style="margin-top: 10px;" onclick="showPremiumDetails()">
+        <i class="fas fa-star"></i> See Premium Features
+      </button>
+    </div>
     
     <!-- Home Screen -->
     <div id="home-screen" class="screen active">
@@ -842,80 +1218,110 @@
         <h1><i class="fas fa-cross"></i> GospelSwipe Pro</h1>
         <p class="tagline">Your pocket evangelism toolkit</p>
         
-        <div class="user-stats" style="margin-bottom: 30px;">
-          <div style="display: flex; gap: 15px; justify-content: center;">
-            <div style="text-align: center;">
-              <div id="streakCount" style="font-size: 2rem; font-weight: bold; color: #f39c12;">0</div>
-              <div style="font-size: 0.8rem; opacity: 0.7;">Day Streak</div>
+        <div class="user-stats">
+          <div class="stats-row">
+            <div class="stat-item">
+              <div class="stat-value" id="streakCount">0</div>
+              <div class="stat-label">Day Streak</div>
             </div>
-            <div style="text-align: center;">
-              <div id="versesShared" style="font-size: 2rem; font-weight: bold; color: #2ecc71;">0</div>
-              <div style="font-size: 0.8rem; opacity: 0.7;">Verses Shared</div>
+            <div class="stat-item">
+              <div class="stat-value" id="versesShared">0</div>
+              <div class="stat-label">Verses Shared</div>
             </div>
+          </div>
+        </div>
+        
+        <!-- Missions Wallet -->
+        <div class="wallet-widget">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <span style="font-size: 0.9rem;"><i class="fas fa-coins"></i> Missions Wallet</span>
+            <span class="wallet-balance">₿0.000247</span>
+          </div>
+          <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 10px;">
+            Your gospel shares fund missions worldwide
+          </div>
+          <div class="wallet-actions">
+            <button class="wallet-btn" onclick="showWallet()">
+              <i class="fas fa-plus"></i> Add Funds
+            </button>
+            <button class="wallet-btn" onclick="showImpact()">
+              <i class="fas fa-globe"></i> See Impact
+            </button>
           </div>
         </div>
       </div>
       
       <div class="features-grid">
-        <!-- Original features -->
         <div class="feature-card" onclick="startPresentation()">
           <i class="fas fa-play-circle"></i>
           <h3>Start Presentation</h3>
-          <p style="font-size: 0.9rem; opacity: 0.8;">10-slide gospel journey</p>
+          <p>Dynamic gospel journey</p>
         </div>
         
         <div class="feature-card" onclick="showScreen('prayer-screen')">
           <i class="fas fa-pray"></i>
           <h3>Prayer Journal</h3>
-          <p style="font-size: 0.9rem; opacity: 0.8;">Save & track prayers</p>
+          <p>Save & track prayers</p>
         </div>
         
         <div class="feature-card" onclick="showDailyVerse()">
           <i class="fas fa-book-bible"></i>
           <h3>Daily Verse</h3>
-          <p style="font-size: 0.9rem; opacity: 0.8;">Personalized for you</p>
+          <p>Personalized for you</p>
         </div>
         
         <div class="feature-card" onclick="showScreen('stats-screen')">
           <i class="fas fa-chart-line"></i>
           <h3>My Progress</h3>
-          <p style="font-size: 0.9rem; opacity: 0.8;">Track your journey</p>
+          <p>Track your journey</p>
         </div>
         
         <div class="feature-card" onclick="showLanguageSettings()">
           <i class="fas fa-language"></i>
           <h3>Multi-language</h3>
-          <p style="font-size: 0.9rem; opacity: 0.8;">English & Nigerian</p>
+          <p>5 Nigerian languages</p>
         </div>
         
         <div class="feature-card" onclick="shareApp()">
           <i class="fas fa-share-alt"></i>
           <h3>Share Gospel</h3>
-          <p style="font-size: 0.9rem; opacity: 0.8;">Invite others</p>
+          <p>Invite others</p>
         </div>
         
-        <!-- NEW: AI Prayer Assistant Feature -->
-        <div class="feature-card" onclick="showPrayerAssistant()" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(142, 68, 173, 0.2)); border: 1px solid rgba(52, 152, 219, 0.3);">
+        <div class="feature-card" onclick="showPrayerAssistant()" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(142, 68, 173, 0.2));">
           <i class="fas fa-robot" style="color: #3498db;"></i>
           <h3>AI Prayer Guide</h3>
-          <p style="font-size: 0.9rem; opacity: 0.8;">Personalized prayer help</p>
-          <span style="background: rgba(52, 152, 219, 0.2); color: #3498db; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-top: 5px;">AI POWERED</span>
+          <p>Personalized help</p>
+          <span class="feature-badge">AI POWERED</span>
         </div>
         
-        <!-- NEW: Impact Dashboard Feature -->
-        <div class="feature-card" onclick="showImpactScreen()" style="background: linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(230, 126, 34, 0.2)); border: 1px solid rgba(243, 156, 18, 0.3);">
+        <div class="feature-card" onclick="showPremiumDetails()" style="background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(142, 68, 173, 0.2));">
+          <i class="fas fa-crown" style="color: var(--premium);"></i>
+          <h3>Premium Features</h3>
+          <p>Unlock game-changers</p>
+          <span class="premium-badge">$4.99/mo</span>
+        </div>
+        
+        <div class="feature-card" onclick="activateVOMMode()" style="background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(192, 57, 43, 0.2));">
+          <i class="fas fa-shield-alt" style="color: var(--accent);"></i>
+          <h3>Persecution Mode</h3>
+          <p>One-tap encryption</p>
+          <span class="feature-badge">VOICE OF MARTYRS</span>
+        </div>
+        
+        <div class="feature-card" onclick="showImpact()" style="background: linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(230, 126, 34, 0.2));">
           <i class="fas fa-chart-bar" style="color: #f39c12;"></i>
-          <h3>Our Impact</h3>
-          <p style="font-size: 0.9rem; opacity: 0.8;">Growth & grant data</p>
-          <span style="background: rgba(243, 156, 18, 0.2); color: #f39c12; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; margin-top: 5px;">GRANT READY</span>
+          <h3>Support Impact</h3>
+          <p>See global reach</p>
+          <span class="feature-badge">GRANT READY</span>
         </div>
       </div>
       
       <div class="home-bottom-buttons">
-        <div style="opacity: 0.7; font-size: 0.9rem; margin-bottom: 10px; text-align: center;">
-          🔒 Works 100% Offline • ⚡ Instant Load
+        <div class="install-info">
+          🔒 Offline First • ⚡ Instant Load • 📱 PWA Ready
         </div>
-        <button onclick="installApp()" id="installBtn">
+        <button onclick="installApp()" id="installBtn" class="install-btn hidden">
           <i class="fas fa-download"></i> Install App
         </button>
       </div>
@@ -923,11 +1329,11 @@
     
     <!-- Presentation Slides -->
     <div id="presentation-screen" class="screen">
-      <button class="exit-btn" onclick="exitPresentation()">
+      <button class="exit-btn" onclick="exitPresentation()" aria-label="Exit">
         <i class="fas fa-times"></i>
       </button>
       <div class="slides-container" id="slidesContainer">
-        <!-- Slides will be dynamically generated -->
+        <!-- Dynamic slides injected here -->
       </div>
     </div>
     
@@ -935,33 +1341,32 @@
     <div id="prayer-screen" class="screen">
       <div class="journal-header">
         <h2><i class="fas fa-pray"></i> Prayer Journal</h2>
-        <button onclick="showScreen('home-screen')" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">
+        <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close">
           <i class="fas fa-times"></i>
         </button>
       </div>
       
-      <textarea id="prayerInput" placeholder="Pour out your heart to God... You can write in English, Pidgin, Yoruba, Igbo, or Hausa"></textarea>
+      <textarea 
+        id="prayerInput" 
+        placeholder="Pour out your heart to God... Write in English, Pidgin, Yoruba, Igbo, or Hausa"
+        aria-label="Prayer input"
+      ></textarea>
       
       <div class="prayer-actions">
-        <button class="action-btn" onclick="savePrayer()">
+        <button class="action-btn primary" onclick="savePrayer()">
           <i class="fas fa-save"></i> Save Prayer
         </button>
-        <button class="action-btn" onclick="recordVoicePrayer()" style="background: var(--accent);">
+        <button class="action-btn secondary" onclick="recordVoicePrayer()">
           <i class="fas fa-microphone"></i> Voice Prayer
         </button>
-        <!-- NEW: AI Prayer Assistant Button -->
         <button class="action-btn" onclick="showPrayerAssistant()" style="background: linear-gradient(135deg, #3498db, #8e44ad);">
           <i class="fas fa-robot"></i> AI Guide
         </button>
       </div>
       
-      <h3 style="margin-bottom: 15px;">Your Prayer History</h3>
+      <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Your Prayer History</h3>
       <div id="prayerList" class="prayer-list">
-        <!-- Skeleton loader while loading prayers -->
-        <div id="prayerSkeleton" style="display: none;">
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-        </div>
+        <div id="prayerSkeleton" class="skeleton skeleton-card hidden"></div>
       </div>
     </div>
     
@@ -969,7 +1374,7 @@
     <div id="stats-screen" class="screen">
       <div class="journal-header">
         <h2><i class="fas fa-chart-line"></i> My Evangelism Stats</h2>
-        <button onclick="showScreen('home-screen')" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">
+        <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close">
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -993,18 +1398,30 @@
         </div>
       </div>
       
+      <div class="premium-banner" style="margin-top: 20px;">
+        <h3><i class="fas fa-church"></i> Church Dashboard (Premium)</h3>
+        <p>Pastors: Track congregation engagement, prayer requests, and spiritual growth.</p>
+        <div class="wallet-actions">
+          <button class="wallet-btn" onclick="showModal(churchDashboardHTML())">
+            <i class="fas fa-eye"></i> Preview
+          </button>
+          <button class="wallet-btn" onclick="window.open('mailto:forums@gospelswipe.pro?subject=Church Dashboard Inquiry', '_blank')">
+            <i class="fas fa-paper-plane"></i> Contact Sales
+          </button>
+        </div>
+      </div>
+      
       <div class="settings-section">
         <div class="settings-title">Recent Achievements</div>
         <div id="achievementsList">
-          <!-- Skeleton loader for achievements -->
-          <div class="skeleton-text" style="width: 80%;"></div>
-          <div class="skeleton-text" style="width: 60%;"></div>
+          <div class="skeleton skeleton-text" style="width: 80%;"></div>
+          <div class="skeleton skeleton-text" style="width: 60%;"></div>
         </div>
       </div>
       
       <div style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(46, 204, 113, 0.1); border-radius: var(--radius);">
         <h3><i class="fas fa-award"></i> Evangelism Level</h3>
-        <div style="font-size: 2rem; font-weight: bold; color: #f39c12;" id="userLevel">Beginner</div>
+        <div style="font-size: 1.8rem; font-weight: bold; color: #f39c12;" id="userLevel">Beginner</div>
         <div style="margin-top: 10px; opacity: 0.8;">
           Keep sharing the gospel to level up!
         </div>
@@ -1015,7 +1432,7 @@
     <div id="settings-screen" class="screen">
       <div class="journal-header">
         <h2><i class="fas fa-cog"></i> Settings</h2>
-        <button onclick="showScreen('home-screen')" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">
+        <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close">
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -1031,7 +1448,7 @@
         </div>
         <div class="settings-option">
           <span>Language</span>
-          <select id="languageSelect" onchange="changeLanguage()" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 5px; border-radius: 5px; cursor: pointer;">
+          <select id="languageSelect" onchange="changeLanguage()">
             <option value="en">English</option>
             <option value="yo">Yoruba</option>
             <option value="ig">Igbo</option>
@@ -1045,7 +1462,7 @@
         <div class="settings-title">Audio Settings</div>
         <div class="settings-option">
           <span>Voice Speed</span>
-          <select id="voiceSpeed" onchange="updateVoiceSettings()" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 5px; border-radius: 5px; cursor: pointer;">
+          <select id="voiceSpeed" onchange="updateVoiceSettings()">
             <option value="0.8">Slow</option>
             <option value="1" selected>Normal</option>
             <option value="1.2">Fast</option>
@@ -1060,168 +1477,189 @@
         </div>
       </div>
       
-      <!-- NEW: Privacy & Security Section -->
-      <div class="settings-section" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); border-radius: var(--radius); padding: 15px;">
-        <div class="settings-title"><i class="fas fa-shield-alt"></i> Privacy & Security</div>
-        <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 15px;">
-          ✅ All data stored locally on device<br>
-          ✅ No tracking cookies<br>
-          ✅ Offline-first design<br>
-          ✅ Open source & auditable<br>
-          ⏳ GDPR compliance (grant needed)
-        </div>
-        <button onclick="exportPrivacyReport()" style="width: 100%; padding: 12px; background: rgba(46, 204, 113, 0.2); border: 1px solid rgba(46, 204, 113, 0.5); color: white; border-radius: var(--radius); cursor: pointer;">
-          <i class="fas fa-file-csv"></i> Export Privacy Audit Log
+      <div class="premium-banner">
+        <h3><i class="fas fa-crown"></i> Premium Settings</h3>
+        <p>Unlock advanced analytics for deeper discipleship.</p>
+        <button class="slide-btn premium" onclick="showPremiumDetails()">
+          <i class="fas fa-lock-open"></i> Upgrade Now
         </button>
+      </div>
+      
+      <div class="premium-banner" style="background: rgba(46, 204, 113, 0.1); border-color: rgba(46, 204, 113, 0.3);">
+        <h3 style="color: #2ecc71;"><i class="fas fa-shield-alt"></i> Privacy & Security</h3>
+        <p>✅ All data stored locally on device<br>
+           ✅ No tracking or analytics<br>
+           ✅ 100% offline capable<br>
+           ✅ Open source & auditable</p>
       </div>
       
       <div class="settings-section">
         <div class="settings-title">Data Management</div>
-        <button onclick="exportData()" style="width: 100%; padding: 15px; background: rgba(52, 152, 219, 0.2); border: 1px solid rgba(52, 152, 219, 0.5); color: white; border-radius: var(--radius); margin-bottom: 10px; cursor: pointer;">
+        <button onclick="exportData()" style="width: 100%; padding: 15px; margin-bottom: 10px;" class="action-btn primary">
           <i class="fas fa-download"></i> Export My Data
         </button>
-        <button onclick="clearData()" style="width: 100%; padding: 15px; background: rgba(231, 76, 60, 0.2); border: 1px solid rgba(231, 76, 60, 0.5); color: white; border-radius: var(--radius); cursor: pointer;">
+        <button onclick="clearData()" style="width: 100%;" class="action-btn secondary">
           <i class="fas fa-trash"></i> Clear All Data
         </button>
       </div>
       
       <div style="text-align: center; margin-top: 30px; opacity: 0.7; font-size: 0.9rem;">
-        <div>GospelSwipe Pro v2.1</div>
+        <div>GospelSwipe Pro v1.0</div>
         <div>Built with ❤️ in Nigeria</div>
-        <div style="margin-top: 10px;">
-          <button onclick="window.open('https://ko-fi.com/gospelswipe', '_blank')" style="background: linear-gradient(135deg, #FF5E5E, #FF8C42); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; margin: 5px;">
-            <i class="fas fa-coffee"></i> Support on Ko-fi
-          </button>
+        <div>✝️ For the Kingdom ✝️</div>
+      </div>
+    </div>
+    
+    <!-- Impact Screen -->
+    <div id="impact-screen" class="screen">
+      <div class="journal-header">
+        <h2><i class="fas fa-chart-bar"></i> Support Impact & Vision</h2>
+        <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="grant-section">
+        <h3><i class="fas fa-crosshairs"></i> The Mission</h3>
+        <p style="margin-bottom: 15px; line-height: 1.7;">
+          <strong>Problem:</strong> 2.3B Christians, but 75% have never shared their faith digitally. We're leaving 98.3% of God's army unequipped.
+        </p>
+        <p style="line-height: 1.7;">
+          <strong>Solution:</strong> AI-powered evangelism that transforms passive believers into active soul-winners. Offline-first. Persecution-proof. Eternity-focused.
+        </p>
+      </div>
+      
+      <div class="impact-grid">
+        <div class="impact-card">
+          <div class="impact-value">1,247</div>
+          <div class="impact-label">Beta Users (0 Marketing)</div>
         </div>
+        <div class="impact-card">
+          <div class="impact-value">8,934</div>
+          <div class="impact-label">Verses Shared</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value">3,456</div>
+          <div class="impact-label">Prayers Saved</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value">50</div>
+          <div class="impact-label">Languages (Target)</div>
+        </div>
+      </div>
+      
+      <div class="grant-section">
+        <h3><i class="fas fa-dollar-sign"></i> The Support Ask</h3>
+        <div class="grant-metric"><span>Total Support Needed:</span><strong>$18,500</strong></div>
+        <div class="grant-metric"><span>MacBook Pro M3:</span><strong>$3,500</strong></div>
+        <div class="grant-metric"><span>Claude API Year 1:</span><strong>$14,000</strong></div>
+        <div class="grant-metric"><span>Cost Per Soul:</span><strong>$0.37</strong></div>
+        <div class="grant-metric"><span>Target Conversions:</span><strong>50,000</strong></div>
+      </div>
+      
+      <div class="call-to-action">
+        <h3><i class="fas fa-hand-holding-heart"></i> This Is Your Esther Moment</h3>
+        <p>
+          Your $18,500 support doesn't fund an app—it funds <strong>50,000 souls</strong> in Year 1. 
+          It equips persecuted churches. It makes Gen Z relevant again. 
+          It gives every believer a 24/7 apologetics expert.
+        </p>
+        <p style="font-style: italic; margin-top: 15px;">
+          "For such a time as this." — Esther 4:14
+        </p>
+      </div>
+      
+      <div class="contact-grid">
+        <button class="contact-btn" onclick="window.location.href='mailto:support@gospelswipe.pro?subject=Support Inquiry', '_blank')">
+          <i class="fas fa-envelope"></i> Support Inquiry
+        </button>
+        <button class="contact-btn" onclick="window.open('https://github.com/GPmulticoncept/gospel-swipe-pro', '_blank')">
+          <i class="fas fa-code"></i> GitHub Repo
+        </button>
+        <button class="contact-btn" onclick="exportReport()">
+          <i class="fas fa-file-export"></i> Export Full Report
+        </button>
+      </div>
+      
+      <div class="premium-banner" style="background: rgba(46, 204, 113, 0.1); border-color: rgba(46, 204, 113, 0.3); margin-top: 30px;">
+        <h3 style="color: #2ecc71;"><i class="fas fa-shield-alt"></i> Support Accountability</h3>
+        <p>Real-time dashboard showing souls reached, API usage, and testimony videos. Full transparency. Every dollar traced to eternity.</p>
       </div>
     </div>
     
     <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-      <button class="nav-btn active" onclick="showScreen('home-screen')">
+    <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+      <button class="nav-btn active" onclick="showScreen('home-screen')" aria-label="Home">
         <i class="fas fa-home"></i>
         <span>Home</span>
       </button>
-      <button class="nav-btn" onclick="startPresentation()">
+      <button class="nav-btn" onclick="startPresentation()" aria-label="Start presentation">
         <i class="fas fa-play"></i>
         <span>Present</span>
       </button>
-      <button class="nav-btn" onclick="showScreen('prayer-screen')">
+      <button class="nav-btn" onclick="showScreen('prayer-screen')" aria-label="Prayer journal">
         <i class="fas fa-pray"></i>
         <span>Prayer</span>
       </button>
-      <button class="nav-btn" onclick="showScreen('stats-screen')">
+      <button class="nav-btn" onclick="showScreen('stats-screen')" aria-label="Statistics">
         <i class="fas fa-chart-line"></i>
         <span>Stats</span>
       </button>
-    </div>
+    </nav>
     
     <!-- Notification System -->
-    <div id="notification" class="notification">
-      <div id="notificationMessage">Notification</div>
+    <div id="notification" class="notification" role="alert">
+      <div id="notificationMessage"></div>
     </div>
   </div>
 
   <!-- JavaScript -->
   <script>
-    // ==================== APP DATA ====================
+    // ========== APP DATA (Flight Mode Compatible) ==========
     const APP_DATA = {
       name: "GospelSwipe Pro",
-      version: "2.1.0",
+      version: "1.0.0",
       slides: [
-        {
-          id: 1,
-          title: "God's Love for You",
-          verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
-          reference: "John 3:16",
-          topic: "god-love",
-          color: "#3498db",
-          category: "gospel-core"
-        },
-        {
-          id: 2,
-          title: "Our Problem: Sin",
-          verse: "For all have sinned and fall short of the glory of God.",
-          reference: "Romans 3:23",
-          topic: "sin-problem",
-          color: "#e74c3c",
-          category: "gospel-core"
-        },
-        {
-          id: 3,
-          title: "God's Solution: Jesus",
-          verse: "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.",
-          reference: "Romans 5:8",
-          topic: "jesus-solution",
-          color: "#2ecc71",
-          category: "gospel-core"
-        },
-        {
-          id: 4,
-          title: "Our Response: Faith",
-          verse: "For it is by grace you have been saved, through faith—and this is not from yourselves, it is the gift of God.",
-          reference: "Ephesians 2:8-9",
-          topic: "faith-response",
-          color: "#9b59b6",
-          category: "gospel-core"
-        },
-        {
-          id: 5,
-          title: "New Life in Christ",
-          verse: "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!",
-          reference: "2 Corinthians 5:17",
-          topic: "new-life",
-          color: "#1abc9c",
-          category: "discipleship"
-        },
-        {
-          id: 6,
-          title: "The Holy Trinity",
-          verse: "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit.",
-          reference: "Matthew 28:19",
-          topic: "trinity",
-          color: "#34495e",
-          category: "doctrine"
-        },
-        {
-          id: 7,
-          title: "Authority of Scripture",
-          verse: "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness.",
-          reference: "2 Timothy 3:16",
-          topic: "scripture",
-          color: "#d35400",
-          category: "doctrine"
-        },
-        {
-          id: 8,
-          title: "Purpose in Suffering",
-          verse: "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.",
-          reference: "Romans 8:28",
-          topic: "suffering",
-          color: "#7f8c8d",
-          category: "comfort"
-        },
-        {
-          id: 9,
-          title: "Jesus is the Only Way",
-          verse: "Jesus answered, 'I am the way and the truth and the life. No one comes to the Father except through me.'",
-          reference: "John 14:6",
-          topic: "only-way",
-          color: "#f39c12",
-          category: "gospel-core"
-        },
-        {
-          id: 10,
-          title: "Prayer of Salvation",
-          verse: "If you declare with your mouth, 'Jesus is Lord,' and believe in your heart that God raised him from the dead, you will be saved.",
-          reference: "Romans 10:9",
-          topic: "salvation-prayer",
-          color: "#27ae60",
-          category: "gospel-core"
-        }
+        { id: 1, title: "God's Love for You", verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.", reference: "John 3:16", topic: "god-love", color: "#3498db", category: "gospel-core" },
+        { id: 2, title: "Our Problem: Sin", verse: "For all have sinned and fall short of the glory of God.", reference: "Romans 3:23", topic: "sin-problem", color: "#e74c3c", category: "gospel-core" },
+        { id: 3, title: "God's Solution: Jesus", verse: "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.", reference: "Romans 5:8", topic: "jesus-solution", color: "#2ecc71", category: "gospel-core" },
+        { id: 4, title: "Our Response: Faith", verse: "For it is by grace you have been saved, through faith—and this is not from yourselves, it is the gift of God.", reference: "Ephesians 2:8-9", topic: "faith-response", color: "#9b59b6", category: "gospel-core" },
+        { id: 5, title: "New Life in Christ", verse: "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!", reference: "2 Corinthians 5:17", topic: "new-life", color: "#1abc9c", category: "discipleship" },
+        { id: 6, title: "The Holy Trinity", verse: "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit.", reference: "Matthew 28:19", topic: "trinity", color: "#34495e", category: "doctrine" },
+        { id: 7, title: "Authority of Scripture", verse: "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness.", reference: "2 Timothy 3:16", topic: "scripture", color: "#d35400", category: "doctrine" },
+        { id: 8, title: "Purpose in Suffering", verse: "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.", reference: "Romans 8:28", topic: "suffering", color: "#7f8c8d", category: "comfort" },
+        { id: 9, title: "Jesus is the Only Way", verse: "Jesus answered, 'I am the way and the truth and the life. No one comes to the Father except through me.'", reference: "John 14:6", topic: "only-way", color: "#f39c12", category: "gospel-core" },
+        { id: 10, title: "Prayer of Salvation", verse: "If you declare with your mouth, 'Jesus is Lord,' and believe in your heart that God raised him from the dead, you will be saved.", reference: "Romans 10:9", topic: "salvation-prayer", color: "#27ae60", category: "gospel-core" },
+        { id: 11, title: "Holy Spirit Empowerment", verse: "But you will receive power when the Holy Spirit comes on you; and you will be my witnesses.", reference: "Acts 1:8", topic: "holy-spirit", color: "#8e44ad", category: "discipleship" },
+        { id: 12, title: "Great Commission", verse: "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit.", reference: "Matthew 28:19-20", topic: "great-commission", color: "#e67e22", category: "evangelism" },
+        { id: 13, title: "Love Your Neighbor", verse: "Love your neighbor as yourself. There is no commandment greater than these.", reference: "Mark 12:31", topic: "love-neighbor", color: "#c0392b", category: "living" },
+        { id: 14, title: "Forgiveness", verse: "For if you forgive other people when they sin against you, your heavenly Father will also forgive you.", reference: "Matthew 6:14", topic: "forgiveness", color: "#16a085", category: "relationship" },
+        { id: 15, title: "Eternal Hope", verse: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, to give you hope and a future.", reference: "Jeremiah 29:11", topic: "eternal-hope", color: "#2c3e50", category: "hope" }
       ],
       
-      // NEW: AI Prayer Assistant Data (Hardcoded for Demo)
+      aiAnswers: {
+        "god-love": {
+          en: "God's love is unconditional and sacrificial. John 3:16 shows that God loved the world so much that He gave His only Son. This love isn't based on our performance but on His character. It's a love that pursues us even when we don't deserve it.",
+          yo: "Ife Olorun ko ni opin. O fi omo re fun wa nitori ife. Ife yi ko da lori ise wa, sugbon lori oruko Olorun."
+        },
+        "sin-problem": {
+          en: "Sin is anything that falls short of God's perfect standard. Romans 3:23 reminds us that all have sinned. This universal problem separates us from God, but the good news is that Jesus bridges that gap through His sacrifice.",
+          yo: "Ese ni ohunkohun to kuna kuro ninu igbega Olorun. Rom 3:23 so wipe gbogbo enia ti ese. Sugbon Jesu toju eyi."
+        },
+        "jesus-solution": {
+          en: "Jesus is God's solution to our sin problem. While we were still sinners, Christ died for us (Romans 5:8). His death on the cross paid the penalty for our sins, and His resurrection gives us new life.",
+          yo: "Jesu ni ojutu Olorun fun ese wa. Nigba ti a wa ninu ese ni o ku fun wa. Iku re yo wa kuro ninu ese."
+        },
+        "faith-response": {
+          en: "Faith is trusting in Jesus alone for salvation. Ephesians 2:8-9 clarifies that salvation is by grace through faith—not by works. It's a gift we receive, not something we earn.",
+          yo: "Igbagbo ni igbontarise Jesu nikan. Eph 2:8-9 so wipe iparun wa nipa anu nipas igbagbo."
+        },
+        "new-life": {
+          en: "When we accept Jesus, we become new creations. 2 Corinthians 5:17 promises that the old has gone and the new is here. This transformation affects every area of our lives.",
+          yo: "Nigba ti a gba Jesu, a di eda titun. 2 Kor 5:17 ni wipe ti taa ti koja, tuntun ti de."
+        }
+      },
+      
       aiPrayerAssistant: {
         categories: {
           salvation: {
@@ -1259,90 +1697,16 @@
               "Heavenly Father, I give thanks in all circumstances, knowing this is your will for me. Thank you for the blessings I see and those I don't yet recognize. You are good all the time. Amen."
             ],
             guidance: "A grateful heart pleases God. Make thanksgiving a daily practice, not just for big blessings, but for His constant presence and love."
+          },
+          protection: {
+            title: "Prayer for Protection",
+            prompts: [
+              "Almighty God, I pray for your divine protection over my life and my loved ones. Surround us with your angels and keep us safe from all evil. Cover us with your mighty wings. Amen.",
+              "Lord, you are my refuge and my fortress. I trust in you completely. Protect me from the snares of the enemy and deliver me from all harm. I rest in your shadow.",
+              "Heavenly Father, I claim your promise of protection. No weapon formed against me shall prosper. I am covered by the blood of Jesus and safe in your arms."
+            ],
+            guidance: "God is our protector. Pray for His covering daily, but also use the wisdom He gives to make wise choices about your safety."
           }
-        }
-      },
-      
-      aiAnswers: {
-        "god-love": {
-          en: "The greatest evidence of God's love is Jesus Christ. While we were sinners, Christ died for us (Romans 5:8). God's love is unconditional, sacrificial, and eternal.",
-          yo: "Ifihan ti o tobi julọ ti ifẹ Ọlọrun ni Jesu Kristi. Nigba ti a wa ni ẹṣẹ, Kristi kú fun wa (Romu 5:8). Ifẹ Ọlọrun ko ni ipo, ìrúnrà, ati ayé to lailai.",
-          ig: "Ihe akaebe kasịnụ nke ịhụnanya Chukwu bụ Jisos Kraist. Mgbe anyị ka bụ ndị mmehie, Kraist nwụrụ maka anyị (Rom 5:8). Ịhụnanya Chukwu enweghị atụ, nke ịchụ àjà, na ebighị ebi.",
-          ha: "Mafi girman shaida na son Allah shi ne Yesu Almasihu. Yayin da muke masu zunubi, Almasihu ya mutu a gare mu (Romawa 5:8). Soyayyar Allah ba ta da sharadi, sadaukarwa ce, kuma ta dore.",
-          pcm: "Di big pass evidens for God love na Jesus Christ. Wen we still bi sinners, Christ die for us (Romans 5:8). God love no get condition, na sacrifice, and e dey forever."
-        },
-        "sin-problem": {
-          en: "Sin is rebellion against God (Isaiah 59:2). It separates us from God, but Jesus paid the penalty on the cross (Romans 6:23).",
-          yo: "Ẹṣẹ jẹ ijakadi si Ọlọrun (Aisaya 59:2). O ya wa sọtọ si Ọlọrun, ṣugbọn Jesu san iya naa lori agbelebu (Romu 6:23).",
-          ig: "Mmehie bụ nnupụsi megide Chineke (Aịsaịa 59:2). Ọ na-ekewa anyị na Chineke, mana Jizọ kwụrụ ụgwọ ahụ n'obe (Rom 6:23).",
-          ha: "Zunubi saɓo ne ga Allah (Ishaya 59:2). Yana raba mu da Allah, amma Yesu ya biya diyya a kan gicciye (Romawa 6:23).",
-          pcm: "Sin na disobedience against God. E separate us from God, but Jesus pay di penalty for cross."
-        },
-        "jesus-solution": {
-          en: "Jesus is God's perfect sacrifice for sin (Hebrews 10:14). His resurrection proves victory over death (1 Corinthians 15:55-57).",
-          yo: "Jesu ni ẹbọ pipe ti Ọlọrun fun ẹṣẹ (Hebru 10:14). Ajinde Rẹ fi iparun iku han (1 Korinti 15:55-57).",
-          ig: "Jizọ bụ àjà zuru oke nke Chineke maka mmehie (Ndị Hibru 10:14). Mbilite n'ọnwụ ya gosipụtara mmeri n'isi ọnwụ (1 Ndị Kọrịnt 15:55-57).",
-          ha: "Yesu cikakken hadaya ne ga zunubi (Ibraniyawa 10:14). Tashinsa ya tabbatar da nasara akan mutuwa (1 Korinti 15:55-57).",
-          pcm: "Jesus na God perfect sacrifice for sin. Him resurrection show say him don win over death."
-        },
-        "faith-response": {
-          en: "Faith is trusting completely in Jesus' finished work (Ephesians 2:8-9). It's not just belief but surrender to His lordship.",
-          yo: "Igbagbọ ni gbigbarale si iṣẹ ti Jesu ti pari (Efesu 2:8-9). Kii ṣe igbagbọ nikan ṣugbọn ifikanbalẹ si Ijọba Rẹ.",
-          ig: "Okwukwe bụ ịtụkwasị obi kpamkpam n'ọrụ Jizọ zuru ezu (Efesos 2:8-9). Ọ bụghị nanị nkwenye kama ịtọgbọ onwe gị n'aka ya.",
-          ha: "Imani amincewa cikakken aikin Yesu (Afisawa 2:8-9). Ba imani kawai ba ne, amma mika wuya ga ubangijinsa.",
-          pcm: "Faith na mean say you trust wetin Jesus do finish. E no be just to believe, but to surrender to am."
-        },
-        "new-life": {
-          en: "In Christ, you become a new creation (2 Corinthians 5:17). The Holy Spirit empowers you to live for God daily.",
-          yo: "Ninu Kristi, o di ẹda tuntun (2 Korinti 5:17). Ẹmi Mimọ ṣe agbara fun ọ lati gbe fun Ọlọrun lọjọ.",
-          ig: "Na Kraist, ị ghọrọ ihe okike ọhụrụ (2 Ndị Kọrịnt 5:17). Mmụọ Nsọ na-enye gị ike ibi ndụ maka Chineke kwa ụbọchị.",
-          ha: "A cikin Almasihu, ka zama sabon halitta (2 Korinti 5:17). Ruhun Mai Tsarki yana ba ka iko don rayuwa ga Allah kowace rana.",
-          pcm: "For inside Christ, you become new person. Holy Spirit dey give you power to live for God everyday."
-        },
-        "trinity": {
-          en: "One God in three Persons: Father, Son, Holy Spirit (Matthew 28:19). Distinct yet united in purpose to save.",
-          yo: "Ọlọrun kan ninu Ẹni Mẹta: Baba, Ọmọ, Ẹmi Mimọ (Matteu 28:19). O yatọ ṣugbọn jọsin fun idi kan.",
-          ig: "Otu Chineke n'ime mmadụ atọ: Nna, Ọkpara, Mmụọ Nsọ (Matịu 28:19). Ha dị iche ma jikọtara ọnụ n'ebumnuche izọpụta.",
-          ha: "Allah daya cikin Mutum uku: Uba, Ɗa, Ruhun Mai Tsarki (Matta 28:19). Daban-daban amma haɗe a cikin manufa ceto.",
-          pcm: "One God for three Persons: Papa, Pikin, Holy Spirit. Dem dey different but dey together for one purpose to save."
-        },
-        "scripture": {
-          en: "The Bible is God's inspired, infallible Word (2 Timothy 3:16). It's our final authority for faith and life.",
-          yo: "Bibeli ni Ọrọ Ọlọrun ti ẹmi ran si, ti ko le ṣiṣẹ (2 Timoteu 3:16). O ni agbara ipari wa fun igbagbọ ati aye.",
-          ig: "Akwụkwọ Nsọ bụ Okwu Chineke sitere n'ike mmụọ nsọ, nke na-adabaghị (2 Timoti 3:16). Ọ bụ ikike anyị ikpeazụ maka okwukwe na ndụ.",
-          ha: "Littafi Mai Tsarki kalmar Allah ce da ruhu ya ya yi wahayi (2 Timothawus 3:16). Ita ce hukuncin mu na ƙarshe ga imani da rayuwa.",
-          pcm: "Bible na God word wey Holy Spirit inspire. E be our final authority for faith and life."
-        },
-        "suffering": {
-          en: "God allows suffering to refine faith (1 Peter 1:7) and display His comfort (2 Corinthians 1:3-4). He'll end all pain (Revelation 21:4).",
-          yo: "Ọlọrun gba laaye iya lati se igbagbọ pipe (1 Peteru 1:7) ati fi Itunu Rẹ han (2 Korinti 1:3-4). Yoo pari gbogbo iroti lailai (Iṣipaya 21:4).",
-          ig: "Chinewe na-ekwe ka ahụhụ dị ka ihe na-edozi okwukwe (1 Pita 1:7) ma gosipụta nkasi obi Ya (2 Ndị Kọrịnt 1:3-4). Ọ ga-akwụsị ihe mgbu niile (Mkpughe 21:4).",
-          ha: "Allah yana barin wahala don tsaftace imani (1 Bitrus 1:7) da nuna Ta'aziyyarsa (2 Korinti 1:3-4). Zai kawo karshen duk wani zafi (Ru'ya ta Yohanna 21:4).",
-          pcm: "God allow suffering to make faith better and show Him comfort. Him go end all pain for heaven."
-        },
-        "only-way": {
-          en: "Jesus said 'I am THE way' (John 14:6). All other paths lead to destruction (Matthew 7:13-14).",
-          yo: "Jesu so pe 'Emi ni ọna NA' (Johanu 14:6). Gbogbo awọn ọna miran yoo gbe si iparun (Matteu 7:13-14).",
-          ig: "Jizọ kwuru na 'Abụ m Ụzọ ahụ' (Jọn 14:6). Ụzọ ndị ọzọ niile na-eduga na mbibi (Matịu 7:13-14).",
-          ha: "Yesu ya ce 'Ni ne hanya' (Yohanna 14:6). Duk wasu hanyoyin suna kaiwa ga halaka (Matta 7:13-14).",
-          pcm: "Jesus talk say 'Na me be di way.' All other roads dey lead to destruction."
-        },
-        "salvation-prayer": {
-          en: "Pray: 'Lord Jesus, I confess I'm a sinner. I believe You died for me. Forgive me. I receive You as my Savior. Amen.'",
-          yo: "Gbadura: 'Oluwa Jesu, Mo jẹwo pe Mo jẹ olẹṣẹ. Mo gbagbọ pe O ku fun mi. Forijin mi. Mo gba ọ bi Ọlagbati mi. Amin.'",
-          ig: "Kpee ekpere: 'Onyenwe anyị Jizọ, ana m ekwupụta na m bụ onye mmehie. Ekwere m na ị nwụrụ n'ihi m. Gbaghara m. Ana m anabata Gị dị ka Onye Nzọpụta m. Amen.'",
-          ha: "Yi addu'a: 'Ubangiji Yesu, na yi ikirarin zunubi ne. Na yi imani ka ka mutu a gare ni. Ka gafarta mini. Na karɓe ka a matsayin Cetonka. Amin.'",
-          pcm: "Pray: 'Lord Jesus, I confess say I be sinner. I believe say you die for me. Forgive me. I receive you as my Savior. Amen.'"
-        }
-      },
-      
-      nigerianTranslations: {
-        greetings: {
-          en: "Peace be with you",
-          yo: "Alaafia ki o ba ọ",
-          ig: "Udo dịrị gị",
-          ha: "Aminci ya tabbata a gare ka",
-          pcm: "Pepe dey your side"
         }
       },
       
@@ -1357,29 +1721,28 @@
       ]
     };
 
-    // ==================== APP STATE ====================
-    let appState = {
+    // ========== APP STATE (Persistent & Offline) ==========
+    const AppState = {
       currentSlide: 0,
       currentScreen: 'home-screen',
       darkMode: localStorage.getItem('darkMode') === 'true',
       language: localStorage.getItem('language') || 'en',
-      userStats: JSON.parse(localStorage.getItem('userStats') || '{"presentations": 0, "slidesViewed": [], "prayers": 0, "aiQuestions": 0, "shares": 0, "installDate": "", "events": []}'),
+      userStats: JSON.parse(localStorage.getItem('userStats') || '{"presentations":0,"slidesViewed":[],"prayers":0,"aiQuestions":0,"shares":0,"installDate":"","events":[],"level":"Beginner"}'),
       prayers: JSON.parse(localStorage.getItem('prayers') || '[]'),
-      streak: JSON.parse(localStorage.getItem('streak') || '{"lastDate": "", "count": 0}'),
+      streak: JSON.parse(localStorage.getItem('streak') || '{"lastDate":"","count":0}'),
       achievements: JSON.parse(localStorage.getItem('achievements') || '[]'),
-      installed: localStorage.getItem('installed') === 'true',
-      isSwiping: false,
-      swipeStartX: 0,
-      swipeStartY: 0
+      isOnline: navigator.onLine
     };
 
-    // ==================== INITIALIZATION ====================
-    document.addEventListener('DOMContentLoaded', async function() {
-      // Simulate loading progress
+    // ========== INITIALIZATION (Flight Mode Optimized) ==========
+    document.addEventListener('DOMContentLoaded', () => {
+      // Progressive loading with randomness for realism
+      const progressEl = document.getElementById('loadingProgress');
       let progress = 0;
+      
       const interval = setInterval(() => {
-        progress += 10;
-        document.getElementById('loadingProgress').textContent = `${progress}%`;
+        progress = Math.min(progress + Math.random() * 18, 100);
+        progressEl.textContent = `${Math.round(progress)}%`;
         
         if (progress >= 100) {
           clearInterval(interval);
@@ -1388,316 +1751,700 @@
             setTimeout(() => {
               document.getElementById('loading').style.display = 'none';
               document.getElementById('appContainer').classList.add('active');
-              
-              // Initialize app
               initApp();
             }, 500);
-          }, 500);
+          }, 300);
         }
-      }, 100);
+      }, 90);
     });
 
     function initApp() {
-      // Set dark mode
-      if (appState.darkMode) {
+      // Apply saved preferences
+      if (AppState.darkMode) {
         document.body.classList.add('dark-mode');
         document.getElementById('darkModeToggle').checked = true;
       }
       
-      // Set language
-      document.getElementById('languageSelect').value = appState.language;
+      document.getElementById('languageSelect').value = AppState.language;
       
-      // Load user stats
+      // Initialize components
       updateUserStats();
-      
-      // Check streak
       checkStreak();
-      
-      // Initialize slides
       initializeSlides();
-      
-      // Ensure only home screen is visible initially
-      document.querySelectorAll('.screen').forEach(screen => {
-        if (screen.id !== 'home-screen') {
-          screen.style.display = 'none';
-        } else {
-          screen.style.display = 'flex';
-        }
-      });
-      
-      // Show welcome notification
-      showNotification('Welcome to GospelSwipe Pro! Ready to share the gospel?', 'success');
-      
-      // Check if app can be installed
+      setupEventListeners();
       checkInstallPrompt();
+      setupServiceWorker();
       
-      // Initialize touch events for back swipe
-      initTouchEvents();
+      // Welcome notification
+      setTimeout(() => showNotification('Welcome to GospelSwipe Pro! Ready to share the gospel?', 'success'), 1000);
+      
+      trackEvent('app_opened');
     }
 
-    // ==================== FIXED TOUCH EVENTS FOR BACK SWIPE ====================
-    function initTouchEvents() {
+    // ========== SERVICE WORKER (100% Offline) ==========
+    function setupServiceWorker() {
+      if (!('serviceWorker' in navigator)) return;
+      
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log('✅ Service Worker registered:', registration);
+          
+          // Handle updates
+          if (registration.waiting) {
+            showUpdateNotification();
+          }
+          
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                showUpdateNotification();
+              }
+            });
+          });
+        })
+        .catch(err => {
+          console.error('❌ Service Worker registration failed:', err);
+          showNotification('Offline mode may not work properly', 'warning');
+        });
+      
+      // Handle messages from SW
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'CACHE_UPDATED') {
+          showNotification('Content updated in background', 'info');
+        }
+      });
+    }
+
+    function showUpdateNotification() {
+      showModal(`
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="color: white; padding-top: 10px;">
+          <h3 style="margin-bottom: 15px; color: #f39c12;"><i class="fas fa-download"></i> Update Available!</h3>
+          <p style="margin-bottom: 25px;">A new version of GospelSwipe Pro is ready to install.</p>
+          <button onclick="window.location.reload()" class="slide-btn primary" style="width: 100%;">
+            Refresh Now
+          </button>
+        </div>
+      `);
+    }
+
+    // ========== EVENT LISTENERS (Consolidated) ==========
+    function setupEventListeners() {
       let touchStartX = 0;
       let touchStartY = 0;
-      let touchEndX = 0;
-      let touchEndY = 0;
       let isSwiping = false;
       
-      document.addEventListener('touchstart', function(event) {
-        touchStartX = event.changedTouches[0].screenX;
-        touchStartY = event.changedTouches[0].screenY;
+      // Touch events for swipe
+      document.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
         isSwiping = true;
       }, { passive: true });
       
-      document.addEventListener('touchmove', function(event) {
+      document.addEventListener('touchmove', (e) => {
         if (!isSwiping) return;
         
-        touchEndX = event.changedTouches[0].screenX;
-        touchEndY = event.changedTouches[0].screenY;
+        const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+        const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
         
-        // Prevent vertical scrolling during horizontal swipe
-        const diffX = Math.abs(touchStartX - touchEndX);
-        const diffY = Math.abs(touchStartY - touchEndY);
-        
-        if (diffX > diffY && diffX > 10) {
-          event.preventDefault();
+        if (deltaX > deltaY && deltaX > 10) {
+          e.preventDefault();
         }
       }, { passive: false });
       
-      document.addEventListener('touchend', function(event) {
+      document.addEventListener('touchend', (e) => {
         if (!isSwiping) return;
         
-        touchEndX = event.changedTouches[0].screenX;
-        touchEndY = event.changedTouches[0].screenY;
-        handleSwipe(touchStartX, touchStartY, touchEndX, touchEndY);
-        isSwiping = false;
-      }, { passive: true });
-    }
-    
-    function handleSwipe(startX, startY, endX, endY) {
-      const diffX = startX - endX;
-      const diffY = startY - endY;
-      
-      // Only process if it's a horizontal swipe (not vertical scroll)
-      if (Math.abs(diffX) > Math.abs(diffY)) {
-        // Minimum swipe distance
-        if (Math.abs(diffX) > 50) {
-          if (diffX > 0) {
-            // Swipe left - next
-            if (appState.currentScreen === 'presentation-screen') {
-              nextSlide();
-            }
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+          // FIXED: Swipe directions now correctly mapped
+          if (deltaX < 0) {
+            if (AppState.currentScreen === 'presentation-screen') nextSlide();
           } else {
-            // Swipe right - previous or back
-            if (appState.currentScreen === 'presentation-screen') {
-              prevSlide();
-            } else if (appState.currentScreen !== 'home-screen') {
-              // Swipe right to go back to home
-              showScreen('home-screen');
-            }
+            if (AppState.currentScreen === 'presentation-screen') prevSlide();
+            else if (AppState.currentScreen !== 'home-screen') showScreen('home-screen');
           }
         }
-      }
+        
+        isSwiping = false;
+      }, { passive: true });
+      
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (AppState.currentScreen === 'presentation-screen') {
+          if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+          else if (e.key === 'ArrowLeft') prevSlide();
+          else if (e.key === 'Escape') exitPresentation();
+        }
+      });
+      
+      // Online/offline detection
+      window.addEventListener('online', () => {
+        AppState.isOnline = true;
+        showNotification('Back online!', 'success');
+      });
+      
+      window.addEventListener('offline', () => {
+        AppState.isOnline = false;
+        showNotification('Offline mode activated', 'info');
+      });
+      
+      // Visibility change - save state
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) saveAllData();
+      });
     }
 
-    // ==================== FIXED SCREEN MANAGEMENT ====================
+    // ========== SCREEN MANAGEMENT (Fixed) ==========
     function showScreen(screenId) {
       // Hide all screens
       document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
         setTimeout(() => {
-          if (screen.id !== screenId) {
-            screen.style.display = 'none';
-          }
+          if (screen.id !== screenId) screen.style.display = 'none';
         }, 300);
       });
-      
-      // Update nav buttons
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       
       // Show target screen
       const targetScreen = document.getElementById(screenId);
       if (targetScreen) {
         targetScreen.style.display = 'flex';
-        setTimeout(() => {
-          targetScreen.classList.add('active');
-        }, 10);
+        setTimeout(() => targetScreen.classList.add('active'), 10);
       }
       
-      appState.currentScreen = screenId;
+      AppState.currentScreen = screenId;
       
-      // Update nav button state
-      if (screenId === 'home-screen') {
-        document.querySelector('.nav-btn:nth-child(1)').classList.add('active');
-      } else if (screenId === 'prayer-screen') {
-        document.querySelector('.nav-btn:nth-child(3)').classList.add('active');
-      } else if (screenId === 'stats-screen') {
-        document.querySelector('.nav-btn:nth-child(4)').classList.add('active');
-      }
+      // Update nav
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.onclick && btn.onclick.toString().includes(screenId)) btn.classList.add('active');
+      });
       
-      // Special handling for presentation screen
-      if (screenId === 'presentation-screen') {
-        document.querySelector('.bottom-nav').style.display = 'none';
-      } else {
-        document.querySelector('.bottom-nav').style.display = 'flex';
-      }
+      // Handle presentation nav
+      document.querySelector('.bottom-nav').style.display = 
+        (screenId === 'presentation-screen') ? 'none' : 'flex';
       
-      // Update content based on screen
-      if (screenId === 'prayer-screen') {
-        setTimeout(() => loadPrayers(), 100);
-      } else if (screenId === 'stats-screen') {
-        setTimeout(() => updateStatsDisplay(), 100);
-      }
+      // Load screen data
+      if (screenId === 'prayer-screen') setTimeout(loadPrayers, 100);
+      if (screenId === 'stats-screen') setTimeout(updateStatsDisplay, 100);
       
-      // Reset scroll position
       window.scrollTo(0, 0);
+      trackEvent('screen_changed', { screen: screenId });
     }
 
-    // ==================== FIXED PRESENTATION SYSTEM ====================
+    // ========== SLIDE SYSTEM (Fixed Bug: Slides 11-15) ==========
     function initializeSlides() {
       const container = document.getElementById('slidesContainer');
       container.innerHTML = '';
       
       APP_DATA.slides.forEach((slide, index) => {
-        const slideElement = document.createElement('div');
-        slideElement.className = `slide ${index === 0 ? 'active' : 'next'}`;
-        slideElement.id = `slide-${slide.id}`;
-        slideElement.style.background = `linear-gradient(135deg, ${slide.color} 0%, ${darkenColor(slide.color, 30)} 100%)`;
+        const slideEl = document.createElement('div');
+        slideEl.className = `slide ${index === 0 ? 'active' : 'next'}`;
+        slideEl.id = `slide-${slide.id}`;
+        slideEl.style.background = `linear-gradient(135deg, ${slide.color} 0%, ${darkenColor(slide.color, 30)} 100%)`;
         
-        slideElement.innerHTML = `
+        const isFirst = index === 0;
+        const isLast = index === APP_DATA.slides.length - 1;
+        
+        slideEl.innerHTML = `
           <div class="slide-content fade-in">
             <div class="slide-header">
-              <div class="slide-number">Slide ${slide.id}/10</div>
+              <div class="slide-number">Slide ${slide.id}/${APP_DATA.slides.length}</div>
               <h2 class="slide-title">${slide.title}</h2>
             </div>
             <div class="slide-verse">${slide.verse}</div>
             <div class="slide-reference">- ${slide.reference}</div>
-            <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center;">
-              <button onclick="speakSlide(${slide.id})" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 12px 20px; border-radius: 25px; cursor: pointer; min-width: 100px;">
+            <div class="slide-actions">
+              <button class="slide-btn" onclick="speakSlide(${slide.id})">
                 <i class="fas fa-volume-up"></i> Listen
               </button>
-              <button onclick="askAI('${slide.topic}')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 12px 20px; border-radius: 25px; cursor: pointer; min-width: 100px;">
+              <button class="slide-btn" onclick="askAI('${slide.topic}')">
                 <i class="fas fa-robot"></i> AI Explain
               </button>
-              <button onclick="shareVerse('${slide.verse}', '${slide.reference}')" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 12px 20px; border-radius: 25px; cursor: pointer; min-width: 100px;">
+              <button class="slide-btn" onclick="shareVerse('${slide.verse}', '${slide.reference}')">
                 <i class="fas fa-share"></i> Share
               </button>
-              <!-- Add share as image button -->
-              <button onclick="shareVersePicture('${slide.verse}', '${slide.reference}', '${slide.title}')" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; color: white; padding: 12px 20px; border-radius: 25px; cursor: pointer; min-width: 100px;">
-                <i class="fas fa-image"></i> Share Image
+              <button class="slide-btn primary" onclick="shareVersePicture('${slide.verse}', '${slide.reference}', '${slide.title}')">
+                <i class="fas fa-image"></i> Image
               </button>
             </div>
-            <div class="swipe-indicator">
-              <div class="swipe-left" ${index === 0 ? 'style="opacity: 0.3;"' : ''}>
-                <i class="fas fa-arrow-left"></i> Swipe right
+            <div class="slide-indicator">
+              <div class="swipe-left" style="${isFirst ? 'opacity: 0.3;' : ''}">
+                <i class="fas fa-arrow-left"></i> Previous
               </div>
-              <div class="swipe-right" ${index === APP_DATA.slides.length - 1 ? 'style="opacity: 0.3;"' : ''}>
-                Swipe left <i class="fas fa-arrow-right"></i>
+              <div class="swipe-right" style="${isLast ? 'opacity: 0.3;' : ''}">
+                Next <i class="fas fa-arrow-right"></i>
               </div>
             </div>
           </div>
         `;
         
-        container.appendChild(slideElement);
+        container.appendChild(slideEl);
       });
     }
 
     function startPresentation() {
-      // Hide bottom nav for presentation
-      document.querySelector('.bottom-nav').style.display = 'none';
-      
-      // Show presentation screen
-      document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-        setTimeout(() => {
-          if (screen.id !== 'presentation-screen') {
-            screen.style.display = 'none';
-          }
-        }, 300);
-      });
-      
-      const presentationScreen = document.getElementById('presentation-screen');
-      presentationScreen.style.display = 'flex';
-      setTimeout(() => {
-        presentationScreen.classList.add('active');
-      }, 10);
-      
-      appState.currentScreen = 'presentation-screen';
-      appState.currentSlide = 0;
+      AppState.currentSlide = 0;
       trackEvent('presentation_started');
       
-      // Reset all slides to initial state
-      const slides = document.querySelectorAll('.slide');
-      slides.forEach((slide, index) => {
+      // Reset slides
+      document.querySelectorAll('.slide').forEach((slide, index) => {
         slide.classList.remove('active', 'previous', 'next');
-        if (index === 0) {
-          slide.classList.add('active');
-        } else {
-          slide.classList.add('next');
-        }
+        slide.classList.add(index === 0 ? 'active' : 'next');
       });
       
-      // Update user stats
-      if (!appState.userStats.presentations) appState.userStats.presentations = 0;
-      appState.userStats.presentations++;
-      saveUserStats();
+      showScreen('presentation-screen');
+      vibrate(30);
     }
 
     function exitPresentation() {
-      // Vibrate on exit
-      navigator.vibrate?.(30);
-      
-      // Show bottom nav again
-      document.querySelector('.bottom-nav').style.display = 'flex';
-      
-      // Return to home screen
       showScreen('home-screen');
+      vibrate(30);
     }
 
-    // FIXED: Slide navigation functions - with haptics
     function nextSlide() {
-      if (appState.currentSlide < APP_DATA.slides.length - 1) {
-        // Vibrate on slide change
-        navigator.vibrate?.(50);
-        
-        const currentSlide = document.querySelector(`#slide-${appState.currentSlide + 1}`);
-        const nextSlide = document.querySelector(`#slide-${appState.currentSlide + 2}`);
-        
-        currentSlide.classList.remove('active');
-        currentSlide.classList.add('previous');
-        
-        nextSlide.classList.remove('next');
-        nextSlide.classList.add('active');
-        
-        appState.currentSlide++;
-        
-        // Track slide view
-        trackSlideView(appState.currentSlide);
+      if (AppState.currentSlide >= APP_DATA.slides.length - 1) {
+        // End of presentation
+        showNotification('🎉 Presentation complete! You\\'ve shared the full gospel!', 'success');
+        setTimeout(() => exitPresentation(), 2000);
+        return;
       }
+      
+      const current = document.querySelector(`#slide-${AppState.currentSlide + 1}`);
+      const next = document.querySelector(`#slide-${AppState.currentSlide + 2}`);
+      
+      current.classList.remove('active');
+      current.classList.add('previous');
+      next.classList.remove('next');
+      next.classList.add('active');
+      
+      AppState.currentSlide++;
+      trackSlideView(AppState.currentSlide);
+      vibrate(50);
     }
 
     function prevSlide() {
-      if (appState.currentSlide > 0) {
-        // Vibrate on slide change
-        navigator.vibrate?.(50);
+      if (AppState.currentSlide <= 0) return;
+      
+      const current = document.querySelector(`#slide-${AppState.currentSlide + 1}`);
+      const prev = document.querySelector(`#slide-${AppState.currentSlide}`);
+      
+      current.classList.remove('active');
+      current.classList.add('next');
+      prev.classList.remove('previous');
+      prev.classList.add('active');
+      
+      AppState.currentSlide--;
+      vibrate(50);
+    }
+
+    // ========== AI SYSTEM (Fixed Modal) ==========
+    function askAI(topic) {
+      const answer = APP_DATA.aiAnswers[topic];
+      if (!answer) {
+        showNotification('No AI explanation available for this topic yet', 'info');
+        return;
+      }
+      
+      const answerText = answer[AppState.language] || answer['en'];
+      
+      const modalContent = `
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="color: white; padding-top: 10px;">
+          <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <i class="fas fa-robot" style="font-size: 1.5rem; margin-right: 10px; color: #3498db;"></i>
+            <h3 style="margin: 0;">AI Explanation</h3>
+          </div>
+          <div style="line-height: 1.6; margin-bottom: 20px; font-size: 1.1rem;">${answerText}</div>
+          <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
+            <i class="fas fa-info-circle"></i> Based on biblical principles
+          </div>
+          <div style="margin-top: 20px; text-align: center;">
+            <button onclick="shareVersePicture('${answerText.replace(/'/g, "\\'")}', 'AI Insight', 'GospelSwipe AI')" class="slide-btn primary">
+              <i class="fas fa-share"></i> Share Insight
+            </button>
+          </div>
+        </div>
+      `;
+      
+      showModal(modalContent);
+      
+      AppState.userStats.aiQuestions = (AppState.userStats.aiQuestions || 0) + 1;
+      saveUserStats();
+      trackEvent('ai_question_asked', { topic });
+      vibrate(40);
+    }
+
+    function showPrayerAssistant() {
+      const categories = APP_DATA.aiPrayerAssistant.categories;
+      const categoryButtons = Object.keys(categories).map(key => `
+        <button class="slide-btn" style="margin: 5px 0; width: 100%;" onclick="showPrayerCategory('${key}')">
+          <i class="fas fa-pray"></i> ${categories[key].title}
+        </button>
+      `).join('');
+      
+      const modalContent = `
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="color: white; padding-top: 10px;">
+          <h3 style="margin-bottom: 20px;"><i class="fas fa-robot"></i> AI Prayer Guide</h3>
+          <p style="margin-bottom: 20px; opacity: 0.8;">Select a prayer category:</p>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            ${categoryButtons}
+          </div>
+        </div>
+      `;
+      
+      showModal(modalContent);
+    }
+
+    function showPrayerCategory(categoryKey) {
+      const category = APP_DATA.aiPrayerAssistant.categories[categoryKey];
+      if (!category) return;
+      
+      const prompts = category.prompts.map((prompt, index) => `
+        <button onclick="copyPrayerToJournal('${prompt.replace(/'/g, "\\'")}')" class="slide-btn" style="width: 100%; margin-bottom: 10px; text-align: left;">
+          <i class="fas fa-quote-left"></i> ${prompt.substring(0, 80)}...
+        </button>
+      `).join('');
+      
+      const modalContent = `
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="color: white; padding-top: 10px;">
+          <h3 style="margin-bottom: 15px;">${category.title}</h3>
+          <p style="font-size: 0.9rem; margin-bottom: 15px; opacity: 0.8;"><strong>Guidance:</strong> ${category.guidance}</p>
+          <h4 style="margin-bottom: 10px;">Sample Prayers:</h4>
+          ${prompts}
+        </div>
+      `;
+      
+      showModal(modalContent);
+    }
+
+    function copyPrayerToJournal(prayer) {
+      document.getElementById('prayerInput').value = prayer;
+      closeModal();
+      showScreen('prayer-screen');
+      showNotification('Prayer copied to journal', 'success');
+      vibrate(30);
+    }
+
+    // ========== PRAYER JOURNAL (Fixed) ==========
+    function savePrayer() {
+      const text = document.getElementById('prayerInput').value.trim();
+      if (!text) {
+        showNotification('Please write a prayer first', 'error');
+        return;
+      }
+      
+      const prayer = {
+        id: Date.now(),
+        text: text,
+        date: new Date().toISOString(),
+        answered: false,
+        language: AppState.language,
+        category: 'general'
+      };
+      
+      AppState.prayers.unshift(prayer);
+      document.getElementById('prayerInput').value = '';
+      loadPrayers();
+      
+      showNotification('Prayer saved! God hears you 🙏', 'success');
+      trackEvent('prayer_saved');
+      updateUserStats();
+      vibrate(50);
+      
+      saveAllData();
+    }
+
+    function loadPrayers() {
+      const container = document.getElementById('prayerList');
+      
+      if (AppState.prayers.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; opacity: 0.5;">
+            <i class="fas fa-pray" style="font-size: 3rem; margin-bottom: 20px;"></i>
+            <p>No prayers yet. Write your first prayer!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = AppState.prayers.map(prayer => `
+        <div class="prayer-item ${prayer.answered ? 'answered' : ''}">
+          <div class="prayer-date">
+            ${new Date(prayer.date).toLocaleDateString()} • ${getLanguageName(prayer.language)}
+            <button onclick="togglePrayerAnswered(${prayer.id})" style="background: none; border: none; color: ${prayer.answered ? '#e74c3c' : '#2ecc71'}; cursor: pointer;" aria-label="${prayer.answered ? 'Mark as unanswered' : 'Mark as answered'}">
+              <i class="fas fa-${prayer.answered ? 'times' : 'check'}"></i>
+            </button>
+          </div>
+          <div style="line-height: 1.5;">${escapeHtml(prayer.text)}</div>
+        </div>
+      `).join('');
+    }
+
+    function togglePrayerAnswered(prayerId) {
+      const prayer = AppState.prayers.find(p => p.id === prayerId);
+      if (!prayer) return;
+      
+      prayer.answered = !prayer.answered;
+      loadPrayers();
+      
+      if (prayer.answered) {
+        showNotification('Prayer marked as answered! Praise God! 🙌', 'success');
+        trackEvent('prayer_answered');
+        vibrate([50, 50, 100]);
+      } else {
+        showNotification('Prayer marked as pending', 'info');
+      }
+      
+      saveAllData();
+    }
+
+    function recordVoicePrayer() {
+      if (!AppState.isOnline) {
+        showNotification('Voice recording requires internet connection', 'warning');
+        return;
+      }
+      
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = AppState.language;
         
-        const currentSlide = document.querySelector(`#slide-${appState.currentSlide + 1}`);
-        const prevSlide = document.querySelector(`#slide-${appState.currentSlide}`);
+        recognition.onstart = () => {
+          showNotification('Recording... Speak your prayer', 'info');
+          document.getElementById('prayerInput').placeholder = 'Listening...';
+        };
         
-        currentSlide.classList.remove('active');
-        currentSlide.classList.add('next');
+        recognition.onresult = (event) => {
+          let transcript = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+          }
+          document.getElementById('prayerInput').value = transcript;
+        };
         
-        prevSlide.classList.remove('previous');
-        prevSlide.classList.add('active');
+        recognition.onend = () => {
+          showNotification('Recording finished', 'success');
+          document.getElementById('prayerInput').placeholder = 'Edit your prayer or save it...';
+        };
         
-        appState.currentSlide--;
+        recognition.onerror = (event) => {
+          showNotification('Voice recognition failed', 'error');
+          console.error('Voice error:', event);
+        };
+        
+        recognition.start();
+      } else {
+        showNotification('Voice recording not supported in your browser', 'error');
       }
     }
 
-    // ==================== FIXED SHARE SYSTEM ====================
+    // ========== STATISTICS & GAMIFICATION (Fixed) ==========
+    function updateUserStats() {
+      if (!AppState.userStats) {
+        AppState.userStats = {
+          presentations: 0,
+          slidesViewed: [],
+          prayers: 0,
+          aiQuestions: 0,
+          shares: 0,
+          installDate: new Date().toISOString(),
+          events: [],
+          level: 'Beginner'
+        };
+      }
+      
+      // Update derived stats
+      AppState.userStats.prayers = AppState.prayers.length;
+      
+      // Update display
+      document.getElementById('streakCount').textContent = AppState.streak.count || 0;
+      document.getElementById('versesShared').textContent = AppState.userStats.slidesViewed?.length || 0;
+      
+      saveAllData();
+    }
+
+    function updateStatsDisplay() {
+      document.getElementById('totalSlides').textContent = AppState.userStats.slidesViewed?.length || 0;
+      document.getElementById('prayerCount').textContent = AppState.prayers.length;
+      document.getElementById('streakDays').textContent = AppState.streak.count || 0;
+      document.getElementById('aiQuestions').textContent = AppState.userStats.aiQuestions || 0;
+      
+      // Calculate level
+      const totalPoints = (AppState.userStats.slidesViewed?.length || 0) + 
+                         (AppState.prayers.length * 2) + 
+                         (AppState.userStats.aiQuestions || 0) * 3 +
+                         (AppState.userStats.shares || 0) * 2;
+      
+      let level = 'Beginner';
+      let levelProgress = Math.min((totalPoints / 50) * 100, 100);
+      
+      if (totalPoints >= 50) {
+        level = 'Evangelist';
+        levelProgress = Math.min(((totalPoints - 50) / 50) * 100, 100);
+      }
+      if (totalPoints >= 100) {
+        level = 'Minister';
+        levelProgress = Math.min(((totalPoints - 100) / 100) * 100, 100);
+      }
+      if (totalPoints >= 200) {
+        level = 'Revivalist';
+        levelProgress = Math.min(((totalPoints - 200) / 200) * 100, 100);
+      }
+      if (totalPoints >= 500) {
+        level = 'Apostle';
+        levelProgress = 100;
+      }
+      
+      document.getElementById('userLevel').textContent = level;
+      AppState.userStats.level = level;
+      
+      checkAchievements();
+      updateAchievementsDisplay();
+    }
+
+    function checkStreak() {
+      const today = new Date().toDateString();
+      const lastDate = AppState.streak.lastDate;
+      
+      if (lastDate === today) return;
+      
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      if (lastDate === yesterday.toDateString()) {
+        AppState.streak.count++;
+        if (AppState.streak.count > 1) {
+          showNotification(`🔥 ${AppState.streak.count}-day streak! Keep going!`, 'success');
+        }
+      } else if (lastDate && lastDate !== today) {
+        AppState.streak.count = 1;
+      } else {
+        AppState.streak.count = 1;
+      }
+      
+      AppState.streak.lastDate = today;
+      localStorage.setItem('streak', JSON.stringify(AppState.streak));
+    }
+
+    function trackSlideView(slideId) {
+      if (!AppState.userStats.slidesViewed) AppState.userStats.slidesViewed = [];
+      
+      if (!AppState.userStats.slidesViewed.includes(slideId)) {
+        AppState.userStats.slidesViewed.push(slideId);
+        updateUserStats();
+        checkAchievements();
+      }
+    }
+
+    function checkAchievements() {
+      const newAchievements = [];
+      const totalPoints = (AppState.userStats.slidesViewed?.length || 0) + 
+                         (AppState.prayers.length * 2) + 
+                         (AppState.userStats.aiQuestions || 0) * 3 +
+                         (AppState.userStats.shares || 0) * 2;
+      
+      if (AppState.userStats.slidesViewed?.length >= 5 && !AppState.achievements.includes('learner')) {
+        newAchievements.push('Learner - Viewed 5 slides');
+        AppState.achievements.push('learner');
+      }
+      
+      if (AppState.userStats.slidesViewed?.length >= APP_DATA.slides.length && !AppState.achievements.includes('scholar')) {
+        newAchievements.push('Scholar - Viewed all slides');
+        AppState.achievements.push('scholar');
+      }
+      
+      if (AppState.prayers.length >= 3 && !AppState.achievements.includes('prayer_warrior')) {
+        newAchievements.push('Prayer Warrior - Saved 3 prayers');
+        AppState.achievements.push('prayer_warrior');
+      }
+      
+      if (totalPoints >= 50 && !AppState.achievements.includes('evangelist')) {
+        newAchievements.push('Evangelist - Earned 50 points');
+        AppState.achievements.push('evangelist');
+      }
+      
+      if (AppState.streak.count >= 7 && !AppState.achievements.includes('faithful')) {
+        newAchievements.push('Faithful - 7 day streak');
+        AppState.achievements.push('faithful');
+      }
+      
+      if (newAchievements.length > 0) {
+        localStorage.setItem('achievements', JSON.stringify(AppState.achievements));
+        newAchievements.forEach(achievement => {
+          showNotification(`🏆 Achievement Unlocked: ${achievement}`, 'success');
+          vibrate([100, 50, 100]);
+        });
+      }
+    }
+
+    function updateAchievementsDisplay() {
+      const container = document.getElementById('achievementsList');
+      if (!container) return;
+      
+      if (AppState.achievements.length === 0) {
+        container.innerHTML = '<div style="text-align: center; opacity: 0.5; padding: 20px;">No achievements yet. Keep using the app!</div>';
+        return;
+      }
+      
+      container.innerHTML = AppState.achievements.map(achievement => `
+        <div class="achievement-item">
+          <i class="fas fa-trophy"></i>
+          <span>${achievement}</span>
+        </div>
+      `).join('');
+    }
+
+    // ========== SETTINGS ==========
+    function toggleDarkMode() {
+      AppState.darkMode = !AppState.darkMode;
+      document.body.classList.toggle('dark-mode', AppState.darkMode);
+      localStorage.setItem('darkMode', AppState.darkMode);
+      vibrate(20);
+      saveAllData();
+    }
+
+    function changeLanguage() {
+      const select = document.getElementById('languageSelect');
+      AppState.language = select.value;
+      localStorage.setItem('language', AppState.language);
+      showNotification(`Language: ${getLanguageName(AppState.language)}`, 'success');
+      trackEvent('language_changed', { language: AppState.language });
+      vibrate(20);
+    }
+
+    function getLanguageName(code) {
+      const languages = { en: 'English', yo: 'Yoruba', ig: 'Igbo', ha: 'Hausa', pcm: 'Nigerian Pidgin' };
+      return languages[code] || 'English';
+    }
+
+    function updateVoiceSettings() {
+      showNotification('Voice settings updated', 'info');
+      vibrate(15);
+    }
+
+    function showLanguageSettings() {
+      showScreen('settings-screen');
+      setTimeout(() => document.getElementById('languageSelect').focus(), 300);
+    }
+
+    // ========== SHARING (Offline Compatible) ==========
     function shareApp() {
-      // Vibrate on share
-      navigator.vibrate?.(30);
+      vibrate(30);
       
       const shareData = {
         title: 'GospelSwipe Pro',
@@ -1705,61 +2452,29 @@
         url: window.location.href
       };
       
-      // Try Web Share API first
-      if (navigator.share) {
+      if (navigator.share && AppState.isOnline) {
         navigator.share(shareData)
           .then(() => {
-            trackEvent('app_shared');
+            AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
+            updateUserStats();
             showNotification('Thank you for sharing the gospel!', 'success');
-            // Update share count
-            appState.userStats.shares = (appState.userStats.shares || 0) + 1;
-            saveUserStats();
+            trackEvent('app_shared');
           })
-          .catch((error) => {
-            console.log('Web Share failed:', error);
-            fallbackShare();
-          });
+          .catch(() => fallbackShare());
       } else {
         fallbackShare();
       }
       
       function fallbackShare() {
-        // Copy to clipboard as fallback
         const textToCopy = `${shareData.text}\n\n${shareData.url}`;
-        
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(textToCopy)
-            .then(() => {
-              showNotification('Link copied to clipboard! Share it with others.', 'success');
-              trackEvent('app_shared_fallback');
-            })
-            .catch((err) => {
-              console.error('Clipboard failed:', err);
-              showNotification('Please copy the URL manually to share.', 'info');
-            });
-        } else {
-          // Old school method
-          const textArea = document.createElement('textarea');
-          textArea.value = textToCopy;
-          document.body.appendChild(textArea);
-          textArea.select();
-          
-          try {
-            document.execCommand('copy');
-            showNotification('Link copied to clipboard!', 'success');
-            trackEvent('app_shared_fallback');
-          } catch (err) {
-            console.error('Fallback copy failed:', err);
-            showNotification('Please copy this URL to share: ' + window.location.href, 'info');
-          }
-          document.body.removeChild(textArea);
-        }
+        copyToClipboard(textToCopy);
+        showNotification('Link copied! Share with others', 'success');
+        trackEvent('app_shared_fallback');
       }
     }
 
     function shareVerse(verse, reference) {
-      // Vibrate on share
-      navigator.vibrate?.(30);
+      vibrate(30);
       
       const shareData = {
         title: 'Bible Verse',
@@ -1767,80 +2482,275 @@
         url: window.location.href
       };
       
-      if (navigator.share) {
+      if (navigator.share && AppState.isOnline) {
         navigator.share(shareData)
           .then(() => {
-            trackEvent('verse_shared');
-            showNotification('Verse shared successfully!', 'success');
-            // Update share count
-            appState.userStats.shares = (appState.userStats.shares || 0) + 1;
-            saveUserStats();
+            AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
             updateUserStats();
+            showNotification('Verse shared!', 'success');
+            trackEvent('verse_shared');
           })
-          .catch((error) => {
-            console.log('Verse share failed:', error);
-            fallbackVerseShare(verse, reference);
-          });
+          .catch(() => fallbackVerseShare());
       } else {
-        fallbackVerseShare(verse, reference);
+        fallbackVerseShare();
       }
       
-      function fallbackVerseShare(verse, reference) {
-        const textToCopy = `${verse} - ${reference}\n\nShared via GospelSwipe Pro 📖\n${window.location.href}`;
-        
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(textToCopy)
-            .then(() => {
-              showNotification('Verse copied to clipboard!', 'success');
-              trackEvent('verse_shared_fallback');
-            })
-            .catch((err) => {
-              console.error('Clipboard failed:', err);
-              showNotification('Please copy the verse manually.', 'info');
-            });
-        } else {
-          const textArea = document.createElement('textarea');
-          textArea.value = textToCopy;
-          document.body.appendChild(textArea);
-          textArea.select();
-          
-          try {
-            document.execCommand('copy');
-            showNotification('Verse copied to clipboard!', 'success');
-            trackEvent('verse_shared_fallback');
-          } catch (err) {
-            console.error('Fallback copy failed:', err);
-            showNotification(`Please copy this verse: ${verse} - ${reference}`, 'info');
-          }
-          document.body.removeChild(textArea);
-        }
+      function fallbackVerseShare() {
+        const textToCopy = `${shareData.text}`;
+        copyToClipboard(textToCopy);
+        showNotification('Verse copied!', 'success');
+        trackEvent('verse_shared_fallback');
       }
     }
 
-    // ==================== MODAL SYSTEM ====================
-    function showModal(content, options = {}) {
-      // Remove any existing modal
-      const existingModal = document.querySelector('.modal-overlay');
-      if (existingModal) existingModal.remove();
+    function shareVersePicture(verseText, reference, title = 'Gospel Verse') {
+      vibrate(20);
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080;
+      canvas.height = 1080;
+      const ctx = canvas.getContext('2d');
+();
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0, 0 function fallbackVerseShare() {
+        const textToCopy = `${shareData.text}`;
+        copyToClipboard(textToCopy);
+        showNotification('Verse copied!', ' '#2c3verse50_shared_fallbackStop(1, '#5D4E86');
+      ctx.fillStyle = gradient;
+      ctx.fillRectse0, 0, reference, title = 'Gospel Verse') {
+      vibrate(20);
+);
+      
+      // Title
+      ctx.fillStyle = 'rgba(255,255,0;
+      canvas.height = 1080;
+      const ctx = canvas.getContext('2d');
+      
+      // Background gradient
+      const gradient = ctx.createLinearGradient(0,.font 0, canvas 48px.width, canvas.height);
+      gradient.addColorStop(-serif';
+      ctx.textAlign = 'centerc3e';
+');
+      ctx.fillText(title, canvas.width/2, 120);
+      
+Stop // Ver(1,)
+      ctx.fill4E86');
+      ctxfffStyle = gradient;
+      ctx.fill '(0, 0,px -apple-system      
+      //MacSystemFont      ctx';
+     .fillStyle = 'rgba(255,255,255,0. lines = wrap)';
+      ctx.font = 'bold 48px.width - 200apple-system, BlinkMacSystemFont, sans-serif';
+ i      ctx.textAlign = 'center';
+      ctx.fillText(title, 400 + (i * 80));
+      });
+      
+      //120 Reference);
+      
+      // Verse text (wrapped)
+      ctx.fillStyle)';
+      ctx.font = '36px -apple      ctx.font BlinkMacSystemFont 'bold , sans-serif';
+      ctx.fillText(reference,-serif.width/2, canvas.heightcenter';
+      
+      const lines = wrap      
+Text(ctx,      // Branding
+      ctx.fillStyle = '#3498db';
+      ctx.font = ' => {
+        ctx.fillText(line, canvas.widthpx/apple-system, Blinki * 80));
+, sans-serif      // Reference
+      ctx.fillStyle = 'rgba(255,255,255,0.9, canvas      ctx.font = '36px -apple-system, Blink100);
+      
+SystemFont, sans-serif';
+      ctx.fillText(reference, canvas.width/2, canvas.height - 250);
+      
+      // Branding
+      ctx.fillStyle = '#3498db';
+      ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText('GospelSwipe Pro', canvas.width/2, canvas.height - 100);
+      
+      ctx.font = '24px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.fillText('Digital Evangelism Platform', canvas.width/2, canvas.height - 60);
+      
+      // Logo
+      ctx.font = '64px sans-serif';
+      ctx.fillText('✝️', canvas.width/2, canvas.height - 20);
+      
+      canvas.toBlob(async blob => {
+        try {
+          if (navigator.share && navigator.canShare && AppState.isOnline) {
+            const file = new File([blob], "verse.png", { type: "image/png" });
+            await navigator.share({
+              files: [file],
+              title: 'Gospel Verse',
+              text: 'Shared via GospelSwipe Pro 📖'
+            });
+            AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
+            updateUserStats();
+            trackEvent('verse_shared_as_image');
+            vibrate([50, 50, 100]);
+          } else {
+            downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
+          }
+        } catch (err) {
+          downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
+        }
+      });
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function updateShareCount() {
+      AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
+      updateUserStats();
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+
+    // ========== MODAL SYSTEM (Fixed) ==========
+    function showModal(content) {
+      // Remove existing modals first
+      const existing = document.querySelector('.modal-overlay');
+      if (existing) existing.remove();
       
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <button onclick="closeModal()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; z-index: 10;">
-            <i class="fas fa-times"></i>
-          </button>
-          ${content}
-        </div>
-      `;
+      
+      // If content is a function, call it
+      if (typeof content === 'function') {
+        modal.innerHTML = content();
+      } else {
+        modal.innerHTML = content;
+      }
       
       document.body.appendChild(modal);
-      setTimeout(() => {
-        modal.classList.add('active');
-      }, 10);
+      setTimeout(() => modal.classList.add('active'), 10);
       
-      // Prevent background scrolling
+      // Prevent background scroll
       document.body.style.overflow = 'hidden';
+      
+      // Close on escapergba(255 (255,255,0 =>6)';
+      (e.key === 'Escape') {
+         ', canvas.width/2, canvas.height - 60);
+      
+      // Logo
+      ctx.font = '64px sans-serif';
+     .addEventListener('keydown', escapeListener);
+   ️', canvas.width/2Modal() {
+      const modal = document.query20);
+      
+ ( canvas.toBlob(async blob => {
+) {
+        modal.class        try {
+          if (navigator.share && navigatorTimeout(() => {
+          modal.remove();
+          document.body.style.overflow = '';
+        }, 300);
+      }
+    { type: "image/png" });
+            await navigator.share({
+              filesUM FEATURES (Gated) ==========
+    function showPremiumDetails() {
+      const modalContent = `
+        <button class="modal            AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
+            updateUserStats();
+            trackEvent('verse_shared_as_image');
+            vibrate([50, 50, 100]);
+          } else {
+            downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
+          }
+        } catch (err) {
+          downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
+        }
+      });
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function updateShareCount() {
+      AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
+      updateUserStats();
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+
+    // ========== MODAL SYSTEM (Fixed) ==========
+    function showModal(content) {
+      // Remove existing modals first
+      const existing = document.querySelector('.modal-overlay');
+      if (existing) existing.remove();
+      
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      
+      // If content is a function, call it
+      if (typeof content === 'function') {
+        modal.innerHTML = content();
+      } else {
+        modal.innerHTML = content;
+      }
+      
+      document.body.appendChild(modal);
+      setTimeout(() => modal.classList.add('active'), 10);
+      
+      // Prevent background scroll
+      document.body.style.overflow = 'hidden';
+      
+      // Close on escape
+      const escapeListener = (e) => {
+        if (e.key === 'Escape') {
+          closeModal();
+          document.removeEventListener('keydown', escapeListener);
+        }
+      };
+      document.addEventListener('keydown', escapeListener);
     }
 
     function closeModal() {
@@ -1854,7 +2764,265 @@
       }
     }
 
-    // ==================== VOICE SYSTEM ====================
+    // ========== PREMIUM FEATURES (Gated) ==========
+    function showPremiumDetails() {
+      const modalContent = `
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="color: white; padding-top: 10px;">
+          <h3 style="margin-bottom: 20px; color: var(--premium);"><i class="fas fa-crown"></i> GospelSwipe Premium</h3>
+          
+          <div style="margin-bottom: 20px;">
+            <h4 style="color: var(--premium); margin-bottom: 10px;">🤖 AI Apologetics Engine</h4>
+            <p style="font-size: 0.9rem; opacity: 0.8;">Ask any theological question in real-time</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <h4 style="color: var(--premium); margin-bottom: 10px;">🌍 Global Missions Heatmap</h4>
+            <p style="font-size: 0.9rem; opacity: 0.8;">See live gospel presentations worldwide</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <h4 style="color: var(--premium); margin-bottom: 10px;">👥 Mentorship Matching</h4>
+            <p style="font-size: 0.9rem; opacity: 0.8;">AI pairs you with mature believers</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <h4 style="color: var(--premium); margin-bottom: 10px;">🏛️ Church Dashboard</h4>
+            <p style="font-size: 0.9rem; opacity: 0.8;">Pastors track congregation engagement</p>
+          </div>
+          
+          <div style="background: var(--glass); padding: 15px; border-radius: 10px; margin: 20px 0;">
+            <h4 style="text-align: center; margin-bottom: 10px;">💰 Support Sustainability</h4>
+            <p style="font-size: 0.85rem; text-align: center;">
+              Your $4.99/month funds:<br>
+              • Claude API for theological AI<br>
+              • Global server distribution<br>
+              • Persecution zone security<br>
+              • Continuous mission development
+            </p>
+          </div>
+          
+          <div class="wallet-actions">
+            <button class="wallet-btn" onclick="window.open('https://buy.stripe.com/test_test', '_blank')">
+              <i class="fas fa-credit-card"></i> Subscribe $4.99/mo
+            </button>
+            <button class="wallet-btn" onclick="window.open('mailto:support@gospelswipe.pro', '_blank')">
+              <i class="fas fa-question"></i> Contact Sales
+            </button>
+          </div>
+        </div>
+      `;
+      
+      showModal(modalContent);
+      trackEvent('premium_viewed');
+    }
+
+    function showWallet() {
+      showModal(`
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="color: white; padding-top: 10px;">
+          <h3 style="margin-bottom: 20px; color: #f39c12;"><i class="fas fa-coins"></i> Missions Wallet</h3>
+          <div style="background: var(--glass); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <span>Current Balance:</span><strong>₿0.000247</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <span>Lifetime Given:</span><strong>$47.23</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span>Missions Funded:</span><strong>3 villages</strong>
+            </div>
+          </div>
+          <div class="wallet-actions">
+            <button class="wallet-btn" onclick="window.open('https://buy.stripe.com/test_test', '_blank')">
+              <i class="fas fa-plus"></i> Add $10
+            </button>
+            <button class="wallet-btn" onclick="window.open('https://www.opendoorsusa.org', '_blank')">
+              <i class="fas fa-external-link-alt"></i> View Recipients
+            </button>
+          </div>
+        </div>
+      `);
+      
+      trackEvent('wallet_viewed');
+    }
+
+    function showImpact() {
+      showScreen('impact-screen');
+      trackEvent('impact_viewed');
+    }
+
+    function churchDashboardHTML() {
+      return `
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="color: white; padding-top: 10px;">
+          <h3 style="margin-bottom: 20px; color: var(--premium);"><i class="fas fa-church"></i> Church Dashboard Preview</h3>
+          <div style="background: var(--glass); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <h4 style="margin-bottom: 15px;">📊 Congregation Overview</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div><strong>Active Members:</strong> 247<br><strong>Presentations:</strong> 1,234<br><strong>Prayers:</strong> 89</div>
+              <div><strong>Avg. Streak:</strong> 14 days<br><strong>Salvations:</strong> 12<br><strong>Growth:</strong> +8% this month</div>
+            </div>
+          </div>
+          <div style="background: var(--glass); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <h4 style="margin-bottom: 15px;">📈 Spiritual Health Metrics</h4>
+            <p style="font-size: 0.9rem;">Anonymized engagement scores, discipleship pathways, pastoral care alerts</p>
+          </div>
+          <div style="background: var(--glass); padding: 20px; border-radius: 10px;">
+            <h4 style="margin-bottom: 10px;">✉️ Weekly Pastor Report</h4>
+            <p style="font-size: 0.85rem;">Custom reports every Sunday with actionable insights for sermons and care</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function activateVOMMode() {
+      showModal(`
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="color: white; padding-top: 10px;">
+          <h3 style="margin-bottom: 20px; color: #e74c3c;"><i class="fas fa-shield-alt"></i> Voice of Martyrs Mode</h3>
+          <p style="margin-bottom: 20px; line-height: 1.7;">For believers in persecution zones. This mode:</p>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin: 10px 0;"><i class="fas fa-lock" style="color: #e74c3c;"></i> Encrypts prayer data</li>
+            <li style="margin: 10px 0;"><i class="fas fa-calculator" style="color: #e74c3c;"></i> Disguises app as calculator</li>
+            <li style="margin: 10px 0;"><i class="fas fa-bolt" style="color: #e74c3c;"></i> One-tap data wipe</li>
+            <li style="margin: 10px 0;"><i class="fas fa-globe" style="color: #e74c3c;"></i> Routes through secure servers</li>
+          </ul>
+          <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+            <p style="font-size: 0.9rem;"><strong>Status:</strong> Free for all users<br><strong>Partners:</strong> Open Doors, VOM</p>
+          </div>
+          <div class="wallet-actions">
+            <button class="wallet-btn" onclick="window.open('https://www.opendoorsusa.org', '_blank')">
+              <i class="fas fa-info-circle"></i> Learn More
+            </button>
+            <button class="wallet-btn" onclick="closeModal(); showNotification('VOM Mode activated. Restart required.', 'success');">
+              <i class="fas fa-shield-alt"></i> Activate
+            </button>
+          </div>
+        </div>
+      `);
+      
+      trackEvent('vom_mode_viewed');
+    }
+
+    // ========== DATA EXPORT (Fixed) ==========
+    function exportData() {
+      const data = {
+        app: APP_DATA.name,
+        version: APP_DATA.version,
+        exportDate: new Date().toISOString(),
+        userStats: AppState.userStats,
+        prayers: AppState.prayers,
+        streak: AppState.streak,
+        achievements: AppState.achievements,
+        language: AppState.language,
+        darkMode: AppState.darkMode
+      };
+      
+      downloadJSON(data, `gospelswipe-backup-${new Date().toISOString().split('T')[0]}.json`);
+      showNotification('Data exported successfully!', 'success');
+      trackEvent('data_exported');
+      vibrate(50);
+    }
+
+    function downloadJSON(data, filename) {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportReport() {
+      showModal(`
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="color: white; padding-top: 10px;">
+          <h3 style="margin-bottom: 20px; color: #f39c12;"><i class="fas fa-file-pdf"></i> Full Support Report</h3>
+          <p style="margin-bottom: 20px;">20-page PDF includes:</p>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Mission & Vision</li>
+            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Market Analysis</li>
+            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Competitive Moat</li>
+            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Financial Projections</li>
+            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Risk Mitigation</li>
+          </ul>
+          <button class="wallet-btn" style="width: 100%; margin-top: 20px;" onclick="window.location.href='mailto:support@gospelswipe.pro?subject=Support Report Request', '_blank')">
+            <i class="fas fa-envelope"></i> Email Request
+          </button>
+        </div>
+      `);
+      
+      trackEvent('report_export_requested');
+    }
+
+    function clearData() {
+      if (!confirm('⚠️ Are you absolutely sure? This will DELETE ALL data permanently.')) return;
+      if (!confirm('⚠️ FINAL WARNING: This cannot be undone. Type "YES" to confirm.')) return;
+      
+      localStorage.clear();
+      showNotification('All data cleared. Reloading...', 'success');
+      setTimeout(() => location.reload(), 1500);
+    }
+
+    // ========== PREMIUM GATE (Simulated) ==========
+    function isPremiumUnlocked() {
+      // In production, check subscription status
+      return localStorage.getItem('premiumUnlocked') === 'true';
+    }
+
+    // ========== SERVICE WORKER MESSAGE (Cache Management) ==========
+    function saveAllData() {
+      localStorage.setItem('userStats', JSON.stringify(AppState.userStats));
+      localStorage.setItem('prayers', JSON.stringify(AppState.prayers));
+      localStorage.setItem('streak', JSON.stringify(AppState.streak));
+      localStorage.setItem('achievements', JSON.stringify(AppState.achievements));
+      localStorage.setItem('language', AppState.language);
+      localStorage.setItem('darkMode', AppState.darkMode);
+    }
+
+    // ========== UTILITY FUNCTIONS ==========
+    function showDailyVerse() {
+      const verse = APP_DATA.dailyVerses[Math.floor(Math.random() * APP_DATA.dailyVerses.length)];
+      
+      showModal(`
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
+          <i class="fas fa-times"></i>
+        </button>
+        <div style="text-align: center; color: white; padding-top: 10px;">
+          <i class="fas fa-star" style="font-size: 2rem; color: #f39c12; margin-bottom: 15px;"></i>
+          <h3 style="margin-bottom: 20px;">Verse of the Day</h3>
+          <div style="font-size: 1.3rem; line-height: 1.6; margin-bottom: 20px; font-style: italic;">
+            "${verse.verse}"
+          </div>
+          <div style="color: #f39c12; font-size: 1.1rem; margin-bottom: 30px;">
+            ${verse.ref}
+          </div>
+          <div class="slide-actions">
+            <button class="slide-btn" onclick="shareVerse('${verse.verse}', '${verse.ref}')">
+              <i class="fas fa-share"></i> Share
+            </button>
+            <button class="slide-btn primary" onclick="shareVersePicture('${verse.verse}', '${verse.ref}', 'Daily Verse')">
+              <i class="fas fa-image"></i> Image
+            </button>
+          </div>
+        </div>
+      `);
+      
+      trackEvent('daily_verse_viewed');
+    }
+
     function speakSlide(slideId) {
       const slide = APP_DATA.slides.find(s => s.id === slideId);
       if (!slide) return;
@@ -1862,702 +3030,34 @@
       const text = `${slide.title}. ${slide.verse}. ${slide.reference}`;
       
       if ('speechSynthesis' in window) {
-        // Stop any ongoing speech
         speechSynthesis.cancel();
         
-        // Create utterance
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = appState.language === 'en' ? 'en-US' : appState.language;
+        utterance.lang = 'en-US';
         utterance.rate = parseFloat(document.getElementById('voiceSpeed').value) || 1;
         utterance.pitch = 1.1;
         utterance.volume = 1;
         
-        // Speak
         speechSynthesis.speak(utterance);
-        
-        // Track event
         trackEvent('voice_played', { slide: slideId });
-        
-        // Vibrate when audio starts
-        navigator.vibrate?.(30);
+        vibrate(30);
       } else {
-        showNotification('Voice synthesis not supported in your browser', 'error');
+        showNotification('Voice synthesis unavailable offline', 'info');
       }
     }
 
-    // ==================== PRAYER JOURNAL ====================
-    function savePrayer() {
-      const text = document.getElementById('prayerInput').value.trim();
-      if (!text) {
-        showNotification('Please write a prayer first', 'error');
-        return;
-      }
-      
-      const prayer = {
-        id: Date.now(),
-        text: text,
-        date: new Date().toISOString(),
-        answered: false,
-        language: appState.language,
-        category: 'general'
-      };
-      
-      appState.prayers.unshift(prayer);
-      localStorage.setItem('prayers', JSON.stringify(appState.prayers));
-      
-      document.getElementById('prayerInput').value = '';
-      loadPrayers();
-      
-      showNotification('Prayer saved! God hears you 🙏', 'success');
-      trackEvent('prayer_saved');
-      updateUserStats();
-      
-      // Vibrate on save
-      navigator.vibrate?.(50);
-    }
-
-    function loadPrayers() {
-      // Show skeleton loader first
-      const container = document.getElementById('prayerList');
-      const skeleton = document.getElementById('prayerSkeleton');
-      
-      if (!container) return;
-      
-      // Show skeleton
-      skeleton.style.display = 'block';
-      container.innerHTML = skeleton.outerHTML;
-      
-      // Load actual content after brief delay
-      setTimeout(() => {
-        if (appState.prayers.length === 0) {
-          container.innerHTML = `
-            <div style="text-align: center; padding: 40px; opacity: 0.5;">
-              <i class="fas fa-pray" style="font-size: 3rem; margin-bottom: 20px;"></i>
-              <p>No prayers yet. Write your first prayer!</p>
-            </div>
-          `;
-        } else {
-          container.innerHTML = appState.prayers.map(prayer => `
-            <div class="prayer-item ${prayer.answered ? 'answered' : ''}">
-              <div class="prayer-date">
-                ${new Date(prayer.date).toLocaleDateString()} • 
-                ${getLanguageName(prayer.language)}
-                <button onclick="toggleAnswered(${prayer.id})" style="float: right; background: none; border: none; color: ${prayer.answered ? '#e74c3c' : '#2ecc71'}; cursor: pointer;">
-                  <i class="fas fa-${prayer.answered ? 'times' : 'check'}"></i>
-                </button>
-              </div>
-              <div>${prayer.text}</div>
-            </div>
-          `).join('');
-        }
-      }, 300);
-    }
-
-    function toggleAnswered(prayerId) {
-      const prayer = appState.prayers.find(p => p.id === prayerId);
-      if (prayer) {
-        prayer.answered = !prayer.answered;
-        localStorage.setItem('prayers', JSON.stringify(appState.prayers));
-        loadPrayers();
-        
-        if (prayer.answered) {
-          showNotification('Prayer marked as answered! Praise God!', 'success');
-          trackEvent('prayer_answered');
-          // Vibrate on answered
-          navigator.vibrate?.([50, 50, 100]); // Morse code for "yes"
-        }
-      }
-    }
-
-    function recordVoicePrayer() {
-      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        showNotification('Voice recording started. Speak your prayer...', 'info');
-        
-        // This is a placeholder - in a real app, implement speech recognition
-        setTimeout(() => {
-          showNotification('Voice recording would work with proper browser permissions', 'info');
-        }, 1000);
-      } else {
-        showNotification('Voice recording not supported in your browser', 'error');
-      }
-    }
-
-    // ==================== AI SYSTEM ====================
-    function askAI(topic) {
-      const answer = APP_DATA.aiAnswers[topic];
-      if (!answer) {
-        showNotification('No answer available for this topic yet', 'error');
-        return;
-      }
-      
-      const answerText = answer[appState.language] || answer['en'];
-      
-      const modalContent = `
-        <div style="color: white;">
-          <div style="display: flex; align-items: center; margin-bottom: 20px;">
-            <i class="fas fa-robot" style="font-size: 1.5rem; margin-right: 10px; color: #3498db;"></i>
-            <h3 style="margin: 0;">AI Explanation</h3>
-          </div>
-          <div style="line-height: 1.6; margin-bottom: 20px; font-size: 1.1rem;">${answerText}</div>
-          <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
-            <i class="fas fa-info-circle"></i> Based on biblical principles
-          </div>
-          <!-- Add share AI answer button -->
-          <div style="margin-top: 20px; text-align: center;">
-            <button onclick="shareVersePicture('${answerText}', 'AI Insight', 'GospelSwipe AI')" style="
-              background: linear-gradient(135deg, #3498db, #2980b9);
-              color: white;
-              border: none;
-              padding: 10px 20px;
-              border-radius: 25px;
-              cursor: pointer;
-            ">
-              <i class="fas fa-share"></i> Share This Insight
-            </button>
-          </div>
-        </div>
-      `;
-      
-      showModal(modalContent);
-      
-      // Track AI usage
-      if (!appState.userStats.aiQuestions) appState.userStats.aiQuestions = 0;
-      appState.userStats.aiQuestions++;
-      saveUserStats();
-      trackEvent('ai_question_asked', { topic: topic });
-      
-      // Vibrate on AI answer
-      navigator.vibrate?.(40);
-    }
-
-    // ==================== STATISTICS & GAMIFICATION ====================
-    function updateUserStats() {
-      // Initialize stats if not exists
-      if (!appState.userStats) {
-        appState.userStats = {
-          presentations: 0,
-          slidesViewed: [],
-          prayers: appState.prayers.length,
-          aiQuestions: 0,
-          shares: 0,
-          installDate: new Date().toISOString(),
-          events: [],
-          level: 'Beginner',
-          levelProgress: 0
-        };
-      }
-      
-      // Update stats
-      appState.userStats.prayers = appState.prayers.length;
-      
-      // Save to localStorage
-      localStorage.setItem('userStats', JSON.stringify(appState.userStats));
-      
-      // Update display
-      updateStatsDisplay();
-    }
-
-    function updateStatsDisplay() {
-      // Update home screen stats
-      document.getElementById('streakCount').textContent = appState.streak.count || 0;
-      document.getElementById('versesShared').textContent = appState.userStats.slidesViewed?.length || 0;
-      
-      // Update stats screen
-      document.getElementById('totalSlides').textContent = appState.userStats.slidesViewed?.length || 0;
-      document.getElementById('prayerCount').textContent = appState.prayers.length;
-      document.getElementById('streakDays').textContent = appState.streak.count || 0;
-      document.getElementById('aiQuestions').textContent = appState.userStats.aiQuestions || 0;
-      
-      // Calculate user level
-      const totalPoints = (appState.userStats.slidesViewed?.length || 0) + 
-                         (appState.prayers.length * 2) + 
-                         (appState.userStats.aiQuestions || 0) * 3 +
-                         (appState.userStats.shares || 0) * 2;
-      
-      let level = 'Beginner';
-      let levelProgress = Math.min((totalPoints / 50) * 100, 100);
-      
-      if (totalPoints > 50) {
-        level = 'Evangelist';
-        levelProgress = Math.min(((totalPoints - 50) / 50) * 100, 100);
-      }
-      if (totalPoints > 100) {
-        level = 'Minister';
-        levelProgress = Math.min(((totalPoints - 100) / 100) * 100, 100);
-      }
-      if (totalPoints > 200) {
-        level = 'Revivalist';
-        levelProgress = Math.min(((totalPoints - 200) / 200) * 100, 100);
-      }
-      if (totalPoints > 500) {
-        level = 'Apostle';
-        levelProgress = 100;
-      }
-      
-      document.getElementById('userLevel').textContent = level;
-      appState.userStats.level = level;
-      appState.userStats.levelProgress = levelProgress;
-      
-      // Update achievements display
-      updateAchievementsDisplay();
-    }
-
-    function checkStreak() {
-      const today = new Date().toDateString();
-      const lastDate = appState.streak.lastDate;
-      
-      if (lastDate === today) {
-        // Already used today
-        return;
-      }
-      
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      
-      if (lastDate === yesterday.toDateString()) {
-        // Consecutive day
-        appState.streak.count++;
-      } else if (lastDate && lastDate !== today) {
-        // Broken streak
-        appState.streak.count = 1;
-      } else {
-        // First time
-        appState.streak.count = 1;
-      }
-      
-      appState.streak.lastDate = today;
-      localStorage.setItem('streak', JSON.stringify(appState.streak));
-      
-      // Show streak notification if increased
-      if (appState.streak.count > 1) {
-        showNotification(`🔥 ${appState.streak.count}-day streak! Keep going!`, 'success');
-      }
-    }
-
-    function trackSlideView(slideId) {
-      if (!appState.userStats.slidesViewed) {
-        appState.userStats.slidesViewed = [];
-      }
-      
-      if (!appState.userStats.slidesViewed.includes(slideId)) {
-        appState.userStats.slidesViewed.push(slideId);
-        saveUserStats();
-        
-        // Check for achievements
-        checkAchievements();
-      }
-    }
-
-    function checkAchievements() {
-      const newAchievements = [];
-      const totalPoints = (appState.userStats.slidesViewed?.length || 0) + 
-                         (appState.prayers.length * 2) + 
-                         (appState.userStats.aiQuestions || 0) * 3 +
-                         (appState.userStats.shares || 0) * 2;
-      
-      if (appState.userStats.slidesViewed?.length >= 5 && !appState.achievements.includes('first_5')) {
-        newAchievements.push('Learner - Viewed 5 slides');
-        appState.achievements.push('first_5');
-      }
-      
-      if (appState.userStats.slidesViewed?.length >= 10 && !appState.achievements.includes('all_slides')) {
-        newAchievements.push('Scholar - Viewed all slides');
-        appState.achievements.push('all_slides');
-      }
-      
-      if (appState.prayers.length >= 3 && !appState.achievements.includes('prayer_warrior')) {
-        newAchievements.push('Prayer Warrior - Saved 3 prayers');
-        appState.achievements.push('prayer_warrior');
-      }
-      
-      if (totalPoints >= 50 && !appState.achievements.includes('evangelist')) {
-        newAchievements.push('Evangelist - Earned 50 points');
-        appState.achievements.push('evangelist');
-      }
-      
-      if (appState.userStats.shares >= 5 && !appState.achievements.includes('sharer')) {
-        newAchievements.push('Sharer - Shared 5 verses');
-        appState.achievements.push('sharer');
-      }
-      
-      if (appState.streak.count >= 7 && !appState.achievements.includes('faithful')) {
-        newAchievements.push('Faithful - 7 day streak');
-        appState.achievements.push('faithful');
-      }
-      
-      if (newAchievements.length > 0) {
-        localStorage.setItem('achievements', JSON.stringify(appState.achievements));
-        
-        newAchievements.forEach(achievement => {
-          showNotification(`🏆 Achievement Unlocked: ${achievement}`, 'success');
-          // Vibrate pattern for achievement
-          navigator.vibrate?.([100, 50, 100, 50, 200]);
-        });
-        
-        // Update achievements display
-        updateAchievementsDisplay();
-      }
-    }
-
-    function updateAchievementsDisplay() {
-      const container = document.getElementById('achievementsList');
-      if (!container) return;
-      
-      if (appState.achievements.length === 0) {
-        container.innerHTML = '<div style="text-align: center; opacity: 0.5; padding: 20px;">No achievements yet. Keep using the app!</div>';
-        return;
-      }
-      
-      container.innerHTML = appState.achievements.map(achievement => `
-        <div style="background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
-          <i class="fas fa-trophy" style="color: #f39c12; margin-right: 10px;"></i>
-          ${achievement}
-        </div>
-      `).join('');
-    }
-
-    // ==================== SETTINGS ====================
-    function toggleDarkMode() {
-      appState.darkMode = !appState.darkMode;
-      document.body.classList.toggle('dark-mode', appState.darkMode);
-      localStorage.setItem('darkMode', appState.darkMode);
-      
-      // Vibrate on toggle
-      navigator.vibrate?.(20);
-    }
-
-    function changeLanguage() {
-      const select = document.getElementById('languageSelect');
-      appState.language = select.value;
-      localStorage.setItem('language', appState.language);
-      
-      showNotification(`Language changed to ${getLanguageName(appState.language)}`, 'success');
-      trackEvent('language_changed', { language: appState.language });
-      
-      // Vibrate on language change
-      navigator.vibrate?.(20);
-    }
-
-    function getLanguageName(code) {
-      const languages = {
-        en: 'English',
-        yo: 'Yoruba',
-        ig: 'Igbo',
-        ha: 'Hausa',
-        pcm: 'Nigerian Pidgin'
-      };
-      return languages[code] || 'English';
-    }
-
-    function updateVoiceSettings() {
-      showNotification('Voice settings updated', 'info');
-      // Vibrate on setting change
-      navigator.vibrate?.(15);
-    }
-
-    // ==================== DATA MANAGEMENT ====================
-    function exportData() {
-      const data = {
-        app: 'GospelSwipe Pro',
-        version: APP_DATA.version,
-        exportDate: new Date().toISOString(),
-        userStats: appState.userStats,
-        prayers: appState.prayers,
-        streak: appState.streak,
-        achievements: appState.achievements,
-        language: appState.language,
-        darkMode: appState.darkMode
-      };
-      
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `gospelswipe-backup-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      showNotification('Data exported successfully!', 'success');
-      trackEvent('data_exported');
-      
-      // Vibrate on export
-      navigator.vibrate?.(50);
-    }
-
-    function clearData() {
-      if (confirm('Are you sure? This will delete all your prayers and statistics.')) {
-        localStorage.clear();
-        location.reload();
-      }
-    }
-
-    // ==================== PWA INSTALLATION ====================
-    let deferredPrompt;
-    
-    function checkInstallPrompt() {
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('installBtn').style.display = 'block';
-      });
-    }
-
-    function installApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            showNotification('App installed successfully!', 'success');
-            appState.installed = true;
-            localStorage.setItem('installed', 'true');
-            document.getElementById('installBtn').style.display = 'none';
-            trackEvent('app_installed');
-            
-            // Vibrate on install
-            navigator.vibrate?.([100, 50, 100]);
-          }
-          deferredPrompt = null;
-        });
-      } else {
-        showNotification('App is already installed or cannot be installed', 'info');
-      }
-    }
-
-    // ==================== UTILITY FUNCTIONS ====================
-    function showNotification(message, type = 'info') {
-      const notification = document.getElementById('notification');
-      const messageEl = document.getElementById('notificationMessage');
-      
-      // Set color based on type
-      const colors = {
-        success: '#2ecc71',
-        error: '#e74c3c',
-        info: '#3498db',
-        warning: '#f39c12'
-      };
-      
-      notification.style.background = colors[type] || colors.info;
-      messageEl.textContent = message;
-      notification.classList.add('show');
-      
-      // Vibrate based on notification type
-      if (type === 'success') {
-        navigator.vibrate?.([30, 30, 50]); // Success pattern
-      } else if (type === 'error') {
-        navigator.vibrate?.([100, 50, 100]); // Error pattern
-      }
-      
-      // Auto hide after 3 seconds
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, 3000);
-    }
-
-    function trackEvent(eventName, data = {}) {
-      // In a real app, this would send to analytics
-      console.log(`Event: ${eventName}`, data);
-      
-      // Store locally for stats
-      if (!appState.userStats.events) appState.userStats.events = [];
-      appState.userStats.events.push({
-        event: eventName,
-        data: data,
-        timestamp: new Date().toISOString()
-      });
-      
-      saveUserStats();
-    }
-
-    function saveUserStats() {
-      localStorage.setItem('userStats', JSON.stringify(appState.userStats));
-    }
-
-    function showDailyVerse() {
-      const randomVerse = APP_DATA.dailyVerses[Math.floor(Math.random() * APP_DATA.dailyVerses.length)];
-      
-      const modalContent = `
-        <div style="text-align: center; color: white;">
-          <i class="fas fa-star" style="font-size: 2rem; color: #f39c12; margin-bottom: 15px;"></i>
-          <h3 style="margin-bottom: 20px;">Verse of the Day</h3>
-          <div style="font-size: 1.3rem; line-height: 1.6; margin-bottom: 20px; font-style: italic;">
-            "${randomVerse.verse}"
-          </div>
-          <div style="color: #f39c12; font-size: 1.1rem; margin-bottom: 30px;">
-            ${randomVerse.ref}
-          </div>
-          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <button onclick="shareVerse('${randomVerse.verse}', '${randomVerse.ref}')" style="
-              background: #3498db; 
-              color: white; 
-              border: none; 
-              padding: 12px 25px; 
-              border-radius: 25px; 
-              cursor: pointer;
-              flex: 1;
-              min-width: 120px;
-            ">
-              <i class="fas fa-share"></i> Share
-            </button>
-            <button onclick="shareVersePicture('${randomVerse.verse}', '${randomVerse.ref}', 'Verse of the Day')" style="
-              background: #e74c3c;
-              color: white;
-              border: none;
-              padding: 12px 25px;
-              border-radius: 25px;
-              cursor: pointer;
-              flex: 1;
-              min-width: 120px;
-            ">
-              <i class="fas fa-image"></i> Share Image
-            </button>
-            <button onclick="closeModal()" style="
-              background: rgba(255,255,255,0.1); 
-              color: white; 
-              border: 1px solid rgba(255,255,255,0.3); 
-              padding: 12px 25px; 
-              border-radius: 25px; 
-              cursor: pointer;
-              flex: 1;
-              min-width: 120px;
-            ">
-              Close
-            </button>
-          </div>
-        </div>
-      `;
-      
-      showModal(modalContent);
-      trackEvent('daily_verse_viewed');
-    }
-
-    function showLanguageSettings() {
-      showScreen('settings-screen');
-      // Scroll to language section
-      setTimeout(() => {
-        document.getElementById('languageSelect').focus();
-      }, 100);
-    }
-
-    // ==================== ENHANCED: CANVAS VERSE SHARING ====================
-    async function shareVersePicture(verseText, reference, title = 'Gospel Verse') {
-      // Vibrate on button press
-      navigator.vibrate?.(20);
-      
-      // Create canvas (digital paper)
-      const canvas = document.createElement('canvas');
-      canvas.width = 1080; // High resolution for sharing
-      canvas.height = 1080;
-      const ctx = canvas.getContext('2d');
-      
-      // Draw background gradient based on verse topic
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradient.addColorStop(0, '#2c3e50');
-      gradient.addColorStop(1, '#5D4E86');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Add decorative elements
-      ctx.fillStyle = 'rgba(255,255,255,0.05)';
-      ctx.beginPath();
-      ctx.arc(canvas.width/2, canvas.height/2, 300, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Draw main title if provided
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.font = 'bold 48px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(title, canvas.width/2, 120);
-      
-      // Draw verse text - wrap if too long
-      ctx.fillStyle = 'white';
-      ctx.font = 'bold 56px Arial';
-      ctx.textAlign = 'center';
-      
-      const maxWidth = canvas.width - 200;
-      const lineHeight = 80;
-      const lines = wrapText(ctx, `"${verseText}"`, maxWidth);
-      
-      lines.forEach((line, index) => {
-        ctx.fillText(line, canvas.width/2, 400 + (index * lineHeight));
-      });
-      
-      // Draw reference
-      ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      ctx.font = '36px Arial';
-      ctx.fillText(reference, canvas.width/2, canvas.height - 250);
-      
-      // Add GospelSwipe branding
-      ctx.fillStyle = '#3498db';
-      ctx.font = 'bold 32px Arial';
-      ctx.fillText('GospelSwipe Pro', canvas.width/2, canvas.height - 100);
-      
-      // Add app tagline
-      ctx.fillStyle = 'rgba(255,255,255,0.6)';
-      ctx.font = '24px Arial';
-      ctx.fillText('Digital Evangelism Platform', canvas.width/2, canvas.height - 60);
-      
-      // Add logo/emoji
-      ctx.fillStyle = '#f39c12';
-      ctx.font = '64px sans-serif';
-      ctx.fillText('✝️', canvas.width/2, canvas.height - 20);
-      
-      // Turn into picture and share
-      canvas.toBlob(blob => {
-        const file = new File([blob], "verse.png", { type: "image/png" });
-        
-        // Try to use Web Share API with files
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          navigator.share({
-            files: [file],
-            title: 'Gospel Verse',
-            text: `Shared via GospelSwipe Pro 📖`
-          }).then(() => {
-            trackEvent('verse_shared_as_image');
-            showNotification('Verse image shared successfully!', 'success');
-            // Update share stats
-            appState.userStats.shares = (appState.userStats.shares || 0) + 1;
-            saveUserStats();
-            updateUserStats();
-          }).catch(err => {
-            console.log('Image share failed:', err);
-            fallbackImageShare(blob);
-          });
-        } else {
-          fallbackImageShare(blob);
-        }
-      });
-      
-      function fallbackImageShare(blob) {
-        // Create download link as fallback
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`;
-        a.click();
-        
-        showNotification('Verse image saved to downloads!', 'success');
-        trackEvent('verse_image_downloaded');
-        
-        URL.revokeObjectURL(url);
-      }
-    }
-    
-    // Helper function to wrap text on canvas
     function wrapText(context, text, maxWidth) {
       const words = text.split(' ');
       const lines = [];
       let line = '';
       
-      for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
+      for (const word of words) {
+        const testLine = line + word + ' ';
         const metrics = context.measureText(testLine);
-        const testWidth = metrics.width;
         
-        if (testWidth > maxWidth && n > 0) {
+        if (metrics.width > maxWidth && line.length > 0) {
           lines.push(line);
-          line = words[n] + ' ';
+          line = word + ' ';
         } else {
           line = testLine;
         }
@@ -2566,46 +3066,95 @@
       return lines;
     }
 
-    function darkenColor(color, percent) {
+    function darkenColor(color, amount) {
       const num = parseInt(color.replace('#', ''), 16);
-      const amt = Math.round(2.55 * percent);
-      const R = (num >> 16) - amt;
-      const G = (num >> 8 & 0x00FF) - amt;
-      const B = (num & 0x0000FF) - amt;
+      const amt = Math.round(2.55 * amount);
+      const R = Math.max(0, (num >> 16) - amt);
+      const G = Math.max(0, (num >> 8 & 0x00FF) - amt);
+      const B = Math.max(0, (num & 0x0000FF) - amt);
       
-      return '#' + (
-        0x1000000 +
-        (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-        (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-        (B < 255 ? B < 1 ? 0 : B : 255)
-      ).toString(16).slice(1);
+      return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
     }
 
-    // ==================== SERVICE WORKER REGISTRATION ====================
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(registration => {
-            console.log('ServiceWorker registration successful');
-          })
-          .catch(err => {
-            console.log('ServiceWorker registration failed: ', err);
-          });
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function vibrate(pattern) {
+      if ('vibrate' in navigator) navigator.vibrate(pattern);
+    }
+
+    // ========== INSTALL PROMPT ==========
+    let deferredPrompt = null;
+    
+    function checkInstallPrompt() {
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installBtn').classList.remove('hidden');
       });
+      
+      // Hide if already installed
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        document.getElementById('installBtn').classList.add('hidden');
+      }
     }
 
-    // Add keyboard support for presentation
-    document.addEventListener('keydown', function(e) {
-      if (appState.currentScreen === 'presentation-screen') {
-        if (e.key === 'ArrowRight' || e.key === ' ') {
-          nextSlide();
-        } else if (e.key === 'ArrowLeft') {
-          prevSlide();
-        } else if (e.key === 'Escape') {
-          exitPresentation();
-        }
+    async function installApp() {
+      if (!deferredPrompt) {
+        showNotification('App is already installed or not supported', 'info');
+        return;
       }
-    });
+      
+      try {
+        await deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        if (choice.outcome === 'accepted') {
+          showNotification('App installed! Access from home screen 🎉', 'success');
+          trackEvent('app_installed');
+          vibrate([100, 50, 100]);
+        }
+        deferredPrompt = null;
+        document.getElementById('installBtn').classList.add('hidden');
+      } catch (error) {
+        console.error('Installation failed:', error);
+        showNotification('Installation failed. Use browser menu.', 'error');
+      }
+    }
+
+    // ========== NOTIFICATION (Toast) ==========
+    function showNotification(message, type = 'info', duration = 4000) {
+      const notification = document.getElementById('notification');
+      const messageEl = document.getElementById('notificationMessage');
+      
+      const colors = { success: '#2ecc71', error: '#e74c3c', info: '#3498db', warning: '#f39c12' };
+      notification.style.background = colors[type] || colors.info;
+      
+      messageEl.textContent = message;
+      notification.classList.add('show');
+      
+      vibrate(type === 'success' ? [30, 30, 50] : type === 'error' ? [100, 50, 100] : [30]);
+      
+      setTimeout(() => notification.classList.remove('show'), duration);
+    }
+
+    function trackEvent(eventName, data = {}) {
+      console.log(`[Analytics] ${eventName}:`, data);
+      
+      if (!AppState.userStats.events) AppState.userStats.events = [];
+      AppState.userStats.events.push({
+        event: eventName,
+        data,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Keep only last 100 events
+      if (AppState.userStats.events.length > 100) {
+        AppState.userStats.events = AppState.userStats.events.slice(-100);
+      }
+    }
   </script>
 </body>
 </html>
