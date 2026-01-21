@@ -4,19 +4,18 @@
 // Made in Nigeria 🇳🇬 | Production-Ready
 // ==========================================
 
-const CACHE_VERSION = 'v1.0.0';
-const STATIC_CACHE = `gospel-swipe-static-${CACHE_VERSION}`;
+const CACHE_VERSION = 'v1.0';
+const STATIC_CACHE = `gospel-swipe-pro-${CACHE_VERSION}`;
 const FONT_CACHE = `gospel-swipe-fonts-${CACHE_VERSION}`;
 
 // Critical assets - cached during install
 const CRITICAL_ASSETS = [
   './',
-  './index.html',
-  './manifest.json'
+  './index.html'
 ];
 
-// External assets (Font Awesome) - cache with network-first strategy
-const EXTERNAL_ASSETS = [
+// External assets - Font Awesome only
+const FONT_ASSETS = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
@@ -24,7 +23,7 @@ const EXTERNAL_ASSETS = [
 // INSTALL EVENT - Precache critical assets
 // ==========================================
 self.addEventListener('install', event => {
-  console.log('🔧 GospelSwipe Pro: Installing service worker...');
+  console.log('🔧 GospelSwipe Pro v1.0: Installing service worker...');
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
@@ -34,7 +33,7 @@ self.addEventListener('install', event => {
       })
       .then(() => {
         console.log('✅ All critical assets cached');
-        return self.skipWaiting(); // Activate immediately
+        return self.skipWaiting();
       })
       .catch(err => {
         console.error('❌ Install failed:', err);
@@ -46,7 +45,7 @@ self.addEventListener('install', event => {
 // ACTIVATE EVENT - Clean old caches
 // ==========================================
 self.addEventListener('activate', event => {
-  console.log('🔄 GospelSwipe Pro: Activating service worker...');
+  console.log('🔄 GospelSwipe Pro v1.0: Activating service worker...');
   
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -64,17 +63,16 @@ self.addEventListener('activate', event => {
     })
     .then(() => {
       console.log('✅ Old caches cleaned up');
-      return self.clients.claim(); // Take control immediately
+      return self.clients.claim();
     })
   );
 });
 
 // ==========================================
-// FETCH EVENT - Main routing logic
+// FETCH EVENT - Cache-first strategy
 // ==========================================
 self.addEventListener('fetch', event => {
   const { request } = event;
-  const url = new URL(request.url);
 
   // Skip non-GET requests
   if (request.method !== 'GET') return;
@@ -82,80 +80,56 @@ self.addEventListener('fetch', event => {
   // Handle navigation requests - serve index.html for SPA
   if (request.mode === 'navigate') {
     event.respondWith(
-      caches.match('./index.html')
-        .then(response => response || fetch(request))
+      caches.match('./index.html').then(response => {
+        if (response) return response;
+        return fetch(request).catch(() => caches.match('./index.html'));
+      })
     );
     return;
   }
 
-  // Handle same-origin requests
-  if (url.origin === self.location.origin) {
-    event.respondWith(cacheFirst(request, STATIC_CACHE));
+  // Handle Font Awesome requests (network-first)
+  if (FONT_ASSETS.some(asset => request.url.includes(asset))) {
+    event.respondWith(
+      fetch(request).then(networkResponse => {
+        if (networkResponse.ok) {
+          const cacheCopy = networkResponse.clone();
+          caches.open(FONT_CACHE).then(cache => {
+            cache.put(request, cacheCopy);
+          });
+        }
+        return networkResponse;
+      }).catch(() => {
+        return caches.match(request);
+      })
+    );
     return;
   }
 
-  // Handle Font Awesome requests
-  if (EXTERNAL_ASSETS.some(asset => request.url.includes(asset))) {
-    event.respondWith(networkFirst(request, FONT_CACHE));
-    return;
-  }
-
-  // Default: try cache, then network
+  // All other requests - cache-first
   event.respondWith(
-    caches.match(request)
-      .then(response => response || fetch(request))
+    caches.match(request).then(cachedResponse => {
+      if (cachedResponse) return cachedResponse;
+      
+      return fetch(request).then(networkResponse => {
+        // Cache successful responses
+        if (networkResponse.ok) {
+          const cacheCopy = networkResponse.clone();
+          caches.open(STATIC_CACHE).then(cache => {
+            cache.put(request, cacheCopy);
+          });
+        }
+        return networkResponse;
+      }).catch(() => {
+        // Return offline fallback for HTML
+        if (request.headers.get('Accept').includes('text/html')) {
+          return caches.match('./index.html');
+        }
+        return new Response('Offline', { status: 503 });
+      });
+    })
   );
 });
-
-// ==========================================
-// CACHING STRATEGIES
-// ==========================================
-
-// Cache First strategy
-async function cacheFirst(request, cacheName) {
-  try {
-    const cache = await caches.open(cacheName);
-    const cachedResponse = await cache.match(request);
-    
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    
-    const networkResponse = await fetch(request);
-    
-    if (networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
-    }
-    
-    return networkResponse;
-  } catch (error) {
-    console.error('Cache First failed:', error);
-    // Return offline fallback for HTML
-    if (request.headers.get('Accept').includes('text/html')) {
-      return caches.match('./index.html');
-    }
-    return new Response('Offline', { status: 503 });
-  }
-}
-
-// Network First strategy (for external assets)
-async function networkFirst(request, cacheName) {
-  try {
-    const networkResponse = await fetch(request);
-    
-    if (networkResponse.ok) {
-      const cache = await caches.open(cacheName);
-      cache.put(request, networkResponse.clone());
-    }
-    
-    return networkResponse;
-  } catch (error) {
-    console.log('Network failed, trying cache:', request.url);
-    const cache = await caches.open(cacheName);
-    const cachedResponse = await cache.match(request);
-    return cachedResponse || new Response('Offline', { status: 503 });
-  }
-}
 
 // ==========================================
 // MESSAGE HANDLER
@@ -166,4 +140,4 @@ self.addEventListener('message', event => {
   }
 });
 
-console.log('✨ GospelSwipe Pro Service Worker loaded - 100% Offline Ready');
+console.log('✨ GospelSwipe Pro v1.0 Service Worker loaded - 100% Offline Ready');

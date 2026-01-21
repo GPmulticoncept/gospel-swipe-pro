@@ -3,24 +3,26 @@
   "short_name": "GospelSwipe",
   "description": "AI-powered gospel presentation with prayer journal, multi-language support, and 100% offline evangelism tools. Made in Nigeria 🇳🇬",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#2c3e50",
   "background_color": "#2c3e50",
-  "categories": ["religion", "education", "productivity"],
+  "categories": ["religion", "utility"],
   "lang": "en",
   "dir": "ltr",
+  "id": "gospelswipe-pro-v1.0",
   "icons": [
     {
-      "src": "./icon-192.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48dGV4dCB5PSIuOGVtIiB4PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTYwIj7wn5udeTwvdGV4dD48L3N2Zz4=",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "./icon-512.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48dGV4dCB5PSIuOGVtIiB4PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iNDAwIj7wn5udeTwvdGV4dD48L3N2Zz4=",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],
@@ -30,15 +32,25 @@
       "short_name": "Present",
       "description": "Start dynamic gospel presentation instantly",
       "url": "./index.html?action=present",
-      "icons": [{ "src": "./icon-present.png", "sizes": "96x96" }]
+      "icons": [{ 
+        "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48dGV4dCB5PSIuOGVtIiB4PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTIwIj7wn5qOPC90ZXh0Pjwvc3ZnPg==", 
+        "sizes": "96x96" 
+      }]
     },
     {
       "name": "Prayer Journal",
       "short_name": "Prayer",
       "description": "Open prayer journal instantly",
       "url": "./index.html?action=prayer",
-      "icons": [{ "src": "./icon-prayer.png", "sizes": "96x96" }]
+      "icons": [{ 
+        "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48dGV4dCB5PSIuOGVtIiB4PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTIwIj7wn5qEPC90ZXh0Pjwvc3ZnPg==", 
+        "sizes": "96x96" 
+      }]
     }
   ],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }
