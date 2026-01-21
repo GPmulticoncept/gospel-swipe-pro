@@ -1,17 +1,15 @@
 {
   "name": "GospelSwipe Pro",
   "short_name": "GospelSwipe",
-  "description": "AI-powered gospel presentation with prayer journal, apologetics Q&A, and global Christian community - 100% offline",
-  "start_url": "./",
+  "description": "AI-powered gospel presentation with prayer journal, multi-language support, and 100% offline evangelism tools. Made in Nigeria 🇳🇬",
+  "start_url": "./index.html",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "browser"],
   "orientation": "portrait",
-  "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
-  "categories": ["lifestyle", "education", "productivity"],
+  "background_color": "#2c3e50",
+  "categories": ["religion", "education", "productivity"],
   "lang": "en",
   "dir": "ltr",
-  "id": "./",
   "icons": [
     {
       "src": "./icon-192.png",
@@ -24,50 +22,23 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✝️</text></svg>",
-      "sizes": "any",
-      "type": "image/svg+xml"
     }
   ],
   "shortcuts": [
     {
       "name": "Start Presentation",
       "short_name": "Present",
-      "description": "Start gospel presentation",
-      "url": "./?start=true",
-      "icons": [{ "src": "./icon-96.png", "sizes": "96x96", "type": "image/png" }]
+      "description": "Start dynamic gospel presentation instantly",
+      "url": "./index.html?action=present",
+      "icons": [{ "src": "./icon-present.png", "sizes": "96x96" }]
     },
     {
       "name": "Prayer Journal",
-      "short_name": "Pray",
-      "description": "Open prayer journal",
-      "url": "./?screen=prayer",
-      "icons": [{ "src": "./icon-96.png", "sizes": "96x96", "type": "image/png" }]
-    },
-    {
-      "name": "Daily Verse",
-      "short_name": "Verse",
-      "description": "View today's verse",
-      "url": "./?verse=daily",
-      "icons": [{ "src": "./icon-96.png", "sizes": "96x96", "type": "image/png" }]
+      "short_name": "Prayer",
+      "description": "Open prayer journal instantly",
+      "url": "./index.html?action=prayer",
+      "icons": [{ "src": "./icon-prayer.png", "sizes": "96x96" }]
     }
   ],
-  "screenshots": [
-    {
-      "src": "./screenshot-narrow.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Home Screen"
-    },
-    {
-      "src": "./screenshot-wide.png",
-      "sizes": "720x540",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Presentation Mode"
-    }
-  ]
+  "prefer_related_applications": false
 }

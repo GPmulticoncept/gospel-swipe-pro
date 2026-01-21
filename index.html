@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'">
   
   <title>GospelSwipe Pro - Digital Evangelism Platform</title>
   
@@ -66,6 +66,7 @@
       -moz-osx-font-smoothing: grayscale;
       user-select: none;
       -webkit-user-select: none;
+      overflow: hidden;
     }
 
     body.dark-mode {
@@ -139,6 +140,11 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       z-index: 100;
+      background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
+    }
+
+    body.dark-mode #home-screen {
+      background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%);
     }
 
     .header {
@@ -223,6 +229,7 @@
     .feature-card {
       background: var(--glass);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border: 1px solid var(--glass-border);
       border-radius: var(--radius);
       padding: 18px;
@@ -480,6 +487,7 @@
       height: calc(70px + env(safe-area-inset-bottom));
       background: rgba(0,0,0,0.95);
       backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       display: flex;
       justify-content: space-around;
       align-items: center;
@@ -795,6 +803,7 @@
       inset: 0;
       background: rgba(0,0,0,0.95);
       backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       z-index: 2000;
       opacity: 0;
       transition: opacity 0.3s;
@@ -1569,7 +1578,7 @@
       </div>
       
       <div class="contact-grid">
-        <button class="contact-btn" onclick="window.location.href='mailto:support@gospelswipe.pro?subject=Support Inquiry', '_blank')">
+        <button class="contact-btn" onclick="window.open('mailto:support@gospelswipe.pro?subject=Support Inquiry', '_blank')">
           <i class="fas fa-envelope"></i> Support Inquiry
         </button>
         <button class="contact-btn" onclick="window.open('https://github.com/GPmulticoncept/gospel-swipe-pro', '_blank')">
@@ -1786,18 +1795,26 @@
           if (progress < 100) {
             console.warn('⚠️ Loading timeout reached, forcing app display...');
             clearInterval(interval);
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('appContainer').classList.add('active');
-            initApp();
+            const loading = document.getElementById('loading');
+            const appContainer = document.getElementById('appContainer');
+            if (loading) loading.style.display = 'none';
+            if (appContainer) {
+              appContainer.classList.add('active');
+              initApp();
+            }
           }
         }, 5000);
         
       } catch (error) {
         console.error('❌ Fatal loading error:', error);
         // Emergency fallback: show app anyway
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('appContainer').classList.add('active');
-        initApp();
+        const loading = document.getElementById('loading');
+        const appContainer = document.getElementById('appContainer');
+        if (loading) loading.style.display = 'none';
+        if (appContainer) {
+          appContainer.classList.add('active');
+          initApp();
+        }
       }
     });
 
@@ -1848,14 +1865,17 @@
         return;
       }
       
+      // Check if we're on HTTPS or localhost
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        console.warn('Service Worker requires HTTPS or localhost');
+        return;
+      }
+      
       navigator.serviceWorker.register('sw.js')
         .then(registration => {
           console.log('✅ Service Worker registered:', registration);
           
-          if (registration.waiting) {
-            showUpdateNotification();
-          }
-          
+          // Check for updates
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             newWorker.addEventListener('statechange', () => {
@@ -1864,6 +1884,11 @@
               }
             });
           });
+          
+          // Check if update is waiting
+          if (registration.waiting) {
+            showUpdateNotification();
+          }
         })
         .catch(err => {
           console.warn('Service Worker registration failed:', err);
@@ -1901,7 +1926,7 @@
       }, { passive: true });
       
       document.addEventListener('touchmove', (e) => {
-        if (!isSwiping) return;
+        if (!isSwiping || !e.touches || e.touches.length === 0) return;
         
         const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
         const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
@@ -1912,16 +1937,18 @@
       }, { passive: false });
       
       document.addEventListener('touchend', (e) => {
-        if (!isSwiping) return;
+        if (!isSwiping || !e.changedTouches || e.changedTouches.length === 0) return;
         
         const deltaX = e.changedTouches[0].clientX - touchStartX;
         const deltaY = e.changedTouches[0].clientY - touchStartY;
         
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-          // FIXED: Swipe directions now correctly mapped
+          // Swipe left (next)
           if (deltaX < 0) {
             if (AppState.currentScreen === 'presentation-screen') nextSlide();
-          } else {
+          } 
+          // Swipe right (previous or back to home)
+          else {
             if (AppState.currentScreen === 'presentation-screen') prevSlide();
             else if (AppState.currentScreen !== 'home-screen') showScreen('home-screen');
           }
@@ -1933,9 +1960,18 @@
       // Keyboard navigation
       document.addEventListener('keydown', (e) => {
         if (AppState.currentScreen === 'presentation-screen') {
-          if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
-          else if (e.key === 'ArrowLeft') prevSlide();
-          else if (e.key === 'Escape') exitPresentation();
+          if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            nextSlide();
+          }
+          else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            prevSlide();
+          }
+          else if (e.key === 'Escape') {
+            e.preventDefault();
+            exitPresentation();
+          }
         }
       });
       
@@ -1978,12 +2014,19 @@
       // Update nav
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active');
-        if (btn.onclick && btn.onclick.toString().includes(screenId)) btn.classList.add('active');
+        const btnText = btn.querySelector('span')?.textContent || '';
+        if ((screenId === 'home-screen' && btnText === 'Home') ||
+            (screenId === 'prayer-screen' && btnText === 'Prayer') ||
+            (screenId === 'stats-screen' && btnText === 'Stats')) {
+          btn.classList.add('active');
+        }
       });
       
       // Handle presentation nav
-      document.querySelector('.bottom-nav').style.display = 
-        (screenId === 'presentation-screen') ? 'none' : 'flex';
+      const bottomNav = document.querySelector('.bottom-nav');
+      if (bottomNav) {
+        bottomNav.style.display = (screenId === 'presentation-screen') ? 'none' : 'flex';
+      }
       
       // Load screen data
       if (screenId === 'prayer-screen') setTimeout(loadPrayers, 100);
@@ -2071,13 +2114,15 @@
     function nextSlide() {
       if (AppState.currentSlide >= APP_DATA.slides.length - 1) {
         // End of presentation
-        showNotification('🎉 Presentation complete! You\\'ve shared the full gospel!', 'success');
+        showNotification('🎉 Presentation complete! You\'ve shared the full gospel!', 'success');
         setTimeout(() => exitPresentation(), 2000);
         return;
       }
       
       const current = document.querySelector(`#slide-${AppState.currentSlide + 1}`);
       const next = document.querySelector(`#slide-${AppState.currentSlide + 2}`);
+      
+      if (!current || !next) return;
       
       current.classList.remove('active');
       current.classList.add('previous');
@@ -2094,6 +2139,8 @@
       
       const current = document.querySelector(`#slide-${AppState.currentSlide + 1}`);
       const prev = document.querySelector(`#slide-${AppState.currentSlide}`);
+      
+      if (!current || !prev) return;
       
       current.classList.remove('active');
       current.classList.add('next');
@@ -2193,7 +2240,8 @@
     }
 
     function copyPrayerToJournal(prayer) {
-      document.getElementById('prayerInput').value = prayer;
+      const prayerInput = document.getElementById('prayerInput');
+      if (prayerInput) prayerInput.value = prayer;
       closeModal();
       showScreen('prayer-screen');
       showNotification('Prayer copied to journal', 'success');
@@ -2202,7 +2250,10 @@
 
     // ========== PRAYER JOURNAL (Fixed) ==========
     function savePrayer() {
-      const text = document.getElementById('prayerInput').value.trim();
+      const prayerInput = document.getElementById('prayerInput');
+      if (!prayerInput) return;
+      
+      const text = prayerInput.value.trim();
       if (!text) {
         showNotification('Please write a prayer first', 'error');
         return;
@@ -2218,7 +2269,7 @@
       };
       
       AppState.prayers.unshift(prayer);
-      document.getElementById('prayerInput').value = '';
+      prayerInput.value = '';
       loadPrayers();
       
       showNotification('Prayer saved! God hears you 🙏', 'success');
@@ -2231,6 +2282,7 @@
 
     function loadPrayers() {
       const container = document.getElementById('prayerList');
+      if (!container) return;
       
       if (AppState.prayers.length === 0) {
         container.innerHTML = `
@@ -2280,27 +2332,28 @@
       }
       
       if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = AppState.language;
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = AppState.language === 'en' ? 'en-US' : AppState.language;
         
         recognition.onstart = () => {
           showNotification('Recording... Speak your prayer', 'info');
-          document.getElementById('prayerInput').placeholder = 'Listening...';
+          const prayerInput = document.getElementById('prayerInput');
+          if (prayerInput) prayerInput.placeholder = 'Listening...';
         };
         
         recognition.onresult = (event) => {
-          let transcript = '';
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript;
-          }
-          document.getElementById('prayerInput').value = transcript;
+          let transcript = event.results[0][0].transcript;
+          const prayerInput = document.getElementById('prayerInput');
+          if (prayerInput) prayerInput.value = transcript;
         };
         
         recognition.onend = () => {
           showNotification('Recording finished', 'success');
-          document.getElementById('prayerInput').placeholder = 'Edit your prayer or save it...';
+          const prayerInput = document.getElementById('prayerInput');
+          if (prayerInput) prayerInput.placeholder = 'Edit your prayer or save it...';
         };
         
         recognition.onerror = (event) => {
@@ -2568,10 +2621,15 @@
     function shareVersePicture(verseText, reference, title = 'Gospel Verse') {
       vibrate(20);
       
+      // Create canvas
       const canvas = document.createElement('canvas');
       canvas.width = 1080;
       canvas.height = 1080;
       const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        showNotification('Canvas not supported', 'error');
+        return;
+      }
       
       // Background gradient
       const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
@@ -2618,19 +2676,23 @@
         try {
           if (navigator.share && navigator.canShare && AppState.isOnline) {
             const file = new File([blob], "verse.png", { type: "image/png" });
-            await navigator.share({
-              files: [file],
-              title: 'Gospel Verse',
-              text: 'Shared via GospelSwipe Pro 📖'
-            });
-            AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
-            updateUserStats();
-            trackEvent('verse_shared_as_image');
-            vibrate([50, 50, 100]);
-          } else {
-            downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                files: [file],
+                title: 'Gospel Verse',
+                text: 'Shared via GospelSwipe Pro 📖'
+              });
+              AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
+              updateUserStats();
+              trackEvent('verse_shared_as_image');
+              vibrate([50, 50, 100]);
+              return;
+            }
           }
+          // Fallback to download
+          downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
         } catch (err) {
+          console.error('Share failed:', err);
           downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
         }
       });
@@ -2901,7 +2963,7 @@
             <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Financial Projections</li>
             <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Risk Mitigation</li>
           </ul>
-          <button class="wallet-btn" style="width: 100%; margin-top: 20px;" onclick="window.location.href='mailto:support@gospelswipe.pro?subject=Support Report Request', '_blank')">
+          <button class="wallet-btn" style="width: 100%; margin-top: 20px;" onclick="window.open('mailto:support@gospelswipe.pro?subject=Support Report Request', '_blank')">
             <i class="fas fa-envelope"></i> Email Request
           </button>
         </div>
@@ -2981,7 +3043,7 @@
         
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
-        utterance.rate = parseFloat(document.getElementById('voiceSpeed').value) || 1;
+        utterance.rate = parseFloat(document.getElementById('voiceSpeed')?.value) || 1;
         utterance.pitch = 1.1;
         utterance.volume = 1;
         
@@ -3030,7 +3092,11 @@
     }
 
     function vibrate(pattern) {
-      if ('vibrate' in navigator) navigator.vibrate(pattern);
+      if ('vibrate' in navigator && typeof pattern === 'number') {
+        navigator.vibrate(pattern);
+      } else if ('vibrate' in navigator && Array.isArray(pattern)) {
+        navigator.vibrate(pattern);
+      }
     }
 
     // ========== INSTALL PROMPT ==========
@@ -3090,7 +3156,9 @@
       messageEl.textContent = message;
       notification.classList.add('show');
       
-      vibrate(type === 'success' ? [30, 30, 50] : type === 'error' ? [100, 50, 100] : [30]);
+      if (type === 'success') vibrate([30, 30, 50]);
+      else if (type === 'error') vibrate([100, 50, 100]);
+      else vibrate(30);
       
       setTimeout(() => notification.classList.remove('show'), duration);
     }
@@ -3107,6 +3175,8 @@
       if (AppState.userStats.events.length > 100) {
         AppState.userStats.events = AppState.userStats.events.slice(-100);
       }
+      
+      saveAllData();
     }
   </script>
 </body>

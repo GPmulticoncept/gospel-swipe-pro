@@ -1,231 +1,169 @@
-// GospelSwipe Pro - Enhanced Service Worker
-// Version: 2.0.0
-// Cache Strategy: Cache First, Network Fallback
+// ==========================================
+// GOSPELSWIPE PRO v1.0 - SERVICE WORKER
+// 100% Offline-First Evangelism Platform
+// Made in Nigeria 🇳🇬 | Production-Ready
+// ==========================================
 
-const CACHE_NAME = 'gospel-swipe-v2';
-const APP_VERSION = '2.0.0';
-const OFFLINE_PAGE = './index.html';
+const CACHE_VERSION = 'v1.0.0';
+const STATIC_CACHE = `gospel-swipe-static-${CACHE_VERSION}`;
+const FONT_CACHE = `gospel-swipe-fonts-${CACHE_VERSION}`;
 
-// Files to cache immediately
-const CORE_ASSETS = [
-  OFFLINE_PAGE,
+// Critical assets - cached during install
+const CRITICAL_ASSETS = [
   './',
-  './manifest.json',
+  './index.html',
+  './manifest.json'
+];
+
+// External assets (Font Awesome) - cache with network-first strategy
+const EXTERNAL_ASSETS = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
-// Install event - cache core assets
+// ==========================================
+// INSTALL EVENT - Precache critical assets
+// ==========================================
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Installing version:', APP_VERSION);
+  console.log('🔧 GospelSwipe Pro: Installing service worker...');
   
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches.open(STATIC_CACHE)
       .then(cache => {
-        console.log('[Service Worker] Caching core assets');
-        return cache.addAll(CORE_ASSETS);
+        console.log('📦 Caching app shell...');
+        return cache.addAll(CRITICAL_ASSETS);
       })
       .then(() => {
-        console.log('[Service Worker] Install completed');
-        return self.skipWaiting();
+        console.log('✅ All critical assets cached');
+        return self.skipWaiting(); // Activate immediately
       })
-      .catch(error => {
-        console.error('[Service Worker] Install failed:', error);
+      .catch(err => {
+        console.error('❌ Install failed:', err);
       })
   );
 });
 
-// Activate event - clean up old caches
+// ==========================================
+// ACTIVATE EVENT - Clean old caches
+// ==========================================
 self.addEventListener('activate', event => {
-  console.log('[Service Worker] Activating version:', APP_VERSION);
+  console.log('🔄 GospelSwipe Pro: Activating service worker...');
   
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
+        cacheNames
+          .filter(cacheName => 
+            cacheName.startsWith('gospel-swipe-') && 
+            !cacheName.includes(CACHE_VERSION)
+          )
+          .map(cacheName => {
+            console.log('🗑️ Deleting old cache:', cacheName);
             return caches.delete(cacheName);
-          }
-        })
+          })
       );
-    }).then(() => {
-      console.log('[Service Worker] Activation completed');
-      return self.clients.claim();
+    })
+    .then(() => {
+      console.log('✅ Old caches cleaned up');
+      return self.clients.claim(); // Take control immediately
     })
   );
 });
 
-// Fetch event - advanced caching strategy
+// ==========================================
+// FETCH EVENT - Main routing logic
+// ==========================================
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Skip non-GET requests
   if (request.method !== 'GET') return;
-  
-  // Skip chrome-extension requests
-  if (url.protocol === 'chrome-extension:') return;
-  
-  // Handle API requests differently
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirstStrategy(request));
+
+  // Handle navigation requests - serve index.html for SPA
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      caches.match('./index.html')
+        .then(response => response || fetch(request))
+    );
     return;
   }
-  
-  // For all other requests, use cache-first strategy
-  event.respondWith(cacheFirstStrategy(request));
-});
 
-// Cache First Strategy
-async function cacheFirstStrategy(request) {
-  try {
-    // Try to get from cache first
-    const cachedResponse = await caches.match(request);
-    
-    if (cachedResponse) {
-      console.log('[Service Worker] Serving from cache:', request.url);
-      
-      // Update cache in background if online
-      if (navigator.onLine) {
-        updateCacheInBackground(request);
-      }
-      
-      return cachedResponse;
-    }
-    
-    // If not in cache, try network
-    console.log('[Service Worker] Fetching from network:', request.url);
-    const networkResponse = await fetch(request);
-    
-    // Cache the new response
-    if (networkResponse.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      await cache.put(request, networkResponse.clone());
-    }
-    
-    return networkResponse;
-    
-  } catch (error) {
-    console.log('[Service Worker] Fetch failed, serving offline page:', error);
-    
-    // If both cache and network fail, serve offline page
-    if (request.mode === 'navigate') {
-      const offlineResponse = await caches.match(OFFLINE_PAGE);
-      if (offlineResponse) return offlineResponse;
-    }
-    
-    // For non-navigation requests, return error
-    return new Response('Network error happened', {
-      status: 408,
-      headers: { 'Content-Type': 'text/plain' },
-    });
+  // Handle same-origin requests
+  if (url.origin === self.location.origin) {
+    event.respondWith(cacheFirst(request, STATIC_CACHE));
+    return;
   }
-}
 
-// Network First Strategy (for API calls)
-async function networkFirstStrategy(request) {
-  try {
-    // Try network first
-    const networkResponse = await fetch(request);
-    
-    // Cache successful responses
-    if (networkResponse.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      await cache.put(request, networkResponse.clone());
-    }
-    
-    return networkResponse;
-    
-  } catch (error) {
-    // If network fails, try cache
-    console.log('[Service Worker] Network failed, trying cache:', error);
-    const cachedResponse = await caches.match(request);
-    
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    
-    // If nothing in cache, return error
-    return new Response('Network error happened', {
-      status: 408,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  // Handle Font Awesome requests
+  if (EXTERNAL_ASSETS.some(asset => request.url.includes(asset))) {
+    event.respondWith(networkFirst(request, FONT_CACHE));
+    return;
   }
-}
 
-// Update cache in background
-async function updateCacheInBackground(request) {
-  try {
-    const networkResponse = await fetch(request);
-    
-    if (networkResponse.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      await cache.put(request, networkResponse.clone());
-      console.log('[Service Worker] Cache updated in background:', request.url);
-    }
-  } catch (error) {
-    // Silent fail - this is just background update
-    console.log('[Service Worker] Background cache update failed:', error);
-  }
-}
-
-// Handle background sync
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-prayers') {
-    console.log('[Service Worker] Background sync triggered');
-    event.waitUntil(syncPrayers());
-  }
-});
-
-async function syncPrayers() {
-  // This would sync offline prayers when online
-  // For now, just log
-  console.log('[Service Worker] Syncing data...');
-}
-
-// Handle push notifications
-self.addEventListener('push', event => {
-  const options = {
-    body: event.data ? event.data.text() : 'Daily reminder to read your Bible',
-    icon: './icon-192.png',
-    badge: './icon-96.png',
-    vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1
-    },
-    actions: [
-      {
-        action: 'open',
-        title: 'Open App'
-      },
-      {
-        action: 'close',
-        title: 'Close'
-      }
-    ]
-  };
-
-  event.waitUntil(
-    self.registration.showNotification('GospelSwipe Pro', options)
+  // Default: try cache, then network
+  event.respondWith(
+    caches.match(request)
+      .then(response => response || fetch(request))
   );
 });
 
-self.addEventListener('notificationclick', event => {
-  console.log('[Service Worker] Notification click received.');
-  
-  event.notification.close();
+// ==========================================
+// CACHING STRATEGIES
+// ==========================================
 
-  if (event.action === 'open') {
-    event.waitUntil(
-      clients.openWindow('./')
-    );
+// Cache First strategy
+async function cacheFirst(request, cacheName) {
+  try {
+    const cache = await caches.open(cacheName);
+    const cachedResponse = await cache.match(request);
+    
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    console.error('Cache First failed:', error);
+    // Return offline fallback for HTML
+    if (request.headers.get('Accept').includes('text/html')) {
+      return caches.match('./index.html');
+    }
+    return new Response('Offline', { status: 503 });
   }
-});
+}
 
-// Handle messages from main thread
+// Network First strategy (for external assets)
+async function networkFirst(request, cacheName) {
+  try {
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse.ok) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, networkResponse.clone());
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    console.log('Network failed, trying cache:', request.url);
+    const cache = await caches.open(cacheName);
+    const cachedResponse = await cache.match(request);
+    return cachedResponse || new Response('Offline', { status: 503 });
+  }
+}
+
+// ==========================================
+// MESSAGE HANDLER
+// ==========================================
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
+
+console.log('✨ GospelSwipe Pro Service Worker loaded - 100% Offline Ready');
