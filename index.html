@@ -14,7 +14,7 @@
   <meta name="description" content="AI-powered gospel presentation with prayer journal, multi-language support, and 100% offline evangelism tools. Made in Nigeria 🇳🇬">
   
   <!-- PWA Manifest -->
-  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkdvc3BlbFN3aXBlIFBybyIsCiAgInNob3J0X25hbWUiOiAiR29zcGVsU3dpcGUiLAogICJzdGFydF91cmwiOiAiL2luZGV4Lmh0bWwiLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMyYzNlNTAiLAogICJ0aGVtZV9jb2xvciI6ICIyYzNlNTAiLAogICJpY29ucyI6IFtdLAogICJjYXRlZ29yaWVzIjogWyJyZWxpZ2lvbiIsICJ1dGlsaXR5Il0KfQ==">
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiR29zcGVsU3dpcGUgUHJvIiwic2hvcnRfbmFtZSI6Ikdvc3BlbFN3aXBlIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzJjM2U1MCIsInRoZW1lX2NvbG9yIjoiIzJjM2U1MCJ9">
   <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB5PSIuOWVtIiBmb250LXNpemU9IjkwIj7wn5udeTwvdGV4dD48L3N2Zz4=">
   
   <!-- Fonts & Icons -->
@@ -27,6 +27,8 @@
       --radius: 12px; --shadow: 0 8px 30px rgba(0,0,0,0.12); --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       --glass: rgba(255,255,255,0.08); --glass-border: rgba(255,255,255,0.12);
       --slide-bg-start: #2c3e50; --slide-bg-end: #34495e;
+      --ai-primary: #3498db; --ai-secondary: #8e44ad; --ai-gradient: linear-gradient(135deg, #3498db, #8e44ad);
+      --premium-gradient: linear-gradient(135deg, #9b59b6, #8e44ad);
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -118,20 +120,55 @@
       border: 1px solid rgba(155, 89, 182, 0.5);
     }
 
-    .slides-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    /* FIXED SLIDE SYSTEM - No more shifting */
+    .slides-container { 
+      position: relative; 
+      width: 100%; 
+      height: 100%; 
+      overflow: hidden;
+      display: flex;
+    }
     .slide {
-      position: absolute; inset: 0; padding: 60px 20px calc(100px + env(safe-area-inset-bottom));
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      text-align: center; opacity: 0; transform: translateX(100%);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 60px 20px calc(100px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      opacity: 0;
+      transform: translateX(100%);
       transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
-      z-index: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      z-index: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       pointer-events: none;
     }
-    .slide.active { opacity: 1; transform: translateX(0); z-index: 3; pointer-events: all; }
-    .slide.previous { transform: translateX(-100%); z-index: 2; }
-    .slide.next { transform: translateX(100%); z-index: 1; }
+    .slide.active { 
+      opacity: 1; 
+      transform: translateX(0); 
+      z-index: 3; 
+      pointer-events: all; 
+      position: relative;
+    }
+    .slide.previous { 
+      transform: translateX(-100%); 
+      z-index: 2; 
+    }
+    .slide.next { 
+      transform: translateX(100%); 
+      z-index: 1; 
+    }
 
-    .slide-content { max-width: 650px; width: 90%; }
+    .slide-content { 
+      max-width: 650px; 
+      width: 90%;
+      margin: 0 auto;
+    }
     .slide-header { margin-bottom: 25px; }
     .slide-number {
       background: var(--glass); border: 1px solid var(--glass-border);
@@ -145,7 +182,15 @@
       border-left: 4px solid var(--secondary); font-style: italic;
     }
     .slide-reference { font-size: 1.1rem; opacity: 0.9; margin-bottom: 25px; font-weight: 600; }
-    .slide-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+    .slide-actions { 
+      display: flex; 
+      gap: 10px; 
+      margin-top: 20px; 
+      flex-wrap: wrap; 
+      justify-content: center;
+      position: relative;
+      z-index: 10;
+    }
     .slide-btn {
       background: var(--glass); border: 1px solid var(--glass-border); color: #fff;
       padding: 12px 20px; border-radius: 25px; cursor: pointer; transition: var(--transition);
@@ -210,7 +255,8 @@
     .prayer-actions { display: flex; gap: 10px; margin-bottom: 30px; flex-shrink: 0; }
     .action-btn {
       flex: 1; padding: 12px; border-radius: var(--radius); border: none; font-weight: 600;
-      cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px;
+      cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center;
+      gap: 8px;
     }
     .action-btn:hover { transform: translateY(-2px); opacity: 0.95; }
     .action-btn.primary { background: var(--secondary); color: white; }
@@ -282,8 +328,8 @@
     .modal-overlay.active { opacity: 1; }
     .modal-content {
       background: linear-gradient(135deg, #2c3e50, #34495e); border: 1px solid var(--glass-border);
-      padding: 40px 30px 30px; border-radius: 20px; max-width: 500px; width: 90%;
-      max-height: 80vh; overflow-y: auto; transform: translateY(20px) scale(0.95);
+      padding: 40px 30px 30px; border-radius: 20px; max-width: 500px;
+      width: 90%; max-height: 80vh; overflow-y: auto; transform: translateY(20px) scale(0.95);
       transition: transform 0.3s; position: relative; box-shadow: var(--shadow);
     }
     .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
@@ -296,44 +342,195 @@
     }
     .modal-close-btn:hover { background: var(--accent); transform: rotate(90deg); }
 
+    /* === AI PRAYER GUIDE - NEW UI === */
     .ai-prayer-category-grid {
-      display: grid; grid-template-columns: 1fr; gap: 10px;
-      max-height: 50vh; overflow-y: auto; padding-right: 5px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px; max-height: 60vh; overflow-y: auto; padding-right: 5px;
     }
-    .ai-prayer-category-btn {
-      background: var(--glass); border: 1px solid var(--glass-border);
-      border-radius: var(--radius); padding: 15px; cursor: pointer;
-      transition: var(--transition); text-align: left; width: 100%;
-      display: flex; align-items: center; gap: 10px;
+    .ai-prayer-category-card {
+      background: linear-gradient(135deg, rgba(52, 152, 219, 0.15), rgba(142, 68, 173, 0.15));
+      border: 2px solid rgba(52, 152, 219, 0.3); border-radius: var(--radius);
+      padding: 20px; cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; gap: 15px; position: relative;
+      backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
     }
-    .ai-prayer-category-btn:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); }
-    .ai-prayer-category-btn i { color: var(--secondary); width: 20px; }
+    .ai-prayer-category-card:hover {
+      transform: translateY(-5px); box-shadow: 0 10px 25px rgba(52, 152, 219, 0.2);
+      border-color: var(--ai-primary); background: linear-gradient(135deg, rgba(52, 152, 219, 0.25), rgba(142, 68, 173, 0.25));
+    }
+    .ai-prayer-category-icon {
+      width: 50px; height: 50px; border-radius: 50%; background: var(--ai-gradient);
+      display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+      flex-shrink: 0; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+    .ai-prayer-category-info { flex: 1; }
+    .ai-prayer-category-title {
+      font-size: 1.1rem; font-weight: 600; margin-bottom: 5px; color: #fff;
+    }
+    .ai-prayer-category-meta {
+      font-size: 0.8rem; opacity: 0.7; display: flex; gap: 10px; align-items: center;
+    }
+    .ai-prayer-category-arrow {
+      color: var(--ai-primary); font-size: 1.2rem; transition: transform 0.3s;
+    }
+    .ai-prayer-category-card:hover .ai-prayer-category-arrow { transform: translateX(5px); }
 
     .ai-prayer-prompt-list {
       display: flex; flex-direction: column; gap: 12px;
       max-height: 60vh; overflow-y: auto; padding-right: 5px;
     }
     .ai-prayer-prompt-item {
-      background: var(--glass); border: 1px solid var(--glass-border);
-      border-radius: var(--radius); padding: 15px; cursor: pointer;
-      transition: var(--transition); position: relative;
+      background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border);
+      border-radius: var(--radius); padding: 20px; cursor: pointer;
+      transition: var(--transition); position: relative; display: flex; flex-direction: column;
     }
-    .ai-prayer-prompt-item:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); }
-    .ai-prayer-prompt-item .prayer-text {
-      font-size: 0.95rem; line-height: 1.5; margin-bottom: 8px;
-      white-space: pre-wrap; word-wrap: break-word;
+    .ai-prayer-prompt-item:hover {
+      background: rgba(255,255,255,0.12); transform: translateX(5px);
+      border-color: var(--ai-primary);
     }
-    .ai-prayer-prompt-item .prayer-meta {
-      font-size: 0.75rem; opacity: 0.6; display: flex; justify-content: space-between;
+    .ai-prayer-prompt-text {
+      font-size: 1rem; line-height: 1.7; margin-bottom: 10px; white-space: pre-wrap; word-wrap: break-word;
+      font-style: italic; color: #fff;
+    }
+    .ai-prayer-prompt-meta {
+      font-size: 0.75rem; opacity: 0.6; display: flex; justify-content: space-between; align-items: center;
+    }
+    .ai-prayer-prompt-type {
+      background: var(--ai-primary); color: white; padding: 3px 8px; border-radius: 10px; font-weight: 500;
     }
 
-    .notification {
+    /* === TOAST NOTIFICATION SYSTEM === */
+    .toast-notification {
       position: fixed; top: 20px; right: 20px; background: var(--success);
-      color: white; padding: 15px 25px; border-radius: var(--radius); box-shadow: var(--shadow);
-      transform: translateX(150%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 2001; max-width: 300px; font-weight: 500;
+      color: white; padding: 15px 20px; border-radius: var(--radius); box-shadow: var(--shadow);
+      transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 2001; max-width: 300px; font-weight: 500; display: flex; align-items: center; gap: 10px;
     }
-    .notification.show { transform: translateX(0); }
+    .toast-notification.show { transform: translateX(0); }
+    .toast-notification.error { background: var(--accent); }
+    .toast-notification.info { background: var(--secondary); }
+    .toast-notification.warning { background: var(--warning); }
+    .toast-notification.ai { background: var(--ai-gradient); }
+
+    /* === PREMIUM UI ENHANCEMENTS === */
+    .premium-features-container {
+      max-height: 70vh;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    .premium-tier-card {
+      background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(142, 68, 173, 0.15));
+      border: 2px solid rgba(155, 89, 182, 0.4);
+      border-radius: var(--radius);
+      padding: 25px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: var(--transition);
+    }
+    .premium-tier-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(155, 89, 182, 0.25);
+      border-color: var(--premium);
+    }
+    .premium-tier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .premium-tier-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--premium);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .premium-tier-price {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 2px 10px rgba(155, 89, 182, 0.4);
+    }
+    .premium-tier-price .interval {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      font-weight: normal;
+    }
+    .premium-tier-target {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 15px;
+      padding: 8px 12px;
+      background: rgba(155, 89, 182, 0.1);
+      border-radius: 8px;
+      display: inline-block;
+    }
+    .premium-features-list {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+    }
+    .premium-feature-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(155, 89, 182, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .premium-feature-item:last-child {
+      border-bottom: none;
+    }
+    .premium-feature-item i {
+      color: #2ecc71;
+      font-size: 1.1rem;
+      width: 20px;
+    }
+    .premium-sustainability {
+      background: linear-gradient(135deg, rgba(155, 89, 182, 0.1), rgba(142, 68, 173, 0.1));
+      padding: 20px;
+      border-radius: var(--radius);
+      margin: 25px 0;
+      border: 1px solid rgba(155, 89, 182, 0.3);
+    }
+    .premium-sustainability h4 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: var(--premium);
+    }
+    .premium-sustainability-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+    .premium-sustainability-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .premium-sustainability-item i {
+      color: var(--premium);
+      font-size: 0.9rem;
+    }
+    .premium-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+    .premium-actions .wallet-btn {
+      flex: 1;
+      background: var(--premium-gradient);
+      border-color: rgba(155, 89, 182, 0.5);
+      color: white;
+      font-weight: 600;
+    }
+    .premium-actions .wallet-btn:hover {
+      background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(142, 68, 173, 0.3));
+    }
 
     .exit-btn {
       position: fixed; top: 20px; left: 20px; background: var(--glass);
@@ -400,19 +597,32 @@
     }
     .contact-btn:hover { transform: translateY(-2px); }
 
+    /* === IMPACT SCREEN SPECIFIC STYLES === */
+    .grant-section { margin-bottom: 25px; }
+    .grant-metric { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--glass-border); }
+    .grant-metric:last-child { border-bottom: none; }
+    .impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
+    .impact-card { background: var(--glass); padding: 15px; border-radius: var(--radius); text-align: center; border: 1px solid var(--glass-border); }
+    .impact-value { font-size: 2rem; font-weight: bold; color: var(--success); }
+    .impact-label { font-size: 0.8rem; opacity: 0.7; margin-top: 5px; }
+
     @media (max-width: 768px) {
       .features-grid { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: 1fr; }
+      .ai-prayer-category-grid { grid-template-columns: 1fr; }
+      .premium-actions { flex-direction: column; }
       .header h1 { font-size: 1.8rem; }
       .slide-actions { flex-direction: column; width: 100%; }
       .slide-btn { width: 100%; }
       .prayer-actions { flex-direction: column; }
+      .impact-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 480px) {
       .nav-btn span { display: none; }
       .nav-btn i { font-size: 1.5rem; }
       .wallet-actions { flex-direction: column; }
+      .impact-grid { grid-template-columns: 1fr; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -441,13 +651,18 @@
       border-top-color: #fff; animation: spin 1s ease-in-out infinite;
     }
 
-    .ai-prayer-prompt-item .copy-feedback {
-      position: absolute; top: 10px; right: 10px;
-      background: var(--success); color: white; padding: 4px 8px;
-      border-radius: 8px; font-size: 0.7rem; opacity: 0;
-      transition: opacity 0.3s;
+    .skeleton { background: rgba(255,255,255,0.1); border-radius: var(--radius); overflow: hidden; position: relative; }
+    .skeleton::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 1.5s infinite;
     }
-    .ai-prayer-prompt-item .copy-feedback.show { opacity: 1; }
+    .skeleton-card { height: 80px; margin-bottom: 10px; }
+    .skeleton-text { height: 20px; margin-bottom: 5px; }
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -466,7 +681,7 @@
     <div class="premium-banner" style="margin: 20px 20px 0;">
       <h3><i class="fas fa-crown"></i> GospelSwipe Pro Premium</h3>
       <p>Unlock AI apologetics, church dashboard & mentorship. Starting at <strong>$1.99/month</strong> supports eternal impact.</p>
-      <button class="slide-btn primary" style="margin-top: 10px;" onclick="showPremiumDetails()">
+      <button class="slide-btn primary" style="margin-top: 10px;" onclick="showPremiumDetails()" aria-label="View premium features">
         <i class="fas fa-star"></i> See Premium Features
       </button>
     </div>
@@ -477,7 +692,7 @@
           <i class="fas fa-cog"></i>
         </button>
         <h1><i class="fas fa-cross"></i> GospelSwipe Pro</h1>
-        <p class="tagline">Your pocket evangelism toolkit • Built on a broken laptop in Nigeria</p>
+        <p class="tagline">Your pocket evangelism toolkit</p>
         
         <div class="user-stats">
           <div class="stats-row">
@@ -549,10 +764,10 @@
         </div>
         
         <div class="feature-card" onclick="showPrayerAssistant()" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(142, 68, 173, 0.2));">
-          <i class="fas fa-robot" style="color: #3498db;"></i>
+          <i class="fas fa-robot" style="color: var(--ai-primary);"></i>
           <h3>AI Prayer Guide</h3>
-          <p>5 categories: Salvation, Healing, Guidance, Thanksgiving, Protection</p>
-          <span class="feature-badge">AI POWERED</span>
+          <p>Intelligent prayer assistance</p>
+          <span class="feature-badge" style="background: var(--ai-primary); color: white;">AI POWERED</span>
         </div>
         
         <div class="feature-card" onclick="showPremiumDetails()" style="background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(142, 68, 173, 0.2));">
@@ -605,13 +820,13 @@
       <textarea id="prayerInput" placeholder="Pour out your heart to God... Write in English, Pidgin, Yoruba, Igbo, or Hausa" aria-label="Prayer input area"></textarea>
       
       <div class="prayer-actions">
-        <button class="action-btn primary" onclick="savePrayer()">
+        <button class="action-btn primary" onclick="savePrayer()" aria-label="Save prayer">
           <i class="fas fa-save"></i> Save Prayer
         </button>
-        <button class="action-btn secondary" onclick="recordVoicePrayer()">
+        <button class="action-btn secondary" onclick="recordVoicePrayer()" aria-label="Record voice prayer">
           <i class="fas fa-microphone"></i> Voice Prayer
         </button>
-        <button class="action-btn" onclick="showPrayerAssistant()" style="background: linear-gradient(135deg, #3498db, #8e44ad);">
+        <button class="action-btn" onclick="showPrayerAssistant()" style="background: var(--ai-gradient); color: white;" aria-label="Open AI prayer guide">
           <i class="fas fa-robot"></i> AI Guide
         </button>
       </div>
@@ -656,7 +871,7 @@
           <button class="wallet-btn" onclick="showModal(churchDashboardHTML())">
             <i class="fas fa-eye"></i> Preview
           </button>
-          <button class="wallet-btn" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Church Dashboard Inquiry: $199.99/mo', '_blank')">
+          <button class="wallet-btn" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Church Dashboard Inquiry: $199.99/mo', '_blank')" aria-label="Contact sales">
             <i class="fas fa-paper-plane"></i> Contact Sales
           </button>
         </div>
@@ -745,10 +960,10 @@
       
       <div class="settings-section">
         <div class="settings-title">Data Management</div>
-        <button onclick="exportData()" style="width: 100%; padding: 15px; margin-bottom: 10px;" class="action-btn primary">
+        <button onclick="exportData()" style="width: 100%; padding: 15px; margin-bottom: 10px;" class="action-btn primary" aria-label="Export data">
           <i class="fas fa-download"></i> Export My Data
         </button>
-        <button onclick="clearData()" style="width: 100%;" class="action-btn secondary">
+        <button onclick="clearData()" style="width: 100%;" class="action-btn secondary" aria-label="Clear all data">
           <i class="fas fa-trash"></i> Clear All Data
         </button>
       </div>
@@ -867,7 +1082,7 @@
       </button>
     </nav>
     
-    <div id="notification" class="notification" role="alert" aria-live="polite">
+    <div class="toast-notification" id="notification" role="alert" aria-live="polite">
       <div id="notificationMessage"></div>
     </div>
   </div>
@@ -927,6 +1142,47 @@
         "new-life": {
           en: "When we accept Jesus, we become new creations. 2 Corinthians 5:17 promises that the old has gone and the new is here. This transformation affects every area of our lives.",
           yo: "Nigba ti a gba Jesu, a di eda titun. 2 Kor 5:17 ni wipe ti taa ti koja, tuntun ti de."
+        },
+        // FIXED: Added AI explanations for slides 6-15
+        "trinity": {
+          en: "The Trinity is the Christian doctrine that God exists as three distinct Persons—Father, Son, and Holy Spirit—who are co-equal, co-eternal, and consubstantial. While mysterious, this reveals God's relational nature and how He invites us into relationship with each Person of the Godhead.",
+          yo: "Ijoba meta ni eda Olorun meta yato: Baba, Omo, ati Emi Mimo—ti won jokan, ti won ni asiko kanna, ti won ni iwa kanna. Eyi fi han ipinnu Olorun ati bi O se n pe wa si asopo pelu kookan ninu awon meta."
+        },
+        "scripture": {
+          en: "The Bible is God's inspired, authoritative Word—completely true and reliable. 2 Timothy 3:16 teaches that all Scripture is God-breathed, making it our final authority for faith and practice. It's not just a human book but God's revelation to humanity.",
+          yo: "Bibeli ni Oro Olorun ti a fi emi sinu, ti o ni agbara—otito patapata. 2 Timoti 3:16 ko wa wipe gbogbo Bibeli jẹ Olorun fifun, ti o se oga pataki fun igbagbo ati ise. Ki i se iwe eniyan nikan sugbon ifihan Olorun si gbogbo eniyan."
+        },
+        "suffering": {
+          en: "God doesn't promise a life without suffering, but He promises to be with us in it and work it for good. Romans 8:28 assures us that God works all things together for good for those who love Him. Suffering produces perseverance, character, and hope.",
+          yo: "Olorun ko se ileri aye lai si iya, sugbon o se ileri lati wa pelu wa ninu re ati lati se e fun anfani. Romu 8:28 se leti wa wipe Olorun n se gbogbo nkan papo fun anfani fun awon ti n feran Re. Iya n mu ifarada, iwa, ati ireti."
+        },
+        "only-way": {
+          en: "Jesus is the exclusive way to God because He alone is both fully God and fully human—the only mediator between God and humanity. His death and resurrection provide the only means of salvation, making Christianity unique among world religions.",
+          yo: "Jesu ni ona asipo si Olorun nitori Oun nikan ni Olorun ati eniyan patapata—alabarin asiko laarin Olorun ati eniyan. Iku Re ati ajinde Re pese ona asipo fun igbala, se esin Kristiani yato laarin awon esin agbaye."
+        },
+        "salvation-prayer": {
+          en: "The prayer of salvation is a simple confession of faith in Jesus. Romans 10:9 outlines it: confess with your mouth 'Jesus is Lord' and believe in your heart God raised Him from the dead. This prayer marks the beginning of eternal life.",
+          yo: "Adura igbala je ifihan igbagbo kekere ni Jesu. Romu 10:9 se alaye re: jẹwo pelu enu re 'Jesu ni Oluwa' ati gbagbo ninu okan re wipe Olorun gbe O dide lati oku. Adura yi je ibeere igbesi aye lailai."
+        },
+        "holy-spirit": {
+          en: "The Holy Spirit is God's presence in believers, empowering us for holy living and witness. Acts 1:8 promises power when the Holy Spirit comes upon us. He convicts of sin, guides into truth, and distributes spiritual gifts for building up the church.",
+          yo: "Emi Mimo si ipo Olorun ninu awon onigbagbo, n fun wa ni agbara fun aye mimo ati eleri. Ise 1:8 se ileri agbara nigba ti Emi Mimo ba wa lorun wa. O n se ete ese, to wa sinu otito, ati pinna ebun emi fun ilosi ile ijo."
+        },
+        "great-commission": {
+          en: "The Great Commission is Jesus' final command to make disciples of all nations. This involves evangelism, baptism, and teaching obedience to Christ. Every Christian is called to participate in spreading the gospel both locally and globally.",
+          yo: "Igbese nla ni ase ikẹhin Jesu lati se awon omo ileko ti gbogbo orile-ede. O ni ikanse, isinmi, ati eko itelorun si Kristi. Gbogbo Kristiani n pe lati kopa ninu isatunkowo ihinrere ni agbegbe ati gbogbo agbaye."
+        },
+        "love-neighbor": {
+          en: "Loving your neighbor means actively showing God's love to others through practical acts of service, kindness, and forgiveness. It's the second greatest commandment and demonstrates our love for God in tangible ways.",
+          yo: "Fifẹ aladugbo tumo si fifihan ife Olorun si awon miiran nipasẹ ise iranlowo, inure, ati idariji. O je ofin keji to tobi julọ ati fi ifẹ wa fun Olorun han ni ona ti a le ri."
+        },
+        "forgiveness": {
+          en: "Forgiveness is releasing resentment toward someone who has wronged you, just as God forgave you in Christ. It doesn't mean forgetting or condoning wrong, but choosing to let go of bitterness and trust God for justice.",
+          yo: "Idariji ni gbigba ibinu si ẹnikan ti o ṣe aṣiṣe si ọ, bi Olorun ṣe dariji ọ ni Kristi. Ko tumo si gbagbe tabi ifọwọyi ti aṣiṣe, sugbon yiyan lati tu ibinu kuro ati gbekele Olorun fun ododo."
+        },
+        "eternal-hope": {
+          en: "Eternal hope is the confident expectation of God's promises for the future, including resurrection, eternal life with God, and a new heaven and earth. This hope sustains believers through trials and motivates holy living.",
+          yo: "Ireti ailopin ni ireti igbagbo ni awon ileri Olorun fun ọjọ iwaju, pẹlu ajinde, aye ailopin pẹlu Olorun, ati ọrun ati aye titun. Ireti yii n mu awon onigbagbo lee ni akoko idanwo ati n fi agbara si aye mimo."
         }
       },
       
@@ -1018,6 +1274,7 @@
       prayers: null,
       streak: null,
       achievements: null,
+      aiPrayerHistory: [],
       isOnline: false,
       touchStartX: 0,
       touchStartY: 0,
@@ -1025,13 +1282,13 @@
       eventListeners: [],
       deferredPrompt: null,
       speechSynthesisActive: false,
-      aiPrayerHistory: []
+      isProcessing: false
     };
 
     // ========== ERROR BOUNDARY ==========
     function handleError(context, error) {
       console.error(`❌ Error in ${context}:`, error);
-      showNotification(`Error: ${error.message}`, 'error');
+      showToast(`Error: ${error.message}`, 'error');
       trackEvent('error', { context, message: error.message });
     }
 
@@ -1100,6 +1357,15 @@
       }
     });
 
+    function safeParse(json, fallback) {
+      try {
+        return json ? JSON.parse(json) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    // ========== CORE INITIALIZATION ==========
     function initApp() {
       console.log('🚀 Initializing app components...');
       
@@ -1133,7 +1399,7 @@
         setupServiceWorker();
         
         setTimeout(() => {
-          showNotification('Welcome to GospelSwipe Pro! Ready to share the gospel?', 'success');
+          showToast('Welcome to GospelSwipe Pro v1.0! Ready to share the gospel?', 'success');
           console.log('✅ App fully initialized');
         }, 800);
         
@@ -1141,15 +1407,7 @@
         
       } catch (error) {
         handleError('initApp', error);
-        showNotification('Some features may not load properly', 'warning');
-      }
-    }
-
-    function safeParse(json, fallback) {
-      try {
-        return json ? JSON.parse(json) : fallback;
-      } catch {
-        return fallback;
+        showToast('Some features may not load properly', 'warning');
       }
     }
 
@@ -1218,29 +1476,20 @@
     }
 
     function showUpdateNotification() {
-      showModal(`
-        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-          <i class="fas fa-times"></i>
-        </button>
-        <div style="color: white; padding-top: 10px;">
-          <h3 style="margin-bottom: 15px; color: #f39c12;"><i class="fas fa-download"></i> Update Available!</h3>
-          <p style="margin-bottom: 25px;">A new version of GospelSwipe Pro is ready to install.</p>
-          <button onclick="window.location.reload()" class="slide-btn primary" style="width: 100%;">
-            Refresh Now
-          </button>
-        </div>
-      `);
+      showToast('Update available! Refresh for new features', 'info');
     }
 
     // ========== EVENT LISTENERS (Passive + Active Handling) ==========
     function setupEventListeners() {
       const addListener = (el, event, handler, options = false) => {
+        if (!el || !handler) return;
         el.addEventListener(event, handler, options);
         AppState.eventListeners.push({ el, event, handler, options });
       };
       
+      // Touch events for slide navigation
       addListener(document, 'touchstart', (e) => {
-        if (e.touches && e.touches.length > 0) {
+        if (e.touches && e.touches.length > 0 && AppState.currentScreen === 'presentation-screen') {
           AppState.touchStartX = e.touches[0].clientX;
           AppState.touchStartY = e.touches[0].clientY;
           AppState.isSwiping = true;
@@ -1249,7 +1498,7 @@
       }, { passive: true });
       
       addListener(document, 'touchmove', (e) => {
-        if (!AppState.isSwiping) return;
+        if (!AppState.isSwiping || AppState.currentScreen !== 'presentation-screen') return;
         const deltaX = Math.abs(e.touches[0].clientX - AppState.touchStartX);
         const deltaY = Math.abs(e.touches[0].clientY - AppState.touchStartY);
         if (deltaX > deltaY && deltaX > 10) {
@@ -1265,17 +1514,18 @@
         const velocity = Math.abs(deltaX) / (Date.now() - AppState.touchStartTime);
         
         if (Math.abs(deltaX) > Math.abs(deltaY) && (Math.abs(deltaX) > 50 || velocity > 0.5)) {
-          if (deltaX < 0) {
-            if (AppState.currentScreen === 'presentation-screen') nextSlide();
-          } else {
-            if (AppState.currentScreen === 'presentation-screen') prevSlide();
-            else if (AppState.currentScreen !== 'home-screen') showScreen('home-screen');
+          if (AppState.currentScreen === 'presentation-screen') {
+            if (deltaX < 0) nextSlide();
+            else prevSlide();
+          } else if (deltaX > 0 && AppState.currentScreen !== 'home-screen') {
+            showScreen('home-screen');
           }
         }
         
         AppState.isSwiping = false;
       }, { passive: true });
       
+      // Keyboard navigation for slides
       addListener(document, 'keydown', (e) => {
         if (AppState.currentScreen === 'presentation-screen') {
           if (e.key === 'ArrowRight' || e.key === ' ') {
@@ -1290,22 +1540,25 @@
         }
       });
       
+      // Network status
       addListener(window, 'online', () => {
         AppState.isOnline = true;
-        showNotification('Back online!', 'success');
+        showToast('Back online!', 'success');
       });
       
       addListener(window, 'offline', () => {
         AppState.isOnline = false;
-        showNotification('Offline mode activated', 'info');
+        showToast('Offline mode activated', 'info');
       });
       
+      // Data persistence
       addListener(document, 'visibilitychange', () => {
         if (document.hidden) saveAllData();
       });
       
       addListener(window, 'beforeunload', () => saveAllData());
       
+      // PWA install prompt
       addListener(window, 'beforeinstallprompt', (e) => {
         e.preventDefault();
         AppState.deferredPrompt = e;
@@ -1316,10 +1569,14 @@
 
     // ========== SCREEN MANAGEMENT (State Machine) ==========
     function showScreen(screenId) {
+      if (AppState.isProcessing) return;
+      AppState.isProcessing = true;
+      
       try {
         const targetScreen = document.getElementById(screenId);
         if (!targetScreen) throw new Error(`Screen ${screenId} not found`);
         
+        // Hide all other screens
         document.querySelectorAll('.screen').forEach(screen => {
           if (screen.id === screenId) return;
           screen.classList.remove('active');
@@ -1330,11 +1587,13 @@
           }, 300);
         });
         
+        // Show target screen
         targetScreen.style.display = 'flex';
         requestAnimationFrame(() => targetScreen.classList.add('active'));
         
         AppState.currentScreen = screenId;
         
+        // Update navigation buttons
         document.querySelectorAll('.nav-btn').forEach(btn => {
           btn.classList.remove('active');
           const btnText = btn.querySelector('span')?.textContent || '';
@@ -1345,11 +1604,13 @@
           }
         });
         
+        // Show/hide bottom navigation
         const bottomNav = document.querySelector('.bottom-nav');
         if (bottomNav) {
           bottomNav.style.display = screenId === 'presentation-screen' ? 'none' : 'flex';
         }
         
+        // Load data for specific screens
         if (screenId === 'prayer-screen') setTimeout(loadPrayers, 100);
         if (screenId === 'stats-screen') setTimeout(updateStatsDisplay, 100);
         
@@ -1358,6 +1619,8 @@
         
       } catch (error) {
         handleError('showScreen', error);
+      } finally {
+        setTimeout(() => { AppState.isProcessing = false; }, 100);
       }
     }
 
@@ -1445,7 +1708,7 @@
     function nextSlide() {
       try {
         if (AppState.currentSlide >= APP_DATA.slides.length - 1) {
-          showNotification('🎉 Presentation complete! You\'ve shared the full gospel!', 'success');
+          showToast('🎉 Presentation complete! You\'ve shared the full gospel!', 'success');
           setTimeout(() => exitPresentation(), 2000);
           return;
         }
@@ -1496,7 +1759,7 @@
       try {
         const answer = APP_DATA.aiAnswers[topic];
         if (!answer) {
-          showNotification('No AI explanation available for this topic yet', 'info');
+          showToast('No AI explanation available for this topic yet', 'info');
           return;
         }
         
@@ -1535,21 +1798,28 @@
       }
     }
 
-    // ========== AI PRAYER GUIDE (v1.0 Bug-Free Implementation) ==========
+    // ========== AI PRAYER GUIDE ==========
     function showPrayerAssistant() {
       try {
         const categories = APP_DATA.aiPrayerAssistant.categories;
-        const categoryButtons = Object.keys(categories).map(key => {
+        const categoryCards = Object.keys(categories).map(key => {
           const category = categories[key];
           return `
-            <button class="ai-prayer-category-btn" onclick="showPrayerCategory('${key}')" aria-label="View ${category.title}">
-              <i class="fas ${category.icon}" style="color: var(--secondary);"></i>
-              <div style="flex: 1;">
-                <div style="font-weight: 600; font-size: 0.95rem;">${escapeHtml(category.title)}</div>
-                <div style="font-size: 0.75rem; opacity: 0.7; margin-top: 2px;">${category.prompts.length} guided prayers</div>
+            <div class="ai-prayer-category-card" onclick="showPrayerCategory('${key}')" role="button" tabindex="0" aria-label="View ${category.title}">
+              <div class="ai-prayer-category-icon">
+                <i class="fas ${category.icon}"></i>
               </div>
-              <i class="fas fa-chevron-right" style="opacity: 0.5;"></i>
-            </button>
+              <div class="ai-prayer-category-info">
+                <div class="ai-prayer-category-title">${escapeHtml(category.title)}</div>
+                <div class="ai-prayer-category-meta">
+                  <span><i class="fas fa-pray"></i> ${category.prompts.length} prayers</span>
+                  <span><i class="fas fa-clock"></i> 1-2 min each</span>
+                </div>
+              </div>
+              <div class="ai-prayer-category-arrow">
+                <i class="fas fa-chevron-right"></i>
+              </div>
+            </div>
           `;
         }).join('');
         
@@ -1558,14 +1828,17 @@
             <i class="fas fa-times"></i>
           </button>
           <div style="color: white; padding-top: 10px;">
-            <h3 style="margin-bottom: 20px;"><i class="fas fa-robot"></i> AI Prayer Guide</h3>
-            <p style="margin-bottom: 20px; opacity: 0.8; font-size: 0.9rem;">Select a prayer category for guided, Scripture-based prayers:</p>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+              <i class="fas fa-robot" style="font-size: 1.5rem; color: var(--ai-primary);"></i>
+              <h3 style="margin: 0;">AI Prayer Guide</h3>
+            </div>
+            <p style="margin-bottom: 20px; opacity: 0.8; font-size: 0.9rem;">Select a category for guided, Scripture-based prayers:</p>
             <div class="ai-prayer-category-grid">
-              ${categoryButtons}
+              ${categoryCards}
             </div>
             <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--glass-border);">
               <p style="font-size: 0.8rem; opacity: 0.7; text-align: center;">
-                <i class="fas fa-info-circle"></i> These prayers are based on biblical principles and can be customized
+                <i class="fas fa-info-circle"></i> Prayers based on biblical principles • Customize as needed
               </p>
             </div>
           </div>
@@ -1582,32 +1855,22 @@
       try {
         const category = APP_DATA.aiPrayerAssistant.categories[categoryKey];
         if (!category) {
-          showNotification('Invalid prayer category', 'error');
+          showToast('Invalid prayer category', 'error');
           return;
         }
         
-        // Add loading indicator
-        const loadingContent = `
-          <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-            <i class="fas fa-times"></i>
-          </button>
-          <div style="color: white; padding-top: 10px; text-align: center;">
-            <div class="loading-spinner"></div>
-            <p style="margin-top: 15px;">Loading prayers...</p>
-          </div>
-        `;
-        
-        showModal(loadingContent);
+        showToast('Loading prayers...', 'info', 1500);
         
         setTimeout(() => {
           const promptItems = category.prompts.map((prompt, index) => `
-            <div class="ai-prayer-prompt-item" onclick="copyPrayerToJournal(${categoryKey}, ${index})">
-              <div class="prayer-text">${escapeHtml(prompt.text)}</div>
-              <div class="prayer-meta">
-                <span><i class="fas fa-tag"></i> ${prompt.style}</span>
+            <div class="ai-prayer-prompt-item" onclick="copyPrayerToJournal('${categoryKey}', ${index})" role="button" tabindex="0" aria-label="Copy ${prompt.style} prayer">
+              <div class="ai-prayer-prompt-text">${escapeHtml(prompt.text)}</div>
+              <div class="ai-prayer-prompt-meta">
+                <span class="ai-prayer-prompt-type">
+                  <i class="fas fa-tag"></i> ${prompt.style}
+                </span>
                 <span><i class="fas fa-clock"></i> ${Math.ceil(prompt.text.split(' ').length / 30)} min</span>
               </div>
-              <div class="copy-feedback"><i class="fas fa-check"></i> Copied!</div>
             </div>
           `).join('');
           
@@ -1617,7 +1880,7 @@
             </button>
             <div style="color: white; padding-top: 10px;">
               <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                <i class="fas ${category.icon}" style="color: var(--secondary); font-size: 1.3rem;"></i>
+                <i class="fas ${category.icon}" style="color: var(--ai-primary); font-size: 1.3rem;"></i>
                 <h3 style="margin: 0;">${escapeHtml(category.title)}</h3>
               </div>
               <p style="font-size: 0.9rem; margin-bottom: 20px; opacity: 0.8;"><strong>Guidance:</strong> ${escapeHtml(category.guidance)}</p>
@@ -1636,7 +1899,7 @@
           
           showModal(modalContent);
           
-          // Track AI prayer guide usage
+          // Track usage
           AppState.userStats.aiQuestions++;
           saveUserStats();
           trackEvent('ai_prayer_category_viewed', { category: categoryKey });
@@ -1652,7 +1915,7 @@
       try {
         const category = APP_DATA.aiPrayerAssistant.categories[categoryKey];
         if (!category || !category.prompts[promptIndex]) {
-          showNotification('Invalid prayer selection', 'error');
+          showToast('Invalid prayer selection', 'error');
           return;
         }
         
@@ -1660,30 +1923,25 @@
         const prayerInput = document.getElementById('prayerInput');
         
         if (!prayerInput) {
-          showNotification('Prayer journal not ready', 'error');
+          showToast('Prayer journal not ready', 'error');
           return;
-        }
-        
-        // Add feedback animation
-        const feedbackEl = document.querySelector('.copy-feedback');
-        if (feedbackEl) {
-          feedbackEl.classList.add('show');
-          setTimeout(() => feedbackEl.classList.remove('show'), 1500);
         }
         
         // Copy to textarea
         prayerInput.value = prayerText;
-        prayerInput.focus();
         
-        // Close modal and navigate to prayer screen
+        // Show success toast first
+        showToast('Prayer copied! Edit as needed 🙏', 'ai');
+        
+        // Navigate to prayer screen after short delay
         setTimeout(() => {
           closeModal();
           showScreen('prayer-screen');
-          showNotification('Prayer copied! Edit as needed 🙏', 'success');
+          prayerInput.focus();
           vibrate([30, 30, 50]);
-        }, 300);
+        }, 400);
         
-        // Save to AI history
+        // Save to history
         AppState.aiPrayerHistory.unshift({
           category: categoryKey,
           promptIndex: promptIndex,
@@ -1703,7 +1961,7 @@
       }
     }
 
-    // ========== PRAYER JOURNAL (Persistent) ==========
+    // ========== PRAYER JOURNAL ==========
     function savePrayer() {
       try {
         const prayerInput = document.getElementById('prayerInput');
@@ -1711,7 +1969,7 @@
         
         const text = prayerInput.value.trim();
         if (!text) {
-          showNotification('Please write a prayer first', 'error');
+          showToast('Please write a prayer first', 'error');
           return;
         }
         
@@ -1728,7 +1986,7 @@
         prayerInput.value = '';
         loadPrayers();
         
-        showNotification('Prayer saved! God hears you 🙏', 'success');
+        showToast('Prayer saved! God hears you 🙏', 'success');
         trackEvent('prayer_saved');
         updateUserStats();
         vibrate(50);
@@ -1779,7 +2037,7 @@
         prayer.answered = !prayer.answered;
         loadPrayers();
         
-        showNotification(prayer.answered ? 'Prayer marked as answered! Praise God! 🙌' : 'Prayer marked as pending', prayer.answered ? 'success' : 'info');
+        showToast(prayer.answered ? 'Prayer marked as answered! Praise God! 🙌' : 'Prayer marked as pending', prayer.answered ? 'success' : 'info');
         trackEvent('prayer_answered');
         vibrate(prayer.answered ? [50, 50, 100] : [30]);
         saveAllData();
@@ -1792,13 +2050,13 @@
     function recordVoicePrayer() {
       try {
         if (!AppState.isOnline) {
-          showNotification('Voice recording requires internet connection', 'warning');
+          showToast('Voice recording requires internet connection', 'warning');
           return;
         }
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-          showNotification('Voice recording not supported in your browser', 'error');
+          showToast('Voice recording not supported in your browser', 'error');
           return;
         }
         
@@ -1808,7 +2066,7 @@
         recognition.lang = AppState.language === 'en' ? 'en-US' : AppState.language;
         
         recognition.onstart = () => {
-          showNotification('Recording... Speak your prayer', 'info');
+          showToast('Recording... Speak your prayer', 'info');
           const prayerInput = document.getElementById('prayerInput');
           if (prayerInput) prayerInput.placeholder = 'Listening...';
         };
@@ -1820,13 +2078,13 @@
         };
         
         recognition.onend = () => {
-          showNotification('Recording finished', 'success');
+          showToast('Recording finished', 'success');
           const prayerInput = document.getElementById('prayerInput');
           if (prayerInput) prayerInput.placeholder = 'Edit your prayer or save it...';
         };
         
         recognition.onerror = (event) => {
-          showNotification('Voice recognition failed', 'error');
+          showToast('Voice recognition failed', 'error');
           handleError('speechRecognition', new Error(event.error));
         };
         
@@ -1837,7 +2095,7 @@
       }
     }
 
-    // ========== STATISTICS & GAMIFICATION (Deterministic) ==========
+    // ========== STATISTICS & GAMIFICATION ==========
     function updateUserStats() {
       try {
         if (!AppState.userStats) {
@@ -1911,7 +2169,7 @@
         if (lastDate === yesterday.toDateString()) {
           AppState.streak.count++;
           if (AppState.streak.count > 1) {
-            showNotification(`🔥 ${AppState.streak.count}-day streak! Keep going!`, 'success');
+            showToast(`🔥 ${AppState.streak.count}-day streak! Keep going!`, 'success');
           }
         } else if (lastDate && lastDate !== today) {
           AppState.streak.count = 1;
@@ -1981,7 +2239,7 @@
           AppState.achievements = achievements;
           safeSetItem('achievements', JSON.stringify(achievements));
           newAchievements.forEach(achievement => {
-            showNotification(`🏆 Achievement Unlocked: ${achievement}`, 'success');
+            showToast(`🏆 Achievement Unlocked: ${achievement}`, 'success');
             vibrate([100, 50, 100]);
           });
         }
@@ -2013,7 +2271,7 @@
       }
     }
 
-    // ========== SETTINGS (Persistent Preferences) ==========
+    // ========== SETTINGS ==========
     function toggleDarkMode() {
       try {
         AppState.darkMode = !AppState.darkMode;
@@ -2034,7 +2292,7 @@
         
         AppState.language = select.value;
         safeSetItem('language', AppState.language);
-        showNotification(`Language: ${getLanguageName(AppState.language)}`, 'success');
+        showToast(`Language: ${getLanguageName(AppState.language)}`, 'success');
         trackEvent('language_changed', { language: AppState.language });
         vibrate(20);
         
@@ -2049,7 +2307,7 @@
     }
 
     function updateVoiceSettings() {
-      showNotification('Voice settings updated', 'info');
+      showToast('Voice settings updated', 'info');
       vibrate(15);
     }
 
@@ -2061,7 +2319,7 @@
       }, 300);
     }
 
-    // ========== SHARING (Cross-Browser Compatible) ==========
+    // ========== SHARING ==========
     async function shareApp() {
       try {
         vibrate(30);
@@ -2077,7 +2335,7 @@
             await navigator.share(shareData);
             AppState.userStats.shares++;
             updateUserStats();
-            showNotification('Thank you for sharing the gospel!', 'success');
+            showToast('Thank you for sharing the gospel!', 'success');
             trackEvent('app_shared');
           } catch {
             fallbackShare();
@@ -2088,7 +2346,7 @@
         
         function fallbackShare() {
           copyToClipboard(`${shareData.text}\n\n${shareData.url}`);
-          showNotification('Link copied! Share with others', 'success');
+          showToast('Link copied! Share with others', 'success');
           trackEvent('app_shared_fallback');
         }
         
@@ -2112,7 +2370,7 @@
             await navigator.share(shareData);
             AppState.userStats.shares++;
             updateUserStats();
-            showNotification('Verse shared!', 'success');
+            showToast('Verse shared!', 'success');
             trackEvent('verse_shared');
           } catch {
             fallbackVerseShare();
@@ -2123,7 +2381,7 @@
         
         function fallbackVerseShare() {
           copyToClipboard(shareData.text);
-          showNotification('Verse copied!', 'success');
+          showToast('Verse copied!', 'success');
           trackEvent('verse_shared_fallback');
         }
         
@@ -2201,7 +2459,7 @@
         
       } catch (error) {
         handleError('shareVersePicture', error);
-        showNotification('Image generation failed', 'error');
+        showToast('Image generation failed', 'error');
       }
     }
 
@@ -2218,7 +2476,7 @@
       }
     }
 
-    // ========== MODAL SYSTEM (Proper Lifecycle) ==========
+    // ========== MODAL SYSTEM ==========
     let activeModal = null;
     
     function showModal(content) {
@@ -2243,7 +2501,7 @@
         requestAnimationFrame(() => modal.classList.add('active'));
         
         const escapeHandler = (e) => {
-          if (e.key === 'Escape') {
+          if (e.key === 'Escape' && activeModal) {
             closeModal();
             document.removeEventListener('keydown', escapeHandler);
           }
@@ -2260,13 +2518,13 @@
       try {
         if (!activeModal) return;
         
-        activeModal.classList.remove('active');
+        const modal = activeModal;
+        activeModal = null;
+        modal.classList.remove('active');
+        
         setTimeout(() => {
-          if (activeModal) {
-            activeModal.remove();
-            activeModal = null;
-            document.body.style.overflow = '';
-          }
+          if (modal.parentNode) modal.remove();
+          document.body.style.overflow = '';
         }, 300);
         
       } catch (error) {
@@ -2274,18 +2532,32 @@
       }
     }
 
-    // ========== PREMIUM FEATURES (Gated) ==========
+    // ========== PREMIUM FEATURES ==========
     function showPremiumDetails() {
       const tiers = APP_DATA.premiumTiers;
       const tierCards = Object.keys(tiers).map(key => {
         const tier = tiers[key];
+        const featuresList = tier.features.map(feature => `
+          <li class="premium-feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>${escapeHtml(feature)}</span>
+          </li>
+        `).join('');
+        
         return `
-          <div style="background: var(--glass); padding: 15px; border-radius: 10px; margin: 10px 0; border: 1px solid var(--glass-border);">
-            <h4 style="color: var(--premium); margin-bottom: 10px;"><i class="fas fa-crown"></i> ${tier.name} - $${tier.price}/${tier.interval}</h4>
-            <p style="font-size: 0.85rem; margin-bottom: 10px; opacity: 0.8;">${tier.target || 'Individual believers'}</p>
-            <ul style="list-style: none; padding: 0; font-size: 0.8rem;">
-              ${tier.features.map(f => `<li style="margin: 5px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> ${f}</li>`).join('')}
-            </ul>
+          <div class="premium-tier-card">
+            <div class="premium-tier-header">
+              <div class="premium-tier-name">
+                <i class="fas fa-crown"></i>
+                ${tier.name}
+              </div>
+              <div class="premium-tier-price">
+                $${tier.price}
+                <span class="interval">/${tier.interval}</span>
+              </div>
+            </div>
+            ${tier.target ? `<div class="premium-tier-target">${escapeHtml(tier.target)}</div>` : ''}
+            <ul class="premium-features-list">${featuresList}</ul>
           </div>
         `;
       }).join('');
@@ -2295,29 +2567,48 @@
           <i class="fas fa-times"></i>
         </button>
         <div style="color: white; padding-top: 10px;">
-          <h3 style="margin-bottom: 20px; color: var(--premium);"><i class="fas fa-crown"></i> GospelSwipe Pro Premium</h3>
-          
-          ${tierCards}
-          
-          <div style="background: var(--glass); padding: 15px; border-radius: 10px; margin: 20px 0;">
-            <h4 style="text-align: center; margin-bottom: 10px;">💰 Support Sustainability</h4>
-            <p style="font-size: 0.85rem; text-align: center;">
-              Your subscription funds:<br>
-              • Claude API for theological AI<br>
-              • Global server distribution<br>
-              • Persecution zone security<br>
-              • Continuous mission development<br>
-              • 70% profit funds mission work
-            </p>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+            <i class="fas fa-crown" style="font-size: 1.5rem; color: var(--premium);"></i>
+            <h3 style="margin: 0; color: var(--premium);">GospelSwipe Pro Premium</h3>
           </div>
           
-          <div class="wallet-actions">
-            <button class="wallet-btn" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Premium Subscription Inquiry', '_blank')">
-              <i class="fas fa-envelope"></i> Contact Sales
-            </button>
-            <button class="wallet-btn" onclick="closeModal()">
-              <i class="fas fa-times"></i> Close
-            </button>
+          <div class="premium-features-container">
+            ${tierCards}
+            
+            <div class="premium-sustainability">
+              <h4>💰 Support Sustainability</h4>
+              <div class="premium-sustainability-grid">
+                <div class="premium-sustainability-item">
+                  <i class="fas fa-robot"></i>
+                  <span>Claude API for theological AI</span>
+                </div>
+                <div class="premium-sustainability-item">
+                  <i class="fas fa-globe"></i>
+                  <span>Global server distribution</span>
+                </div>
+                <div class="premium-sustainability-item">
+                  <i class="fas fa-shield-alt"></i>
+                  <span>Persecution zone security</span>
+                </div>
+                <div class="premium-sustainability-item">
+                  <i class="fas fa-code"></i>
+                  <span>Continuous mission development</span>
+                </div>
+                <div class="premium-sustainability-item">
+                  <i class="fas fa-hand-holding-heart"></i>
+                  <span>70% profit funds mission work</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="premium-actions">
+              <button class="wallet-btn" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Premium Subscription Inquiry', '_blank')" aria-label="Contact sales">
+                <i class="fas fa-envelope"></i> Contact Sales
+              </button>
+              <button class="wallet-btn" onclick="closeModal()" aria-label="Close modal">
+                <i class="fas fa-times"></i> Close
+              </button>
+            </div>
           </div>
         </div>
       `;
@@ -2345,10 +2636,10 @@
             </div>
           </div>
           <div class="wallet-actions">
-            <button class="wallet-btn" onclick="window.open('https://buy.stripe.com/test_test', '_blank')">
+            <button class="wallet-btn" onclick="window.open('https://buy.stripe.com/test_test', '_blank')" aria-label="Add funds">
               <i class="fas fa-plus"></i> Add $10
             </button>
-            <button class="wallet-btn" onclick="window.open('https://www.opendoorsusa.org', '_blank')">
+            <button class="wallet-btn" onclick="window.open('https://www.opendoorsusa.org', '_blank')" aria-label="View recipients">
               <i class="fas fa-external-link-alt"></i> View Recipients
             </button>
           </div>
@@ -2407,10 +2698,10 @@
             <p style="font-size: 0.9rem;"><strong>Status:</strong> Free for all users<br><strong>Partners:</strong> Open Doors, Voice of the Martyrs</p>
           </div>
           <div class="wallet-actions">
-            <button class="wallet-btn" onclick="window.open('https://www.opendoorsusa.org', '_blank')">
+            <button class="wallet-btn" onclick="window.open('https://www.opendoorsusa.org', '_blank')" aria-label="Learn more">
               <i class="fas fa-info-circle"></i> Learn More
             </button>
-            <button class="wallet-btn" onclick="closeModal(); showNotification('VOM Mode activated. Restart required.', 'success');">
+            <button class="wallet-btn" onclick="closeModal(); showToast('VOM Mode activated. Restart required.', 'success');" aria-label="Activate VOM mode">
               <i class="fas fa-shield-alt"></i> Activate
             </button>
           </div>
@@ -2420,7 +2711,7 @@
       trackEvent('vom_mode_viewed');
     }
 
-    // ========== DATA EXPORT/IMPORT (Schema Validation) ==========
+    // ========== DATA EXPORT/IMPORT ==========
     function exportData() {
       try {
         const data = {
@@ -2438,7 +2729,7 @@
         };
         
         downloadJSON(data, `gospelswipe-backup-${new Date().toISOString().split('T')[0]}.json`);
-        showNotification('Data exported successfully!', 'success');
+        showToast('Data exported successfully!', 'success');
         trackEvent('data_exported');
         vibrate(50);
         
@@ -2467,7 +2758,7 @@
           <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
             Every dollar traced to eternity. Full transparency guaranteed.
           </p>
-          <button class="wallet-btn" style="width: 100%; margin-top: 20px;" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Grant Report Request', '_blank')">
+          <button class="wallet-btn" style="width: 100%; margin-top: 20px;" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Grant Report Request', '_blank')" aria-label="Email report request">
             <i class="fas fa-envelope"></i> Email Report Request
           </button>
         </div>
@@ -2479,10 +2770,10 @@
     function clearData() {
       try {
         if (!confirm('⚠️ Are you absolutely sure? This will DELETE ALL data permanently.')) return;
-        if (!confirm('⚠️ FINAL WARNING: This cannot be undone. Type "YES" to confirm.')) return;
+        if (!confirm('⚠️ FINAL WARNING: This cannot be undone. Continue?')) return;
         
         localStorage.clear();
-        showNotification('All data cleared. Reloading...', 'success');
+        showToast('All data cleared. Reloading...', 'success');
         setTimeout(() => {
           cleanupEventListeners();
           location.reload();
@@ -2493,11 +2784,11 @@
       }
     }
 
-    // ========== PWA INSTALL (Multi-Browser) ==========
+    // ========== PWA INSTALL ==========
     async function installApp() {
       try {
         if (!AppState.deferredPrompt) {
-          showNotification('App is already installed or not supported. Use browser menu.', 'info');
+          showToast('Use browser menu to install manually', 'info');
           return;
         }
         
@@ -2505,7 +2796,7 @@
           await AppState.deferredPrompt.prompt();
           const choice = await AppState.deferredPrompt.userChoice;
           if (choice.outcome === 'accepted') {
-            showNotification('App installed! Access from home screen 🎉', 'success');
+            showToast('App installed! Access from home screen 🎉', 'success');
             trackEvent('app_installed');
             vibrate([100, 50, 100]);
           }
@@ -2513,7 +2804,7 @@
           const installBtn = document.getElementById('installBtn');
           if (installBtn) installBtn.classList.add('hidden');
         } catch (error) {
-          showNotification('Use browser menu to install manually', 'info');
+          showToast('Use browser menu to install manually', 'info');
         }
         
       } catch (error) {
@@ -2534,8 +2825,8 @@
       }
     }
 
-    // ========== NOTIFICATION SYSTEM (DOM-Validated) ==========
-    function showNotification(message, type = 'info', duration = 4000) {
+    // ========== TOAST NOTIFICATION SYSTEM ==========
+    function showToast(message, type = 'info', duration = 4000) {
       try {
         const notification = document.getElementById('notification');
         const messageEl = document.getElementById('notificationMessage');
@@ -2545,7 +2836,7 @@
           return;
         }
         
-        const colors = { success: '#2ecc71', error: '#e74c3c', info: '#3498db', warning: '#f39c12' };
+        const colors = { success: '#2ecc71', error: '#e74c3c', info: '#3498db', warning: '#f39c12', ai: 'linear-gradient(135deg, #3498db, #8e44ad)' };
         notification.style.background = colors[type] || colors.info;
         
         messageEl.textContent = message;
@@ -2556,29 +2847,11 @@
         setTimeout(() => notification.classList.remove('show'), duration);
         
       } catch (error) {
-        console.error('Notification failed:', error);
+        console.error('Toast notification failed:', error);
       }
     }
 
-    function trackEvent(eventName, data = {}) {
-      try {
-        if (!AppState.userStats.events) AppState.userStats.events = [];
-        AppState.userStats.events.push({
-          event: eventName,
-          data,
-          timestamp: new Date().toISOString()
-        });
-        
-        if (AppState.userStats.events.length > 100) {
-          AppState.userStats.events = AppState.userStats.events.slice(-100);
-        }
-        
-      } catch (error) {
-        console.warn('Event tracking failed:', error);
-      }
-    }
-
-    // ========== UTILITY FUNCTIONS (Null-Safe) ==========
+    // ========== OTHER FEATURES ==========
     function showDailyVerse() {
       try {
         const verse = APP_DATA.dailyVerses[Math.floor(Math.random() * APP_DATA.dailyVerses.length)];
@@ -2597,10 +2870,10 @@
               ${escapeHtml(verse.ref)}
             </div>
             <div class="slide-actions">
-              <button class="slide-btn" onclick="shareVerse('${escapeAttr(verse.verse)}', '${escapeAttr(verse.ref)}')">
+              <button class="slide-btn" onclick="shareVerse('${escapeAttr(verse.verse)}', '${escapeAttr(verse.ref)}')" aria-label="Share verse">
                 <i class="fas fa-share"></i> Share
               </button>
-              <button class="slide-btn primary" onclick="shareVersePicture('${escapeAttr(verse.verse)}', '${escapeAttr(verse.ref)}', 'Daily Verse')">
+              <button class="slide-btn primary" onclick="shareVersePicture('${escapeAttr(verse.verse)}', '${escapeAttr(verse.ref)}', 'Daily Verse')" aria-label="Share as image">
                 <i class="fas fa-image"></i> Image
               </button>
             </div>
@@ -2645,7 +2918,7 @@
           trackEvent('voice_played', { slide: slideId });
           vibrate(30);
         } else {
-          showNotification('Voice synthesis unavailable offline', 'info');
+          showToast('Voice synthesis unavailable offline', 'info');
         }
         
       } catch (error) {
@@ -2653,6 +2926,7 @@
       }
     }
 
+    // ========== UTILITY FUNCTIONS ==========
     function wrapText(context, text, maxWidth) {
       try {
         const words = text.split(' ');
@@ -2715,7 +2989,7 @@
             navigator.vibrate(pattern);
           }
         }
-      } catch (error) {
+      } catch {
         console.warn('Vibration not supported');
       }
     }
@@ -2755,7 +3029,7 @@
       }
     }
 
-    // ========== DATA PERSISTENCE (Quota Management) ==========
+    // ========== DATA PERSISTENCE ==========
     function saveAllData() {
       try {
         safeSetItem('userStats', JSON.stringify(AppState.userStats));
@@ -2790,7 +3064,7 @@
             localStorage.setItem(key, value);
             return true;
           } catch {
-            showNotification('Storage full, some data may not be saved', 'warning');
+            showToast('Storage full, some data may not be saved', 'warning');
             return false;
           }
         }
@@ -2811,26 +3085,40 @@
         for (let i = 0; i < toRemove; i++) {
           localStorage.removeItem(keys[i]);
         }
-      } catch (error) {
+      } catch {
         console.warn('Failed to clear old data');
       }
     }
 
-    // ========== EVENT LISTENER CLEANUP (Memory Management) ==========
+    // ========== EVENT LISTENER CLEANUP ==========
     function cleanupEventListeners() {
       try {
         AppState.eventListeners.forEach(({ el, event, handler, options }) => {
           el.removeEventListener(event, handler, options);
         });
         AppState.eventListeners = [];
-      } catch (error) {
+      } catch {
         console.warn('Event listener cleanup failed');
       }
     }
 
-    // ========== PREMIUM AUTHORITY CHECK ==========
-    function isPremiumUnlocked() {
-      return localStorage.getItem('premiumUnlocked') === 'true';
+    // ========== TRACKING ==========
+    function trackEvent(eventName, data = {}) {
+      try {
+        if (!AppState.userStats.events) AppState.userStats.events = [];
+        AppState.userStats.events.push({
+          event: eventName,
+          data,
+          timestamp: new Date().toISOString()
+        });
+        
+        if (AppState.userStats.events.length > 100) {
+          AppState.userStats.events = AppState.userStats.events.slice(-100);
+        }
+        
+      } catch {
+        console.warn('Event tracking failed');
+      }
     }
   </script>
 </body>
