@@ -1,0 +1,32 @@
+{
+  "slides": [ ... same as before ... ],
+  "aiAnswers": {
+    "god-love": {
+      "en": "God's love is unconditional and sacrificial. John 3:16 shows that God loved the world so much that He gave His only Son.",
+      "fr": "L'amour de Dieu est inconditionnel et sacrificiel. Jean 3:16 montre que Dieu a tant aimé le monde qu'il a donné son Fils unique.",
+      "sw": "Upendo wa Mungu hauna masharti na ni wa kujitolea. Yohana 3:16 inaonyesha kwamba Mungu aliupenda ulimwengu kiasi cha kumtoa Mwanawe pekee.",
+      "ar": "محبة الله غير مشروطة وذبيحية. يوحنا ٣: ١٦ تظهر أن الله أحب العالم كثيراً حتى بذل ابنه الوحيد.",
+      "yo": "Ife Olorun ko ni opin ati ẹbọ. Johannu 3:16 fihan pe Olorun feran aye tobẹẹ ti o fi fi Ọmọ rẹ kanṣoṣo fun.",
+      "ig": "Ịhụnanya Chineke enweghị atụ na ịchụ àjà. Jọn 3:16 na-egosi na Chineke hụrụ ụwa n'anya nke ukwuu nye otu Ọkpara ya.",
+      "ha": "Ƙaunar Allah ba ta da iyaka kuma tana da sadaukarwa. Yahaya 3:16 ya nuna cewa Allah ya ƙaunaci duniya har ya ba da Ɗansa kaɗai.",
+      "pcm": "God love no get end and na sacrifice. John 3:16 show say God love di world well well give im only Son."
+    },
+    "sin-problem": { "en": "Sin is anything that falls short of God's perfect standard. Romans 3:23 reminds us that all have sinned.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "jesus-solution": { "en": "Jesus is God's solution to our sin problem. While we were still sinners, Christ died for us (Romans 5:8).", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "faith-response": { "en": "Faith is trusting in Jesus alone for salvation. Ephesians 2:8-9 clarifies that salvation is by grace through faith.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "new-life": { "en": "When we accept Jesus, we become new creations. 2 Corinthians 5:17 promises that the old has gone and the new is here.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "trinity": { "en": "The Trinity is the Christian doctrine that God exists as three distinct Persons—Father, Son, and Holy Spirit.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "scripture": { "en": "The Bible is God's inspired, authoritative Word—completely true and reliable. 2 Timothy 3:16 teaches that all Scripture is God-breathed.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "suffering": { "en": "God doesn't promise a life without suffering, but He promises to be with us in it and work it for good. Romans 8:28 assures us.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "only-way": { "en": "Jesus is the exclusive way to God because He alone is both fully God and fully human—the only mediator between God and humanity.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "salvation-prayer": { "en": "The prayer of salvation is a simple confession of faith in Jesus. Romans 10:9 outlines it.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "holy-spirit": { "en": "The Holy Spirit is God's presence in believers, empowering us for holy living and witness. Acts 1:8 promises power.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "great-commission": { "en": "The Great Commission is Jesus' final command to make disciples of all nations.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "love-neighbor": { "en": "Loving your neighbor means actively showing God's love to others through practical acts of service, kindness, and forgiveness.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "forgiveness": { "en": "Forgiveness is releasing resentment toward someone who has wronged you, just as God forgave you in Christ.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
+    "eternal-hope": { "en": "Eternal hope is the confident expectation of God's promises for the future, including resurrection, eternal life with God.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." }
+  },
+  "aiPrayerAssistant": { ... same as before ... },
+  "dailyVerses": [ ... same as before ... ],
+  "metrics": { ... same as before ... }
+}

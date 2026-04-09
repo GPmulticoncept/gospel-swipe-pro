@@ -3,3123 +3,519 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self'">
-  
-  <title>GospelSwipe Pro - Digital Evangelism Platform</title>
-  
-  <!-- PWA Meta Tags -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'">
+  <title>GospelSwipe Pro</title>
+
+  <!-- PWA -->
   <meta name="theme-color" content="#2c3e50">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="AI-powered gospel presentation with prayer journal, multi-language support, and 100% offline evangelism tools. Made in Nigeria 🇳🇬">
-  
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiR29zcGVsU3dpcGUgUHJvIiwic2hvcnRfbmFtZSI6Ikdvc3BlbFN3aXBlIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzJjM2U1MCIsInRoZW1lX2NvbG9yIjoiIzJjM2U1MCJ9">
+  <meta name="apple-mobile-web-app-title" content="GospelSwipe">
+  <meta name="description" content="Offline-first gospel presentation PWA. 15 slides, 200 prayers, 8 languages. Made in Nigeria 🇳🇬">
+  <link rel="manifest" href="manifest.json">
   <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB5PSIuOWVtIiBmb250LXNpemU9IjkwIj7wn5udeTwvdGV4dD48L3N2Zz4=">
-  
-  <!-- Fonts & Icons -->
+
+  <!-- Fonts & Icons (preconnect first) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <style>
-    :root {
-      --primary: #2c3e50; --secondary: #3498db; --accent: #e74c3c; --success: #27ae60;
-      --warning: #f39c12; --premium: #9b59b6; --light: #ecf0f1; --dark: #1a1a1a;
-      --radius: 12px; --shadow: 0 8px 30px rgba(0,0,0,0.12); --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      --glass: rgba(255,255,255,0.08); --glass-border: rgba(255,255,255,0.12);
-      --slide-bg-start: #2c3e50; --slide-bg-end: #34495e;
-      --ai-primary: #3498db; --ai-secondary: #8e44ad; --ai-gradient: linear-gradient(135deg, #3498db, #8e44ad);
-      --premium-gradient: linear-gradient(135deg, #9b59b6, #8e44ad);
-    }
-
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html { height: 100%; overflow: hidden; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      line-height: 1.6; color: var(--light);
-      background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
-      min-height: 100vh; position: relative; transition: var(--transition);
-      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-      user-select: none; -webkit-user-select: none; overflow: hidden;
-    }
-    body.dark-mode { background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%); }
-
-    #loading {
-      position: fixed; inset: 0; background: var(--primary);
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      z-index: 999999; transition: opacity 0.5s;
-    }
-    .loader {
-      width: 48px; height: 48px; border: 3px solid rgba(255,255,255,0.3);
-      border-radius: 50%; border-top-color: #fff;
-      animation: spin 1s ease-in-out infinite; margin-bottom: 20px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .app-container { display: none; position: relative; width: 100%; height: 100vh; overflow: hidden; z-index: 1; }
-    .app-container.active { display: block; }
-
-    #home-screen {
-      position: fixed; inset: 0; padding: 20px 20px calc(70px + env(safe-area-inset-bottom));
-      display: flex; flex-direction: column; overflow-y: auto;
-      -webkit-overflow-scrolling: touch; z-index: 100;
-      background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
-    }
-    body.dark-mode #home-screen { background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%); }
-
-    .header { text-align: center; margin-top: 20px; flex-shrink: 0; position: relative; }
-    .header h1 {
-      font-size: clamp(1.8rem, 5vw, 2.2rem); margin-bottom: 5px;
-      background: linear-gradient(to right, #3498db, #2ecc71);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      font-weight: 700;
-    }
-    .tagline { font-size: 1rem; opacity: 0.8; margin-bottom: 20px; }
-    .header-settings-btn {
-      position: absolute; top: 0; right: 0; background: var(--glass);
-      border: 1px solid var(--glass-border); color: #fff; width: 40px; height: 40px;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: var(--transition); z-index: 10;
-    }
-    .header-settings-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(30deg); }
-
-    .user-stats { margin-bottom: 20px; }
-    .stats-row { display: flex; gap: 15px; justify-content: center; }
-    .stat-item { text-align: center; }
-    .stat-value { font-size: 1.8rem; font-weight: bold; }
-    .stat-label { font-size: 0.8rem; opacity: 0.7; }
-
-    .features-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px; margin: 20px 0; flex: 1;
-    }
-    .feature-card {
-      background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border); border-radius: var(--radius);
-      padding: 18px; text-align: center; transition: var(--transition);
-      cursor: pointer; display: flex; flex-direction: column; justify-content: center;
-      min-height: 130px; position: relative; overflow: hidden;
-    }
-    .feature-card::before {
-      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-      transition: left 0.5s;
-    }
-    .feature-card:hover::before { left: 100%; }
-    .feature-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.12); box-shadow: var(--shadow); }
-    .feature-card i { font-size: 1.6rem; margin-bottom: 8px; color: var(--secondary); }
-    .feature-card h3 { font-size: 0.95rem; margin-bottom: 5px; }
-    .feature-card p { font-size: 0.75rem; opacity: 0.7; }
-
-    .feature-badge {
-      background: rgba(52, 152, 219, 0.2); color: var(--secondary);
-      padding: 2px 8px; border-radius: 10px; font-size: 0.65rem; margin-top: 5px;
-      display: inline-block; font-weight: 600; z-index: 1; position: relative;
-    }
-    .premium-badge {
-      background: rgba(155, 89, 182, 0.3); color: var(--premium);
-      border: 1px solid rgba(155, 89, 182, 0.5);
-    }
-
-    /* FIXED SLIDE SYSTEM - No more shifting */
-    .slides-container { 
-      position: relative; 
-      width: 100%; 
-      height: 100%; 
-      overflow: hidden;
-      display: flex;
-    }
-    .slide {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      padding: 60px 20px calc(100px + env(safe-area-inset-bottom));
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      opacity: 0;
-      transform: translateX(100%);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
-      z-index: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      pointer-events: none;
-    }
-    .slide.active { 
-      opacity: 1; 
-      transform: translateX(0); 
-      z-index: 3; 
-      pointer-events: all; 
-      position: relative;
-    }
-    .slide.previous { 
-      transform: translateX(-100%); 
-      z-index: 2; 
-    }
-    .slide.next { 
-      transform: translateX(100%); 
-      z-index: 1; 
-    }
-
-    .slide-content { 
-      max-width: 650px; 
-      width: 90%;
-      margin: 0 auto;
-    }
-    .slide-header { margin-bottom: 25px; }
-    .slide-number {
-      background: var(--glass); border: 1px solid var(--glass-border);
-      border-radius: 20px; padding: 5px 15px; font-size: 0.85rem;
-      margin-bottom: 15px; display: inline-block; font-weight: 600;
-    }
-    .slide-title { font-size: clamp(1.5rem, 5vw, 2rem); margin-bottom: 20px; line-height: 1.3; font-weight: 700; }
-    .slide-verse {
-      font-size: clamp(1.1rem, 4vw, 1.3rem); line-height: 1.6; margin-bottom: 20px;
-      padding: 25px; background: rgba(0,0,0,0.2); border-radius: var(--radius);
-      border-left: 4px solid var(--secondary); font-style: italic;
-    }
-    .slide-reference { font-size: 1.1rem; opacity: 0.9; margin-bottom: 25px; font-weight: 600; }
-    .slide-actions { 
-      display: flex; 
-      gap: 10px; 
-      margin-top: 20px; 
-      flex-wrap: wrap; 
-      justify-content: center;
-      position: relative;
-      z-index: 10;
-    }
-    .slide-btn {
-      background: var(--glass); border: 1px solid var(--glass-border); color: #fff;
-      padding: 12px 20px; border-radius: 25px; cursor: pointer; transition: var(--transition);
-      font-size: 0.9rem; min-width: 100px; display: flex; align-items: center; justify-content: center;
-      gap: 8px; white-space: nowrap;
-    }
-    .slide-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
-    .slide-btn.primary { background: linear-gradient(135deg, #3498db, #2980b9); border-color: rgba(255,255,255,0.2); }
-    .slide-btn.premium { background: linear-gradient(135deg, var(--premium), #8e44ad); border-color: rgba(155, 89, 182, 0.3); }
-
-    .hidden { display: none !important; }
-    .slide-indicator {
-      position: absolute; bottom: 20px; width: 100%; display: flex;
-      justify-content: center; gap: 40px; padding: 0 30px; opacity: 0.6; font-size: 0.8rem;
-    }
-
-    .screen {
-      position: fixed; inset: 0; padding: 20px 20px calc(70px + env(safe-area-inset-bottom));
-      overflow-y: auto; -webkit-overflow-scrolling: touch;
-      background: linear-gradient(135deg, var(--primary) 0%, #34495e 100%);
-      transform: translateX(100%); transition: transform 0.3s ease; z-index: 200; display: none;
-    }
-    body.dark-mode .screen { background: linear-gradient(135deg, #0f1419 0%, #1a252f 100%); }
-    .screen.active { transform: translateX(0); display: flex; flex-direction: column; z-index: 201; }
-
-    #presentation-screen { padding: 0; z-index: 300; }
-    #presentation-screen.active { z-index: 301; }
-
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; height: calc(70px + env(safe-area-inset-bottom));
-      background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      display: flex; justify-content: space-around; align-items: center;
-      padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid var(--glass-border);
-      z-index: 1000;
-    }
-    .nav-btn {
-      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 3px; background: none; border: none; color: rgba(255,255,255,0.7);
-      transition: var(--transition); padding: 8px; cursor: pointer; min-width: 60px;
-    }
-    .nav-btn.active { color: var(--secondary); transform: translateY(-3px); }
-    .nav-btn i { font-size: 1.3rem; transition: transform 0.2s; }
-    .nav-btn span { font-size: 0.7rem; font-weight: 500; }
-
-    .journal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
-    .journal-header h2 { font-size: 1.5rem; }
-    .close-btn {
-      background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;
-      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-      border-radius: 50%; transition: var(--transition);
-    }
-    .close-btn:hover { background: rgba(255,255,255,0.1); }
-
-    #prayerInput {
-      width: 100%; min-height: 120px; max-height: 200px; padding: 15px;
-      border-radius: var(--radius); border: 2px solid var(--glass-border);
-      background: var(--glass); color: #fff; font-size: 1rem; resize: vertical;
-      margin-bottom: 20px; flex-shrink: 0; font-family: inherit;
-    }
-    #prayerInput:focus { outline: none; border-color: var(--secondary); }
-
-    .prayer-actions { display: flex; gap: 10px; margin-bottom: 30px; flex-shrink: 0; }
-    .action-btn {
-      flex: 1; padding: 12px; border-radius: var(--radius); border: none; font-weight: 600;
-      cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center;
-      gap: 8px;
-    }
-    .action-btn:hover { transform: translateY(-2px); opacity: 0.95; }
-    .action-btn.primary { background: var(--secondary); color: white; }
-    .action-btn.secondary { background: transparent; border: 1px solid var(--glass-border); color: #fff; }
-
-    .prayer-list { display: flex; flex-direction: column; gap: 15px; flex: 1; overflow-y: auto; }
-    .prayer-item {
-      background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius);
-      padding: 15px; border-left: 4px solid var(--success); transition: var(--transition); position: relative;
-    }
-    .prayer-item:hover { transform: translateX(5px); }
-    .prayer-item.answered { border-left-color: var(--accent); opacity: 0.8; }
-
-    .prayer-date {
-      font-size: 0.75rem; opacity: 0.6; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
-    }
-
-    .settings-section { margin-bottom: 30px; flex-shrink: 0; }
-    .settings-title {
-      font-size: 0.9rem; opacity: 0.8; margin-bottom: 15px; text-transform: uppercase;
-      letter-spacing: 1px; font-weight: 600;
-    }
-    .settings-option {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 15px; background: var(--glass); border: 1px solid var(--glass-border);
-      border-radius: var(--radius); margin-bottom: 10px;
-    }
-    .settings-option select {
-      background: var(--glass); color: #fff; border: none; padding: 8px 12px;
-      border-radius: 5px; cursor: pointer; font-size: 0.9rem;
-    }
-
-    .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; inset: 0; background-color: rgba(255,255,255,0.3);
-      transition: .4s; border-radius: 24px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px;
-      background-color: white; transition: .4s; border-radius: 50%;
-    }
-    input:checked + .slider { background-color: var(--secondary); }
-    input:checked + .slider:before { transform: translateX(26px); }
-
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; flex-shrink: 0; }
-    .stat-card {
-      background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius);
-      padding: 20px; text-align: center; transition: var(--transition);
-    }
-    .stat-card:hover { transform: scale(1.03); }
-    .stat-card .stat-value { font-size: 2rem; font-weight: bold; color: var(--secondary); margin-bottom: 5px; }
-    .stat-card .stat-label { font-size: 0.85rem; opacity: 0.8; }
-
-    .achievement-item {
-      background: rgba(241, 196, 15, 0.1); border: 1px solid rgba(241, 196, 15, 0.3);
-      border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex;
-      align-items: center; gap: 10px; transition: var(--transition);
-    }
-    .achievement-item:hover { transform: translateX(5px); }
-    .achievement-item i { color: #f39c12; }
-
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      z-index: 5000; opacity: 0; transition: opacity 0.3s; display: flex;
-      align-items: center; justify-content: center; padding: 20px;
-    }
-    .modal-overlay.active { opacity: 1; }
-    .modal-content {
-      background: linear-gradient(135deg, #2c3e50, #34495e); border: 1px solid var(--glass-border);
-      padding: 40px 30px 30px; border-radius: 20px; max-width: 500px;
-      width: 90%; max-height: 80vh; overflow-y: auto; transform: translateY(20px) scale(0.95);
-      transition: transform 0.3s; position: relative; box-shadow: var(--shadow);
-    }
-    .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
-
-    .modal-close-btn {
-      position: absolute; top: 15px; right: 15px; background: var(--glass);
-      border: 1px solid var(--glass-border); color: #fff; width: 36px; height: 36px;
-      border-radius: 50%; cursor: pointer; z-index: 10001; display: flex;
-      align-items: center; justify-content: center; transition: var(--transition);
-    }
-    .modal-close-btn:hover { background: var(--accent); transform: rotate(90deg); }
-
-    /* === AI PRAYER GUIDE - NEW UI === */
-    .ai-prayer-category-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 15px; max-height: 60vh; overflow-y: auto; padding-right: 5px;
-    }
-    .ai-prayer-category-card {
-      background: linear-gradient(135deg, rgba(52, 152, 219, 0.15), rgba(142, 68, 173, 0.15));
-      border: 2px solid rgba(52, 152, 219, 0.3); border-radius: var(--radius);
-      padding: 20px; cursor: pointer; transition: var(--transition);
-      display: flex; align-items: center; gap: 15px; position: relative;
-      backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-    }
-    .ai-prayer-category-card:hover {
-      transform: translateY(-5px); box-shadow: 0 10px 25px rgba(52, 152, 219, 0.2);
-      border-color: var(--ai-primary); background: linear-gradient(135deg, rgba(52, 152, 219, 0.25), rgba(142, 68, 173, 0.25));
-    }
-    .ai-prayer-category-icon {
-      width: 50px; height: 50px; border-radius: 50%; background: var(--ai-gradient);
-      display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
-      flex-shrink: 0; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-    }
-    .ai-prayer-category-info { flex: 1; }
-    .ai-prayer-category-title {
-      font-size: 1.1rem; font-weight: 600; margin-bottom: 5px; color: #fff;
-    }
-    .ai-prayer-category-meta {
-      font-size: 0.8rem; opacity: 0.7; display: flex; gap: 10px; align-items: center;
-    }
-    .ai-prayer-category-arrow {
-      color: var(--ai-primary); font-size: 1.2rem; transition: transform 0.3s;
-    }
-    .ai-prayer-category-card:hover .ai-prayer-category-arrow { transform: translateX(5px); }
-
-    .ai-prayer-prompt-list {
-      display: flex; flex-direction: column; gap: 12px;
-      max-height: 60vh; overflow-y: auto; padding-right: 5px;
-    }
-    .ai-prayer-prompt-item {
-      background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border);
-      border-radius: var(--radius); padding: 20px; cursor: pointer;
-      transition: var(--transition); position: relative; display: flex; flex-direction: column;
-    }
-    .ai-prayer-prompt-item:hover {
-      background: rgba(255,255,255,0.12); transform: translateX(5px);
-      border-color: var(--ai-primary);
-    }
-    .ai-prayer-prompt-text {
-      font-size: 1rem; line-height: 1.7; margin-bottom: 10px; white-space: pre-wrap; word-wrap: break-word;
-      font-style: italic; color: #fff;
-    }
-    .ai-prayer-prompt-meta {
-      font-size: 0.75rem; opacity: 0.6; display: flex; justify-content: space-between; align-items: center;
-    }
-    .ai-prayer-prompt-type {
-      background: var(--ai-primary); color: white; padding: 3px 8px; border-radius: 10px; font-weight: 500;
-    }
-
-    /* === TOAST NOTIFICATION SYSTEM === */
-    .toast-notification {
-      position: fixed; top: 20px; right: 20px; background: var(--success);
-      color: white; padding: 15px 20px; border-radius: var(--radius); box-shadow: var(--shadow);
-      transform: translateX(150%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 2001; max-width: 300px; font-weight: 500; display: flex; align-items: center; gap: 10px;
-    }
-    .toast-notification.show { transform: translateX(0); }
-    .toast-notification.error { background: var(--accent); }
-    .toast-notification.info { background: var(--secondary); }
-    .toast-notification.warning { background: var(--warning); }
-    .toast-notification.ai { background: var(--ai-gradient); }
-
-    /* === PREMIUM UI ENHANCEMENTS === */
-    .premium-features-container {
-      max-height: 70vh;
-      overflow-y: auto;
-      padding-right: 10px;
-    }
-    .premium-tier-card {
-      background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(142, 68, 173, 0.15));
-      border: 2px solid rgba(155, 89, 182, 0.4);
-      border-radius: var(--radius);
-      padding: 25px;
-      margin-bottom: 20px;
-      position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: var(--transition);
-    }
-    .premium-tier-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(155, 89, 182, 0.25);
-      border-color: var(--premium);
-    }
-    .premium-tier-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    .premium-tier-name {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--premium);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .premium-tier-price {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: white;
-      text-shadow: 0 2px 10px rgba(155, 89, 182, 0.4);
-    }
-    .premium-tier-price .interval {
-      font-size: 0.8rem;
-      opacity: 0.7;
-      font-weight: normal;
-    }
-    .premium-tier-target {
-      font-size: 0.9rem;
-      opacity: 0.8;
-      margin-bottom: 15px;
-      padding: 8px 12px;
-      background: rgba(155, 89, 182, 0.1);
-      border-radius: 8px;
-      display: inline-block;
-    }
-    .premium-features-list {
-      list-style: none;
-      padding: 0;
-      margin: 20px 0;
-    }
-    .premium-feature-item {
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(155, 89, 182, 0.2);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .premium-feature-item:last-child {
-      border-bottom: none;
-    }
-    .premium-feature-item i {
-      color: #2ecc71;
-      font-size: 1.1rem;
-      width: 20px;
-    }
-    .premium-sustainability {
-      background: linear-gradient(135deg, rgba(155, 89, 182, 0.1), rgba(142, 68, 173, 0.1));
-      padding: 20px;
-      border-radius: var(--radius);
-      margin: 25px 0;
-      border: 1px solid rgba(155, 89, 182, 0.3);
-    }
-    .premium-sustainability h4 {
-      text-align: center;
-      margin-bottom: 15px;
-      color: var(--premium);
-    }
-    .premium-sustainability-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-      font-size: 0.85rem;
-    }
-    .premium-sustainability-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .premium-sustainability-item i {
-      color: var(--premium);
-      font-size: 0.9rem;
-    }
-    .premium-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 25px;
-    }
-    .premium-actions .wallet-btn {
-      flex: 1;
-      background: var(--premium-gradient);
-      border-color: rgba(155, 89, 182, 0.5);
-      color: white;
-      font-weight: 600;
-    }
-    .premium-actions .wallet-btn:hover {
-      background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(142, 68, 173, 0.3));
-    }
-
-    .exit-btn {
-      position: fixed; top: 20px; left: 20px; background: var(--glass);
-      border: 1px solid var(--glass-border); color: #fff; width: 44px; height: 44px;
-      border-radius: 50%; z-index: 1000; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: var(--transition);
-    }
-    .exit-btn:hover { background: var(--accent); }
-
-    .home-bottom-buttons { text-align: center; margin-top: auto; padding-bottom: 20px; flex-shrink: 0; }
-    .install-info { opacity: 0.7; font-size: 0.85rem; margin-bottom: 15px; }
-    .install-btn {
-      background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none;
-      padding: 14px 30px; border-radius: 25px; font-weight: 600; cursor: pointer;
-      transition: var(--transition); display: inline-flex; align-items: center; gap: 10px;
-      min-width: 200px; justify-content: center;
-    }
-    .install-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3); }
-
-    .premium-banner {
-      background: linear-gradient(135deg, rgba(155, 89, 182, 0.1), rgba(142, 68, 173, 0.1));
-      border: 1px solid rgba(155, 89, 182, 0.3); border-radius: var(--radius);
-      padding: 20px; margin: 20px 0; text-align: center; position: relative; overflow: hidden;
-    }
-    .premium-banner::before {
-      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
-      animation: shine 3s infinite;
-    }
-    @keyframes shine {
-      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-    }
-    .premium-banner h3 { position: relative; z-index: 1; margin-bottom: 10px; color: var(--premium); }
-    .premium-banner p { position: relative; z-index: 1; font-size: 0.9rem; opacity: 0.9; }
-
-    .wallet-widget {
-      background: linear-gradient(135deg, rgba(243, 156, 18, 0.1), rgba(230, 126, 34, 0.1));
-      border: 1px solid rgba(243, 156, 18, 0.3); border-radius: var(--radius);
-      padding: 15px; margin: 15px 0;
-    }
-    .wallet-balance { font-size: 1.5rem; font-weight: bold; color: var(--warning); }
-    .wallet-actions { display: flex; gap: 10px; margin-top: 10px; }
-    .wallet-btn {
-      flex: 1; padding: 10px; border: 1px solid rgba(243, 156, 18, 0.5);
-      background: rgba(243, 156, 18, 0.1); color: var(--warning); border-radius: 6px;
-      cursor: pointer; font-size: 0.85rem; transition: var(--transition); font-weight: 500;
-    }
-    .wallet-btn:hover { background: rgba(243, 156, 18, 0.2); }
-
-    .call-to-action {
-      background: linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(230, 126, 34, 0.2));
-      border: 1px solid rgba(243, 156, 18, 0.5); border-radius: var(--radius);
-      padding: 25px; text-align: center; margin: 30px 0;
-    }
-    .call-to-action h3 { color: var(--warning); }
-
-    .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-    .contact-btn {
-      background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none;
-      padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600;
-      transition: var(--transition); display: flex; align-items: center; justify-content: center;
-      gap: 8px; font-size: 0.9rem;
-    }
-    .contact-btn:hover { transform: translateY(-2px); }
-
-    /* === IMPACT SCREEN SPECIFIC STYLES === */
-    .grant-section { margin-bottom: 25px; }
-    .grant-metric { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--glass-border); }
-    .grant-metric:last-child { border-bottom: none; }
-    .impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
-    .impact-card { background: var(--glass); padding: 15px; border-radius: var(--radius); text-align: center; border: 1px solid var(--glass-border); }
-    .impact-value { font-size: 2rem; font-weight: bold; color: var(--success); }
-    .impact-label { font-size: 0.8rem; opacity: 0.7; margin-top: 5px; }
-
-    @media (max-width: 768px) {
-      .features-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .ai-prayer-category-grid { grid-template-columns: 1fr; }
-      .premium-actions { flex-direction: column; }
-      .header h1 { font-size: 1.8rem; }
-      .slide-actions { flex-direction: column; width: 100%; }
-      .slide-btn { width: 100%; }
-      .prayer-actions { flex-direction: column; }
-      .impact-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 480px) {
-      .nav-btn span { display: none; }
-      .nav-btn i { font-size: 1.5rem; }
-      .wallet-actions { flex-direction: column; }
-      .impact-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-    }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
-
-    .fade-in { animation: fadeIn 0.5s ease-out; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .loading-spinner {
-      display: inline-block; width: 20px; height: 20px;
-      border: 3px solid rgba(255,255,255,0.3); border-radius: 50%;
-      border-top-color: #fff; animation: spin 1s ease-in-out infinite;
-    }
-
-    .skeleton { background: rgba(255,255,255,0.1); border-radius: var(--radius); overflow: hidden; position: relative; }
-    .skeleton::after {
-      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      animation: shimmer 1.5s infinite;
-    }
-    .skeleton-card { height: 80px; margin-bottom: 10px; }
-    .skeleton-text { height: 20px; margin-bottom: 5px; }
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 100%; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="loading">
-    <div class="loader"></div>
-    <h2 style="margin-bottom: 10px; font-size: 1.5rem;">GospelSwipe Pro v1.0</h2>
-    <p style="opacity: 0.7; text-align: center; max-width: 300px; font-size: 0.9rem;">
-      Preparing your evangelism toolkit...
-    </p>
-    <div style="margin-top: 30px; font-size: 0.8rem; opacity: 0.5;">
-      <span id="loadingProgress">0%</span> • Made in 🇳🇬
-    </div>
+
+<!-- ===== Loading Screen ===== -->
+<div id="loading" role="status" aria-live="polite">
+  <div class="loader" aria-hidden="true"></div>
+  <h2 data-i18n="appName" style="margin-bottom:8px;">GospelSwipe Pro</h2>
+  <p data-i18n="tagline" style="opacity:0.65;font-size:0.9rem;text-align:center;max-width:260px;">Your pocket evangelism toolkit</p>
+  <div style="margin-top:28px;font-size:0.78rem;opacity:0.45;">
+    <span id="loadingProgress">0%</span> &bull; Made in 🇳🇬
+  </div>
+</div>
+
+<!-- ===== App Container ===== -->
+<div class="app-container" id="appContainer">
+
+  <!-- Offline Badge -->
+  <div id="offlineBadge" role="alert" aria-live="assertive">
+    <i class="fas fa-wifi" aria-hidden="true"></i>
+    <span data-i18n="offlineMode">Offline Mode</span>
   </div>
 
-  <div class="app-container" id="appContainer">
-    <div class="premium-banner" style="margin: 20px 20px 0;">
-      <h3><i class="fas fa-crown"></i> GospelSwipe Pro Premium</h3>
-      <p>Unlock AI apologetics, church dashboard & mentorship. Starting at <strong>$1.99/month</strong> supports eternal impact.</p>
-      <button class="slide-btn primary" style="margin-top: 10px;" onclick="showPremiumDetails()" aria-label="View premium features">
-        <i class="fas fa-star"></i> See Premium Features
+  <!-- ===========================
+       HOME SCREEN
+  =========================== -->
+  <div id="home-screen" class="screen active" role="main">
+    <div class="header">
+      <button class="header-settings-btn" onclick="showScreen('settings-screen')" aria-label="Settings">
+        <i class="fas fa-cog" aria-hidden="true"></i>
       </button>
-    </div>
-    
-    <div id="home-screen" class="screen active">
-      <div class="header">
-        <button class="header-settings-btn" onclick="showScreen('settings-screen')" title="Settings" aria-label="Settings">
-          <i class="fas fa-cog"></i>
-        </button>
-        <h1><i class="fas fa-cross"></i> GospelSwipe Pro</h1>
-        <p class="tagline">Your pocket evangelism toolkit</p>
-        
-        <div class="user-stats">
-          <div class="stats-row">
-            <div class="stat-item">
-              <div class="stat-value" id="streakCount">0</div>
-              <div class="stat-label">Day Streak</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value" id="versesShared">0</div>
-              <div class="stat-label">Verses Shared</div>
-            </div>
+      <h1><i class="fas fa-cross" aria-hidden="true"></i> <span data-i18n="appName">GospelSwipe Pro</span></h1>
+      <p class="tagline" data-i18n="tagline">Your pocket evangelism toolkit</p>
+
+      <!-- Stats Row -->
+      <div class="user-stats">
+        <div class="stats-row">
+          <div class="stat-item">
+            <div class="stat-value" id="streakCount">0</div>
+            <div class="stat-label" data-i18n="dayStreak">Day Streak</div>
           </div>
-        </div>
-        
-        <div class="wallet-widget">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-            <span style="font-size: 0.9rem;"><i class="fas fa-coins"></i> Missions Wallet</span>
-            <span class="wallet-balance">₿0.000247</span>
-          </div>
-          <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 10px;">
-            Your gospel shares fund missions worldwide
-          </div>
-          <div class="wallet-actions">
-            <button class="wallet-btn" onclick="showWallet()">
-              <i class="fas fa-plus"></i> Add Funds
-            </button>
-            <button class="wallet-btn" onclick="showImpact()">
-              <i class="fas fa-globe"></i> See Impact
-            </button>
+          <div class="stat-item">
+            <div class="stat-value" id="versesShared">0</div>
+            <div class="stat-label" data-i18n="versesShared">Verses Shared</div>
           </div>
         </div>
       </div>
-      
-      <div class="features-grid">
-        <div class="feature-card" onclick="startPresentation()">
-          <i class="fas fa-play-circle"></i>
-          <h3>Start Presentation</h3>
-          <p>15 swipeable gospel slides</p>
+
+      <!-- Support Widget -->
+      <div class="wallet-widget">
+        <div class="wallet-widget-header">
+          <div class="wallet-widget-title">
+            <i class="fas fa-heart" style="color:#e74c3c;font-size:0.95rem;" aria-hidden="true"></i>
+            Support This Ministry
+          </div>
+          <span class="wallet-free-badge">FREE APP</span>
         </div>
-        
-        <div class="feature-card" onclick="showScreen('prayer-screen')">
-          <i class="fas fa-pray"></i>
-          <h3>Prayer Journal</h3>
-          <p>Save & track prayers with voice</p>
-        </div>
-        
-        <div class="feature-card" onclick="showDailyVerse()">
-          <i class="fas fa-book-bible"></i>
-          <h3>Daily Verse</h3>
-          <p>Personalized for you</p>
-        </div>
-        
-        <div class="feature-card" onclick="showScreen('stats-screen')">
-          <i class="fas fa-chart-line"></i>
-          <h3>My Progress</h3>
-          <p>Track evangelism journey</p>
-        </div>
-        
-        <div class="feature-card" onclick="showLanguageSettings()">
-          <i class="fas fa-language"></i>
-          <h3>Multi-language</h3>
-          <p>5 Nigerian languages, target 50</p>
-        </div>
-        
-        <div class="feature-card" onclick="shareApp()">
-          <i class="fas fa-share-alt"></i>
-          <h3>Share Gospel</h3>
-          <p>Invite others to Christ</p>
-        </div>
-        
-        <div class="feature-card" onclick="showPrayerAssistant()" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(142, 68, 173, 0.2));">
-          <i class="fas fa-robot" style="color: var(--ai-primary);"></i>
-          <h3>AI Prayer Guide</h3>
-          <p>Intelligent prayer assistance</p>
-          <span class="feature-badge" style="background: var(--ai-primary); color: white;">AI POWERED</span>
-        </div>
-        
-        <div class="feature-card" onclick="showPremiumDetails()" style="background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(142, 68, 173, 0.2));">
-          <i class="fas fa-crown" style="color: var(--premium);"></i>
-          <h3>Premium Features</h3>
-          <p>AI apologetics, church dashboard, mentorship</p>
-          <span class="premium-badge">From $1.99/mo</span>
-        </div>
-        
-        <div class="feature-card" onclick="activateVOMMode()" style="background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(192, 57, 43, 0.2));">
-          <i class="fas fa-shield-alt" style="color: var(--accent);"></i>
-          <h3>Persecution Mode</h3>
-          <p>Free encryption & app disguise</p>
-          <span class="feature-badge">VOICE OF MARTYRS</span>
-        </div>
-        
-        <div class="feature-card" onclick="showImpact()" style="background: linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(230, 126, 34, 0.2));">
-          <i class="fas fa-chart-bar" style="color: #f39c12;"></i>
-          <h3>Support Impact</h3>
-          <p>1,247 beta users • $25K grant request</p>
-          <span class="feature-badge">GRANT READY</span>
-        </div>
-      </div>
-      
-      <div class="home-bottom-buttons">
-        <div class="install-info">
-          🔒 Offline First • ⚡ Instant Load • 📱 PWA Ready • Zero Tracking
-        </div>
-        <button onclick="installApp()" id="installBtn" class="install-btn hidden" aria-label="Install app">
-          <i class="fas fa-download"></i> Install App
-        </button>
-      </div>
-    </div>
-    
-    <div id="presentation-screen" class="screen">
-      <button class="exit-btn" onclick="exitPresentation()" aria-label="Exit presentation">
-        <i class="fas fa-times"></i>
-      </button>
-      <div class="slides-container" id="slidesContainer"></div>
-    </div>
-    
-    <div id="prayer-screen" class="screen">
-      <div class="journal-header">
-        <h2><i class="fas fa-pray"></i> Prayer Journal</h2>
-        <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close prayer screen">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <textarea id="prayerInput" placeholder="Pour out your heart to God... Write in English, Pidgin, Yoruba, Igbo, or Hausa" aria-label="Prayer input area"></textarea>
-      
-      <div class="prayer-actions">
-        <button class="action-btn primary" onclick="savePrayer()" aria-label="Save prayer">
-          <i class="fas fa-save"></i> Save Prayer
-        </button>
-        <button class="action-btn secondary" onclick="recordVoicePrayer()" aria-label="Record voice prayer">
-          <i class="fas fa-microphone"></i> Voice Prayer
-        </button>
-        <button class="action-btn" onclick="showPrayerAssistant()" style="background: var(--ai-gradient); color: white;" aria-label="Open AI prayer guide">
-          <i class="fas fa-robot"></i> AI Guide
-        </button>
-      </div>
-      
-      <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Your Prayer History</h3>
-      <div id="prayerList" class="prayer-list">
-        <div id="prayerSkeleton" class="skeleton skeleton-card hidden"></div>
-      </div>
-    </div>
-    
-    <div id="stats-screen" class="screen">
-      <div class="journal-header">
-        <h2><i class="fas fa-chart-line"></i> My Evangelism Stats</h2>
-        <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close statistics">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value" id="totalSlides">0</div>
-          <div class="stat-label">Slides Viewed</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="prayerCount">0</div>
-          <div class="stat-label">Prayers Saved</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="streakDays">0</div>
-          <div class="stat-label">Day Streak</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value" id="aiQuestions">0</div>
-          <div class="stat-label">AI Questions</div>
-        </div>
-      </div>
-      
-      <div class="premium-banner" style="margin-top: 20px;">
-        <h3><i class="fas fa-church"></i> Church Dashboard (Premium)</h3>
-        <p>Pastors: Track congregation engagement, prayer requests, and spiritual growth by member.</p>
+        <div class="wallet-desc" data-i18n="walletDesc">Your support keeps the gospel spreading worldwide</div>
         <div class="wallet-actions">
-          <button class="wallet-btn" onclick="showModal(churchDashboardHTML())">
-            <i class="fas fa-eye"></i> Preview
+          <button class="wallet-btn" onclick="showWallet()"
+            style="background:rgba(231,76,60,0.18);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;"
+            aria-label="Support this ministry">
+            <i class="fas fa-coffee" aria-hidden="true"></i> Support Us
           </button>
-          <button class="wallet-btn" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Church Dashboard Inquiry: $199.99/mo', '_blank')" aria-label="Contact sales">
-            <i class="fas fa-paper-plane"></i> Contact Sales
+          <button class="wallet-btn" onclick="showImpact()"
+            style="background:rgba(52,152,219,0.18);border:1px solid rgba(52,152,219,0.4);color:#3498db;"
+            aria-label="See mission impact">
+            <i class="fas fa-globe" aria-hidden="true"></i>
+            <span data-i18n="seeImpact">See Impact</span>
           </button>
         </div>
       </div>
-      
-      <div class="settings-section">
-        <div class="settings-title">Recent Achievements</div>
-        <div id="achievementsList">
-          <div class="skeleton skeleton-text" style="width: 80%;"></div>
-          <div class="skeleton skeleton-text" style="width: 60%;"></div>
-        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="features-grid" role="list">
+      <div class="feature-card" onclick="startPresentation()" role="listitem" tabindex="0"
+        aria-label="Start gospel presentation" onkeydown="if(event.key==='Enter')startPresentation()">
+        <i class="fas fa-play-circle" aria-hidden="true"></i>
+        <h3 data-i18n="startPresentation">Start</h3>
+        <p data-i18n="presentDesc">15 gospel slides</p>
       </div>
-      
-      <div style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(46, 204, 113, 0.1); border-radius: var(--radius);">
-        <h3><i class="fas fa-award"></i> Evangelism Level</h3>
-        <div style="font-size: 1.8rem; font-weight: bold; color: #f39c12;" id="userLevel">Beginner</div>
-        <div style="margin-top: 10px; opacity: 0.8;">
-          Keep sharing the gospel to level up!
-        </div>
+      <div class="feature-card" onclick="showScreen('prayer-screen')" role="listitem" tabindex="0"
+        aria-label="Open prayer journal" onkeydown="if(event.key==='Enter')showScreen('prayer-screen')">
+        <i class="fas fa-pray" aria-hidden="true"></i>
+        <h3 data-i18n="prayerJournal">Prayer</h3>
+        <p data-i18n="prayerDesc">Journal & voice</p>
+      </div>
+      <div class="feature-card" onclick="showDailyVerse()" role="listitem" tabindex="0"
+        aria-label="Daily Bible verse" onkeydown="if(event.key==='Enter')showDailyVerse()">
+        <i class="fas fa-book-bible" aria-hidden="true"></i>
+        <h3 data-i18n="dailyVerse">Daily Verse</h3>
+        <p data-i18n="verseDesc">Personalized</p>
+      </div>
+      <div class="feature-card" onclick="showScreen('stats-screen')" role="listitem" tabindex="0"
+        aria-label="View progress stats" onkeydown="if(event.key==='Enter')showScreen('stats-screen')">
+        <i class="fas fa-chart-line" aria-hidden="true"></i>
+        <h3 data-i18n="myProgress">Progress</h3>
+        <p data-i18n="progressDesc">Track journey</p>
+      </div>
+      <div class="feature-card" onclick="showLanguageSettings()" role="listitem" tabindex="0"
+        aria-label="Change language" onkeydown="if(event.key==='Enter')showLanguageSettings()">
+        <i class="fas fa-language" aria-hidden="true"></i>
+        <h3 data-i18n="multiLanguage">Languages</h3>
+        <p data-i18n="langDesc">8 supported</p>
+      </div>
+      <div class="feature-card" onclick="shareApp()" role="listitem" tabindex="0"
+        aria-label="Share the app" onkeydown="if(event.key==='Enter')shareApp()">
+        <i class="fas fa-share-alt" aria-hidden="true"></i>
+        <h3 data-i18n="shareGospel">Share</h3>
+        <p data-i18n="shareDesc">Invite others</p>
+      </div>
+      <div class="feature-card" onclick="showPrayerAssistant()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(52,152,219,0.15),rgba(142,68,173,0.15));"
+        aria-label="Prayer guide" onkeydown="if(event.key==='Enter')showPrayerAssistant()">
+        <i class="fas fa-robot" style="color:#3498db;" aria-hidden="true"></i>
+        <h3 data-i18n="aiPrayerGuide">Prayer Guide</h3>
+        <p data-i18n="aiPrayerDesc">200 prayers</p>
+        <span class="feature-badge">200 PRAYERS</span>
+      </div>
+      <div class="feature-card" onclick="showPremiumDetails()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(155,89,182,0.15),rgba(142,68,173,0.15));"
+        aria-label="Premium features" onkeydown="if(event.key==='Enter')showPremiumDetails()">
+        <i class="fas fa-crown" style="color:#9b59b6;" aria-hidden="true"></i>
+        <h3 data-i18n="premiumFeatures">Premium</h3>
+        <p data-i18n="premiumDesc">Unlock more</p>
+        <span class="premium-badge">$1.99/mo</span>
+      </div>
+      <div class="feature-card" onclick="activateVOMMode()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(231,76,60,0.15),rgba(192,57,43,0.15));"
+        aria-label="Persecution mode" onkeydown="if(event.key==='Enter')activateVOMMode()">
+        <i class="fas fa-shield-halved" style="color:#e74c3c;" aria-hidden="true"></i>
+        <h3 data-i18n="persecutionMode">VOM Mode</h3>
+        <p data-i18n="vomDesc">Encryption</p>
+        <span class="feature-badge" style="background:rgba(231,76,60,0.2);color:#e74c3c;">MARTYRS</span>
+      </div>
+      <div class="feature-card" onclick="showEvangelismJournal()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.15));"
+        aria-label="Evangelism Journal" onkeydown="if(event.key==='Enter')showEvangelismJournal()">
+        <i class="fas fa-book-open" style="color:#2ecc71;" aria-hidden="true"></i>
+        <h3>Soul Journal</h3>
+        <p>Track every conversation</p>
+        <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;">NEW</span>
       </div>
     </div>
-    
-    <div id="settings-screen" class="screen">
-      <div class="journal-header">
-        <h2><i class="fas fa-cog"></i> Settings</h2>
-        <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close settings">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="settings-section">
-        <div class="settings-title">Appearance</div>
-        <div class="settings-option">
-          <span>Dark Mode</span>
-          <label class="switch">
-            <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
-            <span class="slider"></span>
-          </label>
-        </div>
-        <div class="settings-option">
-          <span>Language</span>
-          <select id="languageSelect" onchange="changeLanguage()">
-            <option value="en">English</option>
-            <option value="yo">Yoruba</option>
-            <option value="ig">Igbo</option>
-            <option value="ha">Hausa</option>
-            <option value="pcm">Nigerian Pidgin</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="settings-section">
-        <div class="settings-title">Audio Settings</div>
-        <div class="settings-option">
-          <span>Voice Speed</span>
-          <select id="voiceSpeed" onchange="updateVoiceSettings()">
-            <option value="0.8">Slow</option>
-            <option value="1" selected>Normal</option>
-            <option value="1.2">Fast</option>
-          </select>
-        </div>
-        <div class="settings-option">
-          <span>Auto-play Audio</span>
-          <label class="switch">
-            <input type="checkbox" id="autoPlayToggle">
-            <span class="slider"></span>
-          </label>
-        </div>
-      </div>
-      
-      <div class="premium-banner">
-        <h3><i class="fas fa-crown"></i> Premium Settings</h3>
-        <p>Unlock AI apologetics engine and church analytics</p>
-        <button class="slide-btn premium" onclick="showPremiumDetails()">
-          <i class="fas fa-lock-open"></i> Upgrade Now
-        </button>
-      </div>
-      
-      <div class="premium-banner" style="background: rgba(46, 204, 113, 0.1); border-color: rgba(46, 204, 113, 0.3);">
-        <h3 style="color: #2ecc71;"><i class="fas fa-shield-alt"></i> Privacy & Security</h3>
-        <p>✅ 100% local storage<br>
-           ✅ Zero tracking or analytics<br>
-           ✅ Open source & auditable<br>
-           ✅ VOM persecution mode included</p>
-      </div>
-      
-      <div class="settings-section">
-        <div class="settings-title">Data Management</div>
-        <button onclick="exportData()" style="width: 100%; padding: 15px; margin-bottom: 10px;" class="action-btn primary" aria-label="Export data">
-          <i class="fas fa-download"></i> Export My Data
-        </button>
-        <button onclick="clearData()" style="width: 100%;" class="action-btn secondary" aria-label="Clear all data">
-          <i class="fas fa-trash"></i> Clear All Data
-        </button>
-      </div>
-      
-      <div style="text-align: center; margin-top: 30px; opacity: 0.7; font-size: 0.9rem;">
-        <div>GospelSwipe Pro v1.0</div>
-        <div>Built with ❤️ in Nigeria by Haggai Enitan</div>
-        <div>Contact: haggai.enitan.dev@gmail.com</div>
-        <div>✝️ For the Kingdom ✝️</div>
-      </div>
-    </div>
-    
-    <div id="impact-screen" class="screen">
-      <div class="journal-header">
-        <h2><i class="fas fa-chart-bar"></i> Support Impact & Vision</h2>
-        <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close impact screen">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="grant-section">
-        <h3><i class="fas fa-crosshairs"></i> The Mission</h3>
-        <p style="margin-bottom: 15px; line-height: 1.7;">
-          <strong>Problem:</strong> 2.3B Christians globally, but 75% (1.725B) have never shared their faith digitally. We're leaving 98.3% of God's army unequipped.
-        </p>
-        <p style="line-height: 1.7;">
-          <strong>Solution:</strong> AI-powered evangelism that transforms passive believers into active soul-winners. Offline-first. Persecution-proof. Eternity-focused. Built by a Nigerian developer on a broken laptop to prove the gospel spreads regardless of circumstances.
-        </p>
-      </div>
-      
-      <div class="impact-grid">
-        <div class="impact-card">
-          <div class="impact-value">1,247</div>
-          <div class="impact-label">Beta Users (0 Marketing Spend)</div>
-        </div>
-        <div class="impact-card">
-          <div class="impact-value">8,934</div>
-          <div class="impact-label">Verses Shared</div>
-        </div>
-        <div class="impact-card">
-          <div class="impact-value">3,456</div>
-          <div class="impact-label">Prayers Saved</div>
-        </div>
-        <div class="impact-card">
-          <div class="impact-value">14</div>
-          <div class="impact-label">Avg. Day Streak</div>
-        </div>
-      </div>
-      
-      <div class="grant-section">
-        <h3><i class="fas fa-dollar-sign"></i> Grant Request: $25,000</h3>
-        <div class="grant-metric"><span>MacBook Pro M3:</span><strong>$3,500</strong></div>
-        <div class="grant-metric"><span>Claude API (12 months):</span><strong>$14,000</strong></div>
-        <div class="grant-metric"><span>CDN & Hosting (12 months):</span><strong>$1,200</strong></div>
-        <div class="grant-metric"><span>Marketing & Outreach:</span><strong>$6,300</strong></div>
-        <div class="grant-metric"><span>Total Support Needed:</span><strong>$25,000</strong></div>
-        <div class="grant-metric"><span>Cost Per Soul:</span><strong>$0.37</strong></div>
-        <div class="grant-metric"><span>Target Conversions (Year 1):</span><strong>50,000 souls</strong></div>
-      </div>
-      
-      <div class="call-to-action">
-        <h3><i class="fas fa-hand-holding-heart"></i> This Is Your Esther Moment</h3>
-        <p>
-          Your $25,000 support doesn't fund an app—it funds <strong>50,000 souls</strong> in Year 1. 
-          It equips persecuted churches. It makes Gen Z relevant again. 
-          It gives every believer a 24/7 apologetics expert.
-        </p>
-        <p style="font-style: italic; margin-top: 15px;">
-          "For such a time as this." — Esther 4:14
-        </p>
-      </div>
-      
-      <div class="grant-section">
-        <h3><i class="fas fa-chart-line"></i> Path to $50K MRR by 2027</h3>
-        <div class="grant-metric"><span>Personal ($1.99/mo):</span><strong>80% of subscribers</strong></div>
-        <div class="grant-metric"><span>Campus ($99.99/mo):</span><strong>15% of subscribers</strong></div>
-        <div class="grant-metric"><span>Church ($199.99/mo):</span><strong>5% of subscribers</strong></div>
-        <div class="grant-metric"><span>Target Subscribers:</span><strong>10,000 by Month 18</strong></div>
-        <div class="grant-metric"><span>LTV/CAC Ratio:</span><strong>15.0x (exceptionally healthy)</strong></div>
-      </div>
-      
-      <div class="contact-grid">
-        <button class="contact-btn" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Grant Support Inquiry', '_blank')" aria-label="Email founder">
-          <i class="fas fa-envelope"></i> haggai.enitan.dev@gmail.com
-        </button>
-        <button class="contact-btn" onclick="window.open('https://github.com/GPmulticoncept/gospel-swipe-pro', '_blank')" aria-label="View GitHub repository">
-          <i class="fas fa-code"></i> GitHub Repository
-        </button>
-        <button class="contact-btn" onclick="exportReport()" aria-label="Export full support report">
-          <i class="fas fa-file-export"></i> Export Full Report (PDF)
-        </button>
-      </div>
-      
-      <div class="premium-banner" style="background: rgba(46, 204, 113, 0.1); border-color: rgba(46, 204, 113, 0.3); margin-top: 30px;">
-        <h3 style="color: #2ecc71;"><i class="fas fa-shield-alt"></i> Support Accountability</h3>
-        <p>Real-time dashboard showing souls reached, API usage, testimony videos, and financial burn rate. Full transparency. Every dollar traced to eternity.</p>
-      </div>
-    </div>
-    
-    <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
-      <button class="nav-btn active" onclick="showScreen('home-screen')" aria-label="Home">
-        <i class="fas fa-home"></i>
-        <span>Home</span>
+
+    <!-- Bottom Buttons -->
+    <div class="home-bottom-buttons">
+      <div class="install-info" data-i18n="installInfo">🔒 Offline First • ⚡ Instant Load • 📱 PWA • Zero Tracking</div>
+      <button onclick="installApp()" id="installBtn" class="install-btn hidden" aria-label="Install app">
+        <i class="fas fa-download" aria-hidden="true"></i>
+        <span data-i18n="installApp">Install App</span>
       </button>
-      <button class="nav-btn" onclick="startPresentation()" aria-label="Start presentation">
-        <i class="fas fa-play"></i>
-        <span>Present</span>
-      </button>
-      <button class="nav-btn" onclick="showScreen('prayer-screen')" aria-label="Prayer journal">
-        <i class="fas fa-pray"></i>
-        <span>Prayer</span>
-      </button>
-      <button class="nav-btn" onclick="showScreen('stats-screen')" aria-label="Statistics">
-        <i class="fas fa-chart-line"></i>
-        <span>Stats</span>
-      </button>
-    </nav>
-    
-    <div class="toast-notification" id="notification" role="alert" aria-live="polite">
-      <div id="notificationMessage"></div>
     </div>
   </div>
 
-  <script>
-    // ========== APP DATA (Schema v1.0) ==========
-    const APP_DATA = {
-      name: "GospelSwipe Pro",
-      version: "1.0.0",
-      schemaVersion: "1.0",
-      contact: "haggai.enitan.dev@gmail.com",
-      founder: "Haggai Enitan",
-      location: "Nigeria 🇳🇬",
-      grantRequest: 25000,
-      
-      slides: [
-        { id: 1, title: "God's Love for You", verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.", reference: "John 3:16", topic: "god-love", color: "#3498db", category: "gospel-core" },
-        { id: 2, title: "Our Problem: Sin", verse: "For all have sinned and fall short of the glory of God.", reference: "Romans 3:23", topic: "sin-problem", color: "#e74c3c", category: "gospel-core" },
-        { id: 3, title: "God's Solution: Jesus", verse: "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.", reference: "Romans 5:8", topic: "jesus-solution", color: "#2ecc71", category: "gospel-core" },
-        { id: 4, title: "Our Response: Faith", verse: "For it is by grace you have been saved, through faith—and this is not from yourselves, it is the gift of God.", reference: "Ephesians 2:8-9", topic: "faith-response", color: "#9b59b6", category: "gospel-core" },
-        { id: 5, title: "New Life in Christ", verse: "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!", reference: "2 Corinthians 5:17", topic: "new-life", color: "#1abc9c", category: "discipleship" },
-        { id: 6, title: "The Holy Trinity", verse: "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit.", reference: "Matthew 28:19", topic: "trinity", color: "#34495e", category: "doctrine" },
-        { id: 7, title: "Authority of Scripture", verse: "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness.", reference: "2 Timothy 3:16", topic: "scripture", color: "#d35400", category: "doctrine" },
-        { id: 8, title: "Purpose in Suffering", verse: "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.", reference: "Romans 8:28", topic: "suffering", color: "#7f8c8d", category: "comfort" },
-        { id: 9, title: "Jesus is the Only Way", verse: "Jesus answered, 'I am the way and the truth and the life. No one comes to the Father except through me.'", reference: "John 14:6", topic: "only-way", color: "#f39c12", category: "gospel-core" },
-        { id: 10, title: "Prayer of Salvation", verse: "If you declare with your mouth, 'Jesus is Lord,' and believe in your heart that God raised him from the dead, you will be saved.", reference: "Romans 10:9", topic: "salvation-prayer", color: "#27ae60", category: "gospel-core" },
-        { id: 11, title: "Holy Spirit Empowerment", verse: "But you will receive power when the Holy Spirit comes on you; and you will be my witnesses.", reference: "Acts 1:8", topic: "holy-spirit", color: "#8e44ad", category: "discipleship" },
-        { id: 12, title: "Great Commission", verse: "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit.", reference: "Matthew 28:19-20", topic: "great-commission", color: "#e67e22", category: "evangelism" },
-        { id: 13, title: "Love Your Neighbor", verse: "Love your neighbor as yourself. There is no commandment greater than these.", reference: "Mark 12:31", topic: "love-neighbor", color: "#c0392b", category: "living" },
-        { id: 14, title: "Forgiveness", verse: "For if you forgive other people when they sin against you, your heavenly Father will also forgive you.", reference: "Matthew 6:14", topic: "forgiveness", color: "#16a085", category: "relationship" },
-        { id: 15, title: "Eternal Hope", verse: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, to give you hope and a future.", reference: "Jeremiah 29:11", topic: "eternal-hope", color: "#2c3e50", category: "hope" }
-      ],
-      
-      premiumTiers: {
-        personal: { name: "Personal", price: 1.99, interval: "month", features: ["AI Apologetics Engine", "Global Missions Heatmap", "Mentorship Matching", "Advanced Analytics"] },
-        campus: { name: "Campus Fellowship", price: 99.99, interval: "month", features: ["Up to 500 members", "Campus Leader Dashboard", "Prayer Circles", "Event Management"], target: "University ministries" },
-        church: { name: "Church", price: 199.99, interval: "month", features: ["Unlimited members", "Pastor Analytics", "Congregation Tracking", "Sermon Integration"], target: "Full congregation" }
-      },
-      
-      aiAnswers: {
-        "god-love": {
-          en: "God's love is unconditional and sacrificial. John 3:16 shows that God loved the world so much that He gave His only Son. This love isn't based on our performance but on His character. It's a love that pursues us even when we don't deserve it.",
-          yo: "Ife Olorun ko ni opin. O fi omo re fun wa nitori ife. Ife yi ko da lori ise wa, sugbon lori oruko Olorun."
-        },
-        "sin-problem": {
-          en: "Sin is anything that falls short of God's perfect standard. Romans 3:23 reminds us that all have sinned. This universal problem separates us from God, but the good news is that Jesus bridges that gap through His sacrifice.",
-          yo: "Ese ni ohunkohun to kuna kuro ninu igbega Olorun. Rom 3:23 so wipe gbogbo enia ti ese. Sugbon Jesu toju eyi."
-        },
-        "jesus-solution": {
-          en: "Jesus is God's solution to our sin problem. While we were still sinners, Christ died for us (Romans 5:8). His death on the cross paid the penalty for our sins, and His resurrection gives us new life.",
-          yo: "Jesu ni ojutu Olorun fun ese wa. Nigba ti a wa ninu ese ni o ku fun wa. Iku re yo wa kuro ninu ese."
-        },
-        "faith-response": {
-          en: "Faith is trusting in Jesus alone for salvation. Ephesians 2:8-9 clarifies that salvation is by grace through faith—not by works. It's a gift we receive, not something we earn.",
-          yo: "Igbagbo ni igbontarise Jesu nikan. Eph 2:8-9 so wipe iparun wa nipa anu nipas igbagbo."
-        },
-        "new-life": {
-          en: "When we accept Jesus, we become new creations. 2 Corinthians 5:17 promises that the old has gone and the new is here. This transformation affects every area of our lives.",
-          yo: "Nigba ti a gba Jesu, a di eda titun. 2 Kor 5:17 ni wipe ti taa ti koja, tuntun ti de."
-        },
-        // FIXED: Added AI explanations for slides 6-15
-        "trinity": {
-          en: "The Trinity is the Christian doctrine that God exists as three distinct Persons—Father, Son, and Holy Spirit—who are co-equal, co-eternal, and consubstantial. While mysterious, this reveals God's relational nature and how He invites us into relationship with each Person of the Godhead.",
-          yo: "Ijoba meta ni eda Olorun meta yato: Baba, Omo, ati Emi Mimo—ti won jokan, ti won ni asiko kanna, ti won ni iwa kanna. Eyi fi han ipinnu Olorun ati bi O se n pe wa si asopo pelu kookan ninu awon meta."
-        },
-        "scripture": {
-          en: "The Bible is God's inspired, authoritative Word—completely true and reliable. 2 Timothy 3:16 teaches that all Scripture is God-breathed, making it our final authority for faith and practice. It's not just a human book but God's revelation to humanity.",
-          yo: "Bibeli ni Oro Olorun ti a fi emi sinu, ti o ni agbara—otito patapata. 2 Timoti 3:16 ko wa wipe gbogbo Bibeli jẹ Olorun fifun, ti o se oga pataki fun igbagbo ati ise. Ki i se iwe eniyan nikan sugbon ifihan Olorun si gbogbo eniyan."
-        },
-        "suffering": {
-          en: "God doesn't promise a life without suffering, but He promises to be with us in it and work it for good. Romans 8:28 assures us that God works all things together for good for those who love Him. Suffering produces perseverance, character, and hope.",
-          yo: "Olorun ko se ileri aye lai si iya, sugbon o se ileri lati wa pelu wa ninu re ati lati se e fun anfani. Romu 8:28 se leti wa wipe Olorun n se gbogbo nkan papo fun anfani fun awon ti n feran Re. Iya n mu ifarada, iwa, ati ireti."
-        },
-        "only-way": {
-          en: "Jesus is the exclusive way to God because He alone is both fully God and fully human—the only mediator between God and humanity. His death and resurrection provide the only means of salvation, making Christianity unique among world religions.",
-          yo: "Jesu ni ona asipo si Olorun nitori Oun nikan ni Olorun ati eniyan patapata—alabarin asiko laarin Olorun ati eniyan. Iku Re ati ajinde Re pese ona asipo fun igbala, se esin Kristiani yato laarin awon esin agbaye."
-        },
-        "salvation-prayer": {
-          en: "The prayer of salvation is a simple confession of faith in Jesus. Romans 10:9 outlines it: confess with your mouth 'Jesus is Lord' and believe in your heart God raised Him from the dead. This prayer marks the beginning of eternal life.",
-          yo: "Adura igbala je ifihan igbagbo kekere ni Jesu. Romu 10:9 se alaye re: jẹwo pelu enu re 'Jesu ni Oluwa' ati gbagbo ninu okan re wipe Olorun gbe O dide lati oku. Adura yi je ibeere igbesi aye lailai."
-        },
-        "holy-spirit": {
-          en: "The Holy Spirit is God's presence in believers, empowering us for holy living and witness. Acts 1:8 promises power when the Holy Spirit comes upon us. He convicts of sin, guides into truth, and distributes spiritual gifts for building up the church.",
-          yo: "Emi Mimo si ipo Olorun ninu awon onigbagbo, n fun wa ni agbara fun aye mimo ati eleri. Ise 1:8 se ileri agbara nigba ti Emi Mimo ba wa lorun wa. O n se ete ese, to wa sinu otito, ati pinna ebun emi fun ilosi ile ijo."
-        },
-        "great-commission": {
-          en: "The Great Commission is Jesus' final command to make disciples of all nations. This involves evangelism, baptism, and teaching obedience to Christ. Every Christian is called to participate in spreading the gospel both locally and globally.",
-          yo: "Igbese nla ni ase ikẹhin Jesu lati se awon omo ileko ti gbogbo orile-ede. O ni ikanse, isinmi, ati eko itelorun si Kristi. Gbogbo Kristiani n pe lati kopa ninu isatunkowo ihinrere ni agbegbe ati gbogbo agbaye."
-        },
-        "love-neighbor": {
-          en: "Loving your neighbor means actively showing God's love to others through practical acts of service, kindness, and forgiveness. It's the second greatest commandment and demonstrates our love for God in tangible ways.",
-          yo: "Fifẹ aladugbo tumo si fifihan ife Olorun si awon miiran nipasẹ ise iranlowo, inure, ati idariji. O je ofin keji to tobi julọ ati fi ifẹ wa fun Olorun han ni ona ti a le ri."
-        },
-        "forgiveness": {
-          en: "Forgiveness is releasing resentment toward someone who has wronged you, just as God forgave you in Christ. It doesn't mean forgetting or condoning wrong, but choosing to let go of bitterness and trust God for justice.",
-          yo: "Idariji ni gbigba ibinu si ẹnikan ti o ṣe aṣiṣe si ọ, bi Olorun ṣe dariji ọ ni Kristi. Ko tumo si gbagbe tabi ifọwọyi ti aṣiṣe, sugbon yiyan lati tu ibinu kuro ati gbekele Olorun fun ododo."
-        },
-        "eternal-hope": {
-          en: "Eternal hope is the confident expectation of God's promises for the future, including resurrection, eternal life with God, and a new heaven and earth. This hope sustains believers through trials and motivates holy living.",
-          yo: "Ireti ailopin ni ireti igbagbo ni awon ileri Olorun fun ọjọ iwaju, pẹlu ajinde, aye ailopin pẹlu Olorun, ati ọrun ati aye titun. Ireti yii n mu awon onigbagbo lee ni akoko idanwo ati n fi agbara si aye mimo."
-        }
-      },
-      
-      aiPrayerAssistant: {
-        categories: {
-          salvation: {
-            title: "Prayer for Salvation",
-            icon: "fa-hands-praying",
-            prompts: [
-              { text: "Lord Jesus, I confess that I am a sinner. I believe you died on the cross for my sins. Please forgive me and come into my heart. I want to follow you all the days of my life. Amen.", style: "confession" },
-              { text: "Heavenly Father, I realize I need a Savior. I turn away from my sins and receive your gift of salvation through Jesus Christ. Transform my heart and make me new. Amen.", style: "repentance" },
-              { text: "Jesus, I believe you are the Son of God. I accept your sacrifice on the cross for me. I surrender my life to you. Be my Lord and Savior. Amen.", style: "surrender" }
-            ],
-            guidance: "Pray sincerely from your heart. God hears every genuine prayer. This is the most important decision you'll ever make."
-          },
-          healing: {
-            title: "Prayer for Healing",
-            icon: "fa-heartbeat",
-            prompts: [
-              { text: "Great Physician, I come to you today asking for healing. You know the pain and suffering in my body and soul. Please touch me with your healing power and restore my health. I trust in your goodness. Amen.", style: "physical" },
-              { text: "Lord, your word says you heal all my diseases. I claim that promise today. Heal me, O Lord, and I will be healed; save me and I will be saved. I put my trust in you. Amen.", style: "scriptural" },
-              { text: "Compassionate God, I pray for healing from this affliction. Whether by miracle or medicine, guide my path to wholeness. Give strength to my body and peace to my spirit. Amen.", style: "trust" }
-            ],
-            guidance: "God is our healer. Pray with faith, but also seek appropriate medical care. Healing comes in many forms—physical, emotional, and spiritual."
-          },
-          guidance: {
-            title: "Prayer for Guidance",
-            icon: "fa-compass",
-            prompts: [
-              { text: "Lord, I need your direction in my life. Your word says you will guide me along the best pathway for my life. Show me the way I should walk. I trust your wisdom above my own. Amen.", style: "direction" },
-              { text: "Heavenly Father, I'm facing a difficult decision. Please give me wisdom and clarity. Open the right doors and close the wrong ones. Let your will be done in my life. Amen.", style: "wisdom" },
-              { text: "God of all wisdom, I seek your counsel. Illuminate my path with your truth. Help me to hear your voice clearly and have the courage to follow where you lead. Amen.", style: "clarity" }
-            ],
-            guidance: "God promises to guide those who seek Him. Stay in His word, pray consistently, and seek wise counsel from mature believers."
-          },
-          thanksgiving: {
-            title: "Prayer of Thanksgiving",
-            icon: "fa-hand-holding-heart",
-            prompts: [
-              { text: "Gracious God, I thank you for your countless blessings. For life, health, family, and provision. Most of all, I thank you for your love and salvation through Jesus. My heart overflows with gratitude. Amen.", style: "general" },
-              { text: "Lord, thank you for being faithful even when I'm not. Thank you for your mercy that never runs out. Thank you for the gift of salvation and the promise of eternal life with you. Amen.", style: "faithfulness" },
-              { text: "Heavenly Father, I give thanks in all circumstances, knowing this is your will for me. Thank you for the blessings I see and those I don't yet recognize. You are good all the time. Amen.", style: "all-circumstances" }
-            ],
-            guidance: "A grateful heart pleases God. Make thanksgiving a daily practice, not just for big blessings, but for His constant presence and love."
-          },
-          protection: {
-            title: "Prayer for Protection",
-            icon: "fa-shield-alt",
-            prompts: [
-              { text: "Almighty God, I pray for your divine protection over my life and my loved ones. Surround us with your angels and keep us safe from all evil. Cover us with your mighty wings. Amen.", style: "divine" },
-              { text: "Lord, you are my refuge and my fortress. I trust in you completely. Protect me from the snares of the enemy and deliver me from all harm. I rest in your shadow.", style: "refuge" },
-              { text: "Heavenly Father, I claim your promise of protection. No weapon formed against me shall prosper. I am covered by the blood of Jesus and safe in your arms.", style: "spiritual-warfare" }
-            ],
-            guidance: "God is our protector. Pray for His covering daily, but also use the wisdom He gives to make wise choices about your safety."
-          }
-        }
-      },
-      
-      metrics: {
-        betaUsers: 1247,
-        versesShared: 8934,
-        prayersSaved: 3456,
-        avgStreak: 14,
-        costPerSoul: 0.37,
-        targetConversions: 50000,
-        marketSize: 2300000000,
-        evangelicalMarket: 500000000,
-        untappedMarket: 1725000000
-      },
-      
-      dailyVerses: [
-        { verse: "The LORD is my shepherd, I lack nothing.", ref: "Psalm 23:1", topic: "trust" },
-        { verse: "I can do all this through him who gives me strength.", ref: "Philippians 4:13", topic: "strength" },
-        { verse: "For I know the plans I have for you, declares the LORD.", ref: "Jeremiah 29:11", topic: "hope" },
-        { verse: "Trust in the LORD with all your heart.", ref: "Proverbs 3:5", topic: "wisdom" },
-        { verse: "Be strong and courageous. Do not be afraid.", ref: "Joshua 1:9", topic: "courage" },
-        { verse: "The joy of the LORD is your strength.", ref: "Nehemiah 8:10", topic: "joy" },
-        { verse: "Cast all your anxiety on him because he cares for you.", ref: "1 Peter 5:7", topic: "peace" }
-      ]
-    };
+  <!-- ===========================
+       PRESENTATION SCREEN
+  =========================== -->
+  <div id="presentation-screen" class="screen" role="region" aria-label="Gospel Presentation">
+    <button class="exit-btn" onclick="exitPresentation()" aria-label="Exit presentation">
+      <i class="fas fa-times" aria-hidden="true"></i>
+    </button>
+    <div class="slides-container" id="slidesContainer" role="list" aria-label="Gospel slides"></div>
+  </div>
 
-    // ========== APP STATE (Schema v1.0) ==========
-    const AppState = {
-      currentSlide: 0,
-      currentScreen: 'home-screen',
-      darkMode: false,
-      language: 'en',
-      userStats: null,
-      prayers: null,
-      streak: null,
-      achievements: null,
-      aiPrayerHistory: [],
-      isOnline: false,
-      touchStartX: 0,
-      touchStartY: 0,
-      isSwiping: false,
-      eventListeners: [],
-      deferredPrompt: null,
-      speechSynthesisActive: false,
-      isProcessing: false
-    };
+  <!-- ===========================
+       PRAYER SCREEN
+  =========================== -->
+  <div id="prayer-screen" class="screen" role="region" aria-label="Prayer Journal">
+    <div class="journal-header">
+      <h2><i class="fas fa-pray" aria-hidden="true"></i> <span data-i18n="prayerJournal">Prayer Journal</span></h2>
+      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close prayer journal">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
 
-    // ========== ERROR BOUNDARY ==========
-    function handleError(context, error) {
-      console.error(`❌ Error in ${context}:`, error);
-      showToast(`Error: ${error.message}`, 'error');
-      trackEvent('error', { context, message: error.message });
-    }
+    <textarea id="prayerInput"
+      placeholder="Pour out your heart to God..."
+      data-i18n-placeholder="prayerPlaceholder"
+      aria-label="Write your prayer here"
+      rows="5"></textarea>
 
-    // ========== INITIALIZATION (Guaranteed Completion) ==========
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('🔥 GospelSwipe Pro v1.0 initializing...');
-      
-      try {
-        const progressEl = document.getElementById('loadingProgress');
-        if (!progressEl) throw new Error('Loading progress element not found');
-        
-        let progress = 0;
-        const startTime = Date.now();
-        
-        const interval = setInterval(() => {
-          const now = Date.now();
-          const minProgress = Math.floor((now - startTime) / 20);
-          progress = Math.min(Math.max(progress + 5, minProgress), 100);
-          progressEl.textContent = `${progress}%`;
-          
-          if (progress >= 100) {
-            clearInterval(interval);
-            console.log('✅ Loading complete, transitioning to app...');
-            
-            requestAnimationFrame(() => {
-              const loading = document.getElementById('loading');
-              const appContainer = document.getElementById('appContainer');
-              
-              if (loading && appContainer) {
-                loading.style.opacity = '0';
-                setTimeout(() => {
-                  loading.style.display = 'none';
-                  appContainer.classList.add('active');
-                  initApp();
-                }, 400);
-              } else {
-                throw new Error('Critical DOM elements missing');
-              }
-            });
-          }
-        }, 100);
-        
-        setTimeout(() => {
-          if (progress < 100) {
-            console.warn('⚠️ Loading timeout reached, forcing app display...');
-            clearInterval(interval);
-            const loading = document.getElementById('loading');
-            const appContainer = document.getElementById('appContainer');
-            if (loading && appContainer) {
-              loading.style.display = 'none';
-              appContainer.classList.add('active');
-              initApp();
-            }
-          }
-        }, 3000);
-        
-      } catch (error) {
-        handleError('loading', error);
-        const loading = document.getElementById('loading');
-        const appContainer = document.getElementById('appContainer');
-        if (loading && appContainer) {
-          loading.style.display = 'none';
-          appContainer.classList.add('active');
-          initApp();
-        }
-      }
+    <div class="prayer-actions">
+      <button class="action-btn primary" onclick="savePrayer()" aria-label="Save prayer">
+        <i class="fas fa-save" aria-hidden="true"></i>
+        <span data-i18n="savePrayer">Save</span>
+      </button>
+      <button class="action-btn" onclick="recordVoicePrayer()" aria-label="Record voice prayer">
+        <i class="fas fa-microphone" aria-hidden="true"></i>
+        <span data-i18n="voicePrayer">Voice</span>
+      </button>
+      <button class="action-btn" onclick="showPrayerAssistant()"
+        style="background:var(--ai-gradient);border-color:transparent;"
+        aria-label="Open AI prayer guide">
+        <i class="fas fa-robot" aria-hidden="true"></i>
+        <span data-i18n="aiGuide">Guide</span>
+      </button>
+    </div>
+
+    <h3 style="margin-bottom:14px;font-size:1.1rem;opacity:0.8;" data-i18n="prayerHistory">Your Prayer History</h3>
+    <div id="prayerList" class="prayer-list" role="list" aria-label="Saved prayers"></div>
+  </div>
+
+  <!-- ===========================
+       STATS SCREEN
+  =========================== -->
+  <div id="stats-screen" class="screen" role="region" aria-label="Statistics">
+    <div class="journal-header">
+      <h2><i class="fas fa-chart-line" aria-hidden="true"></i> <span data-i18n="myStats">My Stats</span></h2>
+      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close stats">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- Level Card -->
+    <div class="level-card">
+      <div class="level-icon">🏅</div>
+      <div class="level-name" id="userLevel">Beginner</div>
+      <div class="level-sub" data-i18n="levelDesc">Keep sharing the gospel to level up!</div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stats-card">
+        <div class="stats-card-value" id="totalSlides">0</div>
+        <div class="stats-card-label" data-i18n="slidesViewed">Slides Viewed</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-value" id="prayerCount">0</div>
+        <div class="stats-card-label" data-i18n="prayersSaved">Prayers Saved</div>
+      </div>
+      <div class="stats-card" style="border:1px solid rgba(46,204,113,0.3);">
+        <div class="stats-card-value" id="peopleReached" style="color:#2ecc71;">0</div>
+        <div class="stats-card-label">People Reached</div>
+      </div>
+      <div class="stats-card" style="border:1px solid rgba(52,152,219,0.3);">
+        <div class="stats-card-value" id="soulsWon" style="color:#3498db;">0</div>
+        <div class="stats-card-label">Decisions Made</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-value" id="streakDays">0</div>
+        <div class="stats-card-label" data-i18n="dayStreak">Day Streak</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-card-value" id="aiQuestions">0</div>
+        <div class="stats-card-label" data-i18n="aiQuestions">AI Questions</div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <h3 style="margin-bottom:14px;font-size:1.05rem;opacity:0.8;" data-i18n="recentAchievements">Achievements</h3>
+    <div id="achievementsList" role="list" aria-label="Your achievements"></div>
+
+    <!-- Church Dashboard Banner -->
+    <div class="church-banner">
+      <h3><i class="fas fa-church" aria-hidden="true"></i> <span data-i18n="churchDashboard">Church Dashboard</span></h3>
+      <p data-i18n="churchDesc">Pastors: Track congregation engagement, prayer requests, and growth.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px;">
+        <button class="slide-btn" onclick="showPremiumDetails_church()">
+          <i class="fas fa-eye" aria-hidden="true"></i> <span data-i18n="preview">Preview</span>
+        </button>
+        <button class="slide-btn primary" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Church Dashboard')">
+          <i class="fas fa-envelope" aria-hidden="true"></i> <span data-i18n="contactSales">Contact</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================
+       SETTINGS SCREEN
+  =========================== -->
+  <div id="settings-screen" class="screen" role="region" aria-label="Settings">
+    <div class="journal-header">
+      <h2><i class="fas fa-cog" aria-hidden="true"></i> <span data-i18n="settings">Settings</span></h2>
+      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close settings">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- Appearance -->
+    <div class="settings-section">
+      <div class="settings-title" data-i18n="appearance">Appearance</div>
+      <div class="settings-option">
+        <label for="darkModeToggle" data-i18n="darkMode">Dark Mode</label>
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" aria-label="Toggle dark mode">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="settings-option">
+        <label for="languageSelect" data-i18n="language">Language</label>
+        <select id="languageSelect" onchange="changeLanguage(this.value)" aria-label="Select language">
+          <option value="en">🇬🇧 English</option>
+          <option value="yo">Yoruba</option>
+          <option value="ig">Igbo</option>
+          <option value="ha">Hausa</option>
+          <option value="pcm">Pidgin</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="sw">🇰🇪 Kiswahili</option>
+          <option value="ar">🇸🇦 العربية</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Audio -->
+    <div class="settings-section">
+      <div class="settings-title" data-i18n="audioSettings">Audio</div>
+      <div class="settings-option">
+        <label for="voiceSpeed" data-i18n="voiceSpeed">Voice Speed</label>
+        <select id="voiceSpeed" onchange="updateVoiceSettings()" aria-label="Voice reading speed">
+          <option value="0.8">Slow</option>
+          <option value="1" selected>Normal</option>
+          <option value="1.25">Fast</option>
+          <option value="1.5">Faster</option>
+        </select>
+      </div>
+      <div class="settings-option">
+        <label for="autoPlayToggle" data-i18n="autoPlayAudio">Auto-play Audio</label>
+        <label class="switch">
+          <input type="checkbox" id="autoPlayToggle" aria-label="Toggle auto-play audio">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Offline -->
+    <div class="settings-section">
+      <div class="settings-title" data-i18n="offlineContent">Offline Content</div>
+      <div class="settings-option">
+        <span data-i18n="downloadOffline">Download all for offline</span>
+        <button id="downloadOfflineBtn" class="wallet-btn"
+          onclick="downloadAllContent()"
+          style="background:rgba(52,152,219,0.2);border:1px solid rgba(52,152,219,0.4);color:#3498db;padding:10px 16px;border-radius:24px;font-weight:600;cursor:pointer;white-space:nowrap;"
+          aria-label="Download all content for offline use">
+          <i class="fas fa-download" aria-hidden="true"></i>
+          <span data-i18n="download">Download</span>
+        </button>
+      </div>
+      <div id="downloadProgress" class="download-progress" style="display:none;" role="progressbar" aria-label="Download progress">
+        <div id="downloadProgressBar" class="download-progress-bar"></div>
+      </div>
+      <div class="settings-option">
+        <span data-i18n="clearOffline">Clear downloaded</span>
+        <button class="wallet-btn" onclick="clearOfflineContent()"
+          style="background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.35);color:#e74c3c;padding:10px 16px;border-radius:24px;font-weight:600;cursor:pointer;"
+          aria-label="Clear offline content">
+          <i class="fas fa-trash" aria-hidden="true"></i>
+          <span data-i18n="clear">Clear</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Premium -->
+    <div class="premium-banner">
+      <h3><i class="fas fa-crown" aria-hidden="true"></i> <span data-i18n="premiumSettings">Premium</span></h3>
+      <p data-i18n="premiumSettingsDesc">Unlock AI apologetics and church analytics</p>
+      <button class="slide-btn premium" onclick="showPremiumDetails()"
+        style="margin-top:4px;align-self:center;min-width:180px;justify-content:center;">
+        <i class="fas fa-lock-open" aria-hidden="true"></i>
+        <span data-i18n="upgradeNow">Upgrade Now</span>
+      </button>
+    </div>
+
+    <!-- Privacy -->
+    <div class="settings-section">
+      <div class="settings-title" data-i18n="privacy">Privacy</div>
+      <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:24px;padding:18px;font-size:0.88rem;line-height:1.7;opacity:0.85;white-space:pre-line;" data-i18n="privacyText">✅ 100% local storage&#10;✅ Zero tracking or analytics&#10;✅ Open source &amp; auditable&#10;✅ VOM persecution mode included</div>
+    </div>
+
+    <!-- Data Management -->
+    <div class="settings-section">
+      <div class="settings-title" data-i18n="dataManagement">Data Management</div>
+      <button onclick="exportData()" class="action-btn primary"
+        style="width:100%;margin-bottom:10px;" aria-label="Export data backup">
+        <i class="fas fa-download" aria-hidden="true"></i>
+        <span data-i18n="exportData">Export My Data</span>
+      </button>
+      <button onclick="clearData()" class="action-btn"
+        style="width:100%;background:rgba(231,76,60,0.15);border-color:rgba(231,76,60,0.3);"
+        aria-label="Clear all data">
+        <i class="fas fa-trash" aria-hidden="true"></i>
+        <span data-i18n="clearAllData">Clear All Data</span>
+      </button>
+    </div>
+
+    <div style="text-align:center;font-size:0.75rem;opacity:0.4;padding:16px 0;">
+      GospelSwipe Pro v1.1 &bull; Made in Nigeria 🇳🇬 &bull; GP Tech Studio
+    </div>
+  </div>
+
+  <!-- ===========================
+       IMPACT SCREEN
+  =========================== -->
+  <div id="impact-screen" class="screen" role="region" aria-label="Mission Impact">
+    <div class="journal-header">
+      <h2><i class="fas fa-chart-bar" aria-hidden="true"></i> <span data-i18n="impactTitle">Mission Impact</span></h2>
+      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close impact screen">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- Grant Banner -->
+    <div class="grant-banner">
+      <i class="fas fa-award" style="font-size:2.5rem;color:#f39c12;margin-bottom:10px;display:block;" aria-hidden="true"></i>
+      <h3 style="font-size:1.3rem;margin-bottom:6px;">$25,000 Grant Application</h3>
+      <p style="opacity:0.8;font-size:0.9rem;">Building the gospel infrastructure for the next generation of African believers.</p>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="impact-grid">
+      <div class="impact-card">
+        <div class="impact-card-value">1,247</div>
+        <div class="impact-card-label" data-i18n="betaUsers">Beta Users</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-card-value">8,934</div>
+        <div class="impact-card-label" data-i18n="versesSharedCount">Verses Shared</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-card-value">3,456</div>
+        <div class="impact-card-label" data-i18n="prayersSavedCount">Prayers Saved</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-card-value">14</div>
+        <div class="impact-card-label" data-i18n="avgStreak">Avg Streak</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-card-value">$0.37</div>
+        <div class="impact-card-label" data-i18n="costPerSoul">Cost Per Soul</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-card-value">50K</div>
+        <div class="impact-card-label" data-i18n="targetConversions">Target Converts</div>
+      </div>
+    </div>
+
+    <!-- Grant Budget -->
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:24px;padding:20px;margin-bottom:18px;">
+      <h3 style="margin-bottom:14px;font-size:1.05rem;">Grant Budget Breakdown</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:0.9rem;">
+        <div style="display:flex;justify-content:space-between;"><span>💻 Development Laptop</span><span style="font-weight:700;">$3,500</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>🤖 AI API Credits (1yr)</span><span style="font-weight:700;">$14,000</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>🌐 CDN & Hosting (1yr)</span><span style="font-weight:700;">$1,200</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>📣 Outreach Marketing</span><span style="font-weight:700;">$6,300</span></div>
+        <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.15);padding-top:10px;font-weight:800;">
+          <span>Total Request</span><span style="color:#f39c12;">$25,000</span>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="exportReport()" class="action-btn primary" style="width:100%;">
+      <i class="fas fa-file-export" aria-hidden="true"></i> Request Full Report
+    </button>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+    <button class="nav-btn active" onclick="showScreen('home-screen')" aria-label="Home">
+      <i class="fas fa-home" aria-hidden="true"></i>
+      <span data-i18n="home">Home</span>
+    </button>
+    <button class="nav-btn" onclick="startPresentation()" aria-label="Start presentation">
+      <i class="fas fa-play" aria-hidden="true"></i>
+      <span data-i18n="present">Present</span>
+    </button>
+    <button class="nav-btn" onclick="showScreen('prayer-screen')" aria-label="Prayer journal">
+      <i class="fas fa-pray" aria-hidden="true"></i>
+      <span data-i18n="prayer">Prayer</span>
+    </button>
+    <button class="nav-btn" onclick="showScreen('stats-screen')" aria-label="Statistics">
+      <i class="fas fa-chart-line" aria-hidden="true"></i>
+      <span data-i18n="stats">Stats</span>
+    </button>
+  </nav>
+
+  <!-- Toast Notification -->
+  <div class="toast-notification" id="notification" role="alert" aria-live="polite">
+    <span id="notificationMessage"></span>
+  </div>
+
+</div><!-- end appContainer -->
+
+<!-- Scripts — order matters: prayers + translations first, then app -->
+<script src="prayers.js"></script>
+<script src="translations.js"></script>
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('SW registered:', reg.scope))
+        .catch(err => console.warn('SW registration failed:', err));
     });
-
-    function safeParse(json, fallback) {
-      try {
-        return json ? JSON.parse(json) : fallback;
-      } catch {
-        return fallback;
-      }
-    }
-
-    // ========== CORE INITIALIZATION ==========
-    function initApp() {
-      console.log('🚀 Initializing app components...');
-      
-      try {
-        AppState.darkMode = localStorage.getItem('darkMode') === 'true';
-        AppState.language = localStorage.getItem('language') || 'en';
-        AppState.userStats = safeParse(localStorage.getItem('userStats'), {
-          presentations: 0, slidesViewed: [], prayers: 0, aiQuestions: 0, shares: 0,
-          installDate: new Date().toISOString(), events: [], level: 'Beginner'
-        });
-        AppState.prayers = safeParse(localStorage.getItem('prayers'), []);
-        AppState.streak = safeParse(localStorage.getItem('streak'), { lastDate: '', count: 0 });
-        AppState.achievements = safeParse(localStorage.getItem('achievements'), []);
-        AppState.aiPrayerHistory = safeParse(localStorage.getItem('aiPrayerHistory'), []);
-        AppState.isOnline = navigator.onLine;
-        
-        if (AppState.darkMode) {
-          document.body.classList.add('dark-mode');
-          const toggle = document.getElementById('darkModeToggle');
-          if (toggle) toggle.checked = true;
-        }
-        
-        const langSelect = document.getElementById('languageSelect');
-        if (langSelect) langSelect.value = AppState.language;
-        
-        updateUserStats();
-        checkStreak();
-        initializeSlides();
-        setupEventListeners();
-        checkInstallPrompt();
-        setupServiceWorker();
-        
-        setTimeout(() => {
-          showToast('Welcome to GospelSwipe Pro v1.0! Ready to share the gospel?', 'success');
-          console.log('✅ App fully initialized');
-        }, 800);
-        
-        trackEvent('app_opened');
-        
-      } catch (error) {
-        handleError('initApp', error);
-        showToast('Some features may not load properly', 'warning');
-      }
-    }
-
-    // ========== SERVICE WORKER (Cache-First Strategy) ==========
-    function setupServiceWorker() {
-      if (!('serviceWorker' in navigator)) {
-        console.log('Service Worker not supported');
-        return;
-      }
-      
-      const swCode = `
-        const CACHE_NAME = 'gospelswipe-pro-v1.0';
-        const urlsToCache = ['/', '/index.html'];
-        
-        self.addEventListener('install', (event) => {
-          event.waitUntil(
-            caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
-          );
-        });
-        
-        self.addEventListener('fetch', (event) => {
-          event.respondWith(
-            caches.match(event.request).then((response) => response || fetch(event.request))
-          );
-        });
-        
-        self.addEventListener('activate', (event) => {
-          event.waitUntil(
-            caches.keys().then((cacheNames) => {
-              return Promise.all(
-                cacheNames.map((cacheName) => {
-                  if (cacheName !== CACHE_NAME) {
-                    return caches.delete(cacheName);
-                  }
-                })
-              );
-            })
-          );
-        });
-      `;
-      
-      const blob = new Blob([swCode], { type: 'application/javascript' });
-      const swUrl = URL.createObjectURL(blob);
-      
-      navigator.serviceWorker.register(swUrl)
-        .then(registration => {
-          console.log('✅ Service Worker registered with cache-first strategy');
-          
-          if (registration.waiting) {
-            showUpdateNotification();
-          }
-          
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            if (!newWorker) return;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                showUpdateNotification();
-              }
-            });
-          });
-        })
-        .catch(err => {
-          console.warn('Service Worker registration failed:', err);
-        });
-    }
-
-    function showUpdateNotification() {
-      showToast('Update available! Refresh for new features', 'info');
-    }
-
-    // ========== EVENT LISTENERS (Passive + Active Handling) ==========
-    function setupEventListeners() {
-      const addListener = (el, event, handler, options = false) => {
-        if (!el || !handler) return;
-        el.addEventListener(event, handler, options);
-        AppState.eventListeners.push({ el, event, handler, options });
-      };
-      
-      // Touch events for slide navigation
-      addListener(document, 'touchstart', (e) => {
-        if (e.touches && e.touches.length > 0 && AppState.currentScreen === 'presentation-screen') {
-          AppState.touchStartX = e.touches[0].clientX;
-          AppState.touchStartY = e.touches[0].clientY;
-          AppState.isSwiping = true;
-          AppState.touchStartTime = Date.now();
-        }
-      }, { passive: true });
-      
-      addListener(document, 'touchmove', (e) => {
-        if (!AppState.isSwiping || AppState.currentScreen !== 'presentation-screen') return;
-        const deltaX = Math.abs(e.touches[0].clientX - AppState.touchStartX);
-        const deltaY = Math.abs(e.touches[0].clientY - AppState.touchStartY);
-        if (deltaX > deltaY && deltaX > 10) {
-          e.preventDefault();
-        }
-      }, { passive: false });
-      
-      addListener(document, 'touchend', (e) => {
-        if (!AppState.isSwiping || !e.changedTouches || e.changedTouches.length === 0) return;
-        
-        const deltaX = e.changedTouches[0].clientX - AppState.touchStartX;
-        const deltaY = e.changedTouches[0].clientY - AppState.touchStartY;
-        const velocity = Math.abs(deltaX) / (Date.now() - AppState.touchStartTime);
-        
-        if (Math.abs(deltaX) > Math.abs(deltaY) && (Math.abs(deltaX) > 50 || velocity > 0.5)) {
-          if (AppState.currentScreen === 'presentation-screen') {
-            if (deltaX < 0) nextSlide();
-            else prevSlide();
-          } else if (deltaX > 0 && AppState.currentScreen !== 'home-screen') {
-            showScreen('home-screen');
-          }
-        }
-        
-        AppState.isSwiping = false;
-      }, { passive: true });
-      
-      // Keyboard navigation for slides
-      addListener(document, 'keydown', (e) => {
-        if (AppState.currentScreen === 'presentation-screen') {
-          if (e.key === 'ArrowRight' || e.key === ' ') {
-            e.preventDefault(); nextSlide();
-          }
-          else if (e.key === 'ArrowLeft') {
-            e.preventDefault(); prevSlide();
-          }
-          else if (e.key === 'Escape') {
-            e.preventDefault(); exitPresentation();
-          }
-        }
-      });
-      
-      // Network status
-      addListener(window, 'online', () => {
-        AppState.isOnline = true;
-        showToast('Back online!', 'success');
-      });
-      
-      addListener(window, 'offline', () => {
-        AppState.isOnline = false;
-        showToast('Offline mode activated', 'info');
-      });
-      
-      // Data persistence
-      addListener(document, 'visibilitychange', () => {
-        if (document.hidden) saveAllData();
-      });
-      
-      addListener(window, 'beforeunload', () => saveAllData());
-      
-      // PWA install prompt
-      addListener(window, 'beforeinstallprompt', (e) => {
-        e.preventDefault();
-        AppState.deferredPrompt = e;
-        const installBtn = document.getElementById('installBtn');
-        if (installBtn) installBtn.classList.remove('hidden');
-      });
-    }
-
-    // ========== SCREEN MANAGEMENT (State Machine) ==========
-    function showScreen(screenId) {
-      if (AppState.isProcessing) return;
-      AppState.isProcessing = true;
-      
-      try {
-        const targetScreen = document.getElementById(screenId);
-        if (!targetScreen) throw new Error(`Screen ${screenId} not found`);
-        
-        // Hide all other screens
-        document.querySelectorAll('.screen').forEach(screen => {
-          if (screen.id === screenId) return;
-          screen.classList.remove('active');
-          setTimeout(() => {
-            if (screen.id !== screenId && !screen.classList.contains('active')) {
-              screen.style.display = 'none';
-            }
-          }, 300);
-        });
-        
-        // Show target screen
-        targetScreen.style.display = 'flex';
-        requestAnimationFrame(() => targetScreen.classList.add('active'));
-        
-        AppState.currentScreen = screenId;
-        
-        // Update navigation buttons
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-          btn.classList.remove('active');
-          const btnText = btn.querySelector('span')?.textContent || '';
-          if ((screenId === 'home-screen' && btnText === 'Home') ||
-              (screenId === 'prayer-screen' && btnText === 'Prayer') ||
-              (screenId === 'stats-screen' && btnText === 'Stats')) {
-            btn.classList.add('active');
-          }
-        });
-        
-        // Show/hide bottom navigation
-        const bottomNav = document.querySelector('.bottom-nav');
-        if (bottomNav) {
-          bottomNav.style.display = screenId === 'presentation-screen' ? 'none' : 'flex';
-        }
-        
-        // Load data for specific screens
-        if (screenId === 'prayer-screen') setTimeout(loadPrayers, 100);
-        if (screenId === 'stats-screen') setTimeout(updateStatsDisplay, 100);
-        
-        window.scrollTo(0, 0);
-        trackEvent('screen_changed', { screen: screenId });
-        
-      } catch (error) {
-        handleError('showScreen', error);
-      } finally {
-        setTimeout(() => { AppState.isProcessing = false; }, 100);
-      }
-    }
-
-    // ========== SLIDE SYSTEM (Bug-Free Navigation) ==========
-    function initializeSlides() {
-      try {
-        const container = document.getElementById('slidesContainer');
-        if (!container) throw new Error('Slides container not found');
-        
-        container.innerHTML = '';
-        
-        APP_DATA.slides.forEach((slide, index) => {
-          const slideEl = document.createElement('div');
-          slideEl.className = `slide ${index === 0 ? 'active' : 'next'}`;
-          slideEl.id = `slide-${slide.id}`;
-          slideEl.style.background = `linear-gradient(135deg, ${slide.color} 0%, ${darkenColor(slide.color, 30)} 100%)`;
-          
-          const isFirst = index === 0;
-          const isLast = index === APP_DATA.slides.length - 1;
-          
-          slideEl.innerHTML = `
-            <div class="slide-content fade-in">
-              <div class="slide-header">
-                <div class="slide-number">Slide ${slide.id}/${APP_DATA.slides.length}</div>
-                <h2 class="slide-title">${escapeHtml(slide.title)}</h2>
-              </div>
-              <div class="slide-verse">${escapeHtml(slide.verse)}</div>
-              <div class="slide-reference">${escapeHtml(slide.reference)}</div>
-              <div class="slide-actions">
-                <button class="slide-btn" onclick="speakSlide(${slide.id})" aria-label="Listen to slide">
-                  <i class="fas fa-volume-up"></i> Listen
-                </button>
-                <button class="slide-btn" onclick="askAI('${slide.topic}')" aria-label="Get AI explanation">
-                  <i class="fas fa-robot"></i> AI Explain
-                </button>
-                <button class="slide-btn" onclick="shareVerse('${escapeAttr(slide.verse)}', '${escapeAttr(slide.reference)}')" aria-label="Share verse">
-                  <i class="fas fa-share"></i> Share
-                </button>
-                <button class="slide-btn primary" onclick="shareVersePicture('${escapeAttr(slide.verse)}', '${escapeAttr(slide.reference)}', '${escapeAttr(slide.title)}')" aria-label="Share as image">
-                  <i class="fas fa-image"></i> Image
-                </button>
-              </div>
-              <div class="slide-indicator">
-                <div style="${isFirst ? 'opacity: 0.3;' : ''}">
-                  <i class="fas fa-arrow-left"></i> Previous
-                </div>
-                <div style="${isLast ? 'opacity: 0.3;' : ''}">
-                  Next <i class="fas fa-arrow-right"></i>
-                </div>
-              </div>
-            </div>
-          `;
-          
-          container.appendChild(slideEl);
-        });
-        
-      } catch (error) {
-        handleError('initializeSlides', error);
-      }
-    }
-
-    function startPresentation() {
-      try {
-        AppState.currentSlide = 0;
-        trackEvent('presentation_started');
-        
-        document.querySelectorAll('.slide').forEach((slide, index) => {
-          slide.classList.remove('active', 'previous', 'next');
-          slide.classList.add(index === 0 ? 'active' : 'next');
-        });
-        
-        showScreen('presentation-screen');
-        vibrate(30);
-        
-      } catch (error) {
-        handleError('startPresentation', error);
-      }
-    }
-
-    function exitPresentation() {
-      showScreen('home-screen');
-      vibrate(30);
-    }
-
-    function nextSlide() {
-      try {
-        if (AppState.currentSlide >= APP_DATA.slides.length - 1) {
-          showToast('🎉 Presentation complete! You\'ve shared the full gospel!', 'success');
-          setTimeout(() => exitPresentation(), 2000);
-          return;
-        }
-        
-        const current = document.querySelector(`#slide-${AppState.currentSlide + 1}`);
-        const next = document.querySelector(`#slide-${AppState.currentSlide + 2}`);
-        
-        if (!current || !next) throw new Error('Slide elements not found');
-        
-        current.classList.remove('active');
-        current.classList.add('previous');
-        next.classList.remove('next');
-        next.classList.add('active');
-        
-        AppState.currentSlide++;
-        trackSlideView(AppState.currentSlide);
-        vibrate(50);
-        
-      } catch (error) {
-        handleError('nextSlide', error);
-      }
-    }
-
-    function prevSlide() {
-      try {
-        if (AppState.currentSlide <= 0) return;
-        
-        const current = document.querySelector(`#slide-${AppState.currentSlide + 1}`);
-        const prev = document.querySelector(`#slide-${AppState.currentSlide}`);
-        
-        if (!current || !prev) throw new Error('Slide elements not found');
-        
-        current.classList.remove('active');
-        current.classList.add('next');
-        prev.classList.remove('previous');
-        prev.classList.add('active');
-        
-        AppState.currentSlide--;
-        vibrate(50);
-        
-      } catch (error) {
-        handleError('prevSlide', error);
-      }
-    }
-
-    // ========== AI SYSTEM (Modal with Lifecycle) ==========
-    function askAI(topic) {
-      try {
-        const answer = APP_DATA.aiAnswers[topic];
-        if (!answer) {
-          showToast('No AI explanation available for this topic yet', 'info');
-          return;
-        }
-        
-        const answerText = answer[AppState.language] || answer['en'];
-        
-        const modalContent = `
-          <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-            <i class="fas fa-times"></i>
-          </button>
-          <div style="color: white; padding-top: 10px;">
-            <div style="display: flex; align-items: center; margin-bottom: 20px;">
-              <i class="fas fa-robot" style="font-size: 1.5rem; margin-right: 10px; color: #3498db;"></i>
-              <h3 style="margin: 0;">AI Explanation</h3>
-            </div>
-            <div style="line-height: 1.6; margin-bottom: 20px; font-size: 1.1rem;">${escapeHtml(answerText)}</div>
-            <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
-              <i class="fas fa-info-circle"></i> Based on biblical principles
-            </div>
-            <div style="margin-top: 20px; text-align: center;">
-              <button onclick="shareVersePicture('${escapeAttr(answerText)}', 'AI Insight', 'GospelSwipe AI')" class="slide-btn primary">
-                <i class="fas fa-share"></i> Share Insight
-              </button>
-            </div>
-          </div>
-        `;
-        
-        showModal(modalContent);
-        
-        AppState.userStats.aiQuestions++;
-        saveUserStats();
-        trackEvent('ai_question_asked', { topic });
-        vibrate(40);
-        
-      } catch (error) {
-        handleError('askAI', error);
-      }
-    }
-
-    // ========== AI PRAYER GUIDE ==========
-    function showPrayerAssistant() {
-      try {
-        const categories = APP_DATA.aiPrayerAssistant.categories;
-        const categoryCards = Object.keys(categories).map(key => {
-          const category = categories[key];
-          return `
-            <div class="ai-prayer-category-card" onclick="showPrayerCategory('${key}')" role="button" tabindex="0" aria-label="View ${category.title}">
-              <div class="ai-prayer-category-icon">
-                <i class="fas ${category.icon}"></i>
-              </div>
-              <div class="ai-prayer-category-info">
-                <div class="ai-prayer-category-title">${escapeHtml(category.title)}</div>
-                <div class="ai-prayer-category-meta">
-                  <span><i class="fas fa-pray"></i> ${category.prompts.length} prayers</span>
-                  <span><i class="fas fa-clock"></i> 1-2 min each</span>
-                </div>
-              </div>
-              <div class="ai-prayer-category-arrow">
-                <i class="fas fa-chevron-right"></i>
-              </div>
-            </div>
-          `;
-        }).join('');
-        
-        const modalContent = `
-          <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-            <i class="fas fa-times"></i>
-          </button>
-          <div style="color: white; padding-top: 10px;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-              <i class="fas fa-robot" style="font-size: 1.5rem; color: var(--ai-primary);"></i>
-              <h3 style="margin: 0;">AI Prayer Guide</h3>
-            </div>
-            <p style="margin-bottom: 20px; opacity: 0.8; font-size: 0.9rem;">Select a category for guided, Scripture-based prayers:</p>
-            <div class="ai-prayer-category-grid">
-              ${categoryCards}
-            </div>
-            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--glass-border);">
-              <p style="font-size: 0.8rem; opacity: 0.7; text-align: center;">
-                <i class="fas fa-info-circle"></i> Prayers based on biblical principles • Customize as needed
-              </p>
-            </div>
-          </div>
-        `;
-        
-        showModal(modalContent);
-        
-      } catch (error) {
-        handleError('showPrayerAssistant', error);
-      }
-    }
-
-    function showPrayerCategory(categoryKey) {
-      try {
-        const category = APP_DATA.aiPrayerAssistant.categories[categoryKey];
-        if (!category) {
-          showToast('Invalid prayer category', 'error');
-          return;
-        }
-        
-        showToast('Loading prayers...', 'info', 1500);
-        
-        setTimeout(() => {
-          const promptItems = category.prompts.map((prompt, index) => `
-            <div class="ai-prayer-prompt-item" onclick="copyPrayerToJournal('${categoryKey}', ${index})" role="button" tabindex="0" aria-label="Copy ${prompt.style} prayer">
-              <div class="ai-prayer-prompt-text">${escapeHtml(prompt.text)}</div>
-              <div class="ai-prayer-prompt-meta">
-                <span class="ai-prayer-prompt-type">
-                  <i class="fas fa-tag"></i> ${prompt.style}
-                </span>
-                <span><i class="fas fa-clock"></i> ${Math.ceil(prompt.text.split(' ').length / 30)} min</span>
-              </div>
-            </div>
-          `).join('');
-          
-          const modalContent = `
-            <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-              <i class="fas fa-times"></i>
-            </button>
-            <div style="color: white; padding-top: 10px;">
-              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                <i class="fas ${category.icon}" style="color: var(--ai-primary); font-size: 1.3rem;"></i>
-                <h3 style="margin: 0;">${escapeHtml(category.title)}</h3>
-              </div>
-              <p style="font-size: 0.9rem; margin-bottom: 20px; opacity: 0.8;"><strong>Guidance:</strong> ${escapeHtml(category.guidance)}</p>
-              
-              <div class="ai-prayer-prompt-list">
-                ${promptItems}
-              </div>
-              
-              <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--glass-border);">
-                <p style="font-size: 0.8rem; opacity: 0.7; text-align: center;">
-                  <i class="fas fa-info-circle"></i> Tap any prayer to copy it to your journal
-                </p>
-              </div>
-            </div>
-          `;
-          
-          showModal(modalContent);
-          
-          // Track usage
-          AppState.userStats.aiQuestions++;
-          saveUserStats();
-          trackEvent('ai_prayer_category_viewed', { category: categoryKey });
-          
-        }, 200);
-        
-      } catch (error) {
-        handleError('showPrayerCategory', error);
-      }
-    }
-
-    function copyPrayerToJournal(categoryKey, promptIndex) {
-      try {
-        const category = APP_DATA.aiPrayerAssistant.categories[categoryKey];
-        if (!category || !category.prompts[promptIndex]) {
-          showToast('Invalid prayer selection', 'error');
-          return;
-        }
-        
-        const prayerText = category.prompts[promptIndex].text;
-        const prayerInput = document.getElementById('prayerInput');
-        
-        if (!prayerInput) {
-          showToast('Prayer journal not ready', 'error');
-          return;
-        }
-        
-        // Copy to textarea
-        prayerInput.value = prayerText;
-        
-        // Show success toast first
-        showToast('Prayer copied! Edit as needed 🙏', 'ai');
-        
-        // Navigate to prayer screen after short delay
-        setTimeout(() => {
-          closeModal();
-          showScreen('prayer-screen');
-          prayerInput.focus();
-          vibrate([30, 30, 50]);
-        }, 400);
-        
-        // Save to history
-        AppState.aiPrayerHistory.unshift({
-          category: categoryKey,
-          promptIndex: promptIndex,
-          timestamp: new Date().toISOString(),
-          text: prayerText.substring(0, 50) + '...'
-        });
-        
-        if (AppState.aiPrayerHistory.length > 20) {
-          AppState.aiPrayerHistory = AppState.aiPrayerHistory.slice(0, 20);
-        }
-        
-        safeSetItem('aiPrayerHistory', JSON.stringify(AppState.aiPrayerHistory));
-        trackEvent('ai_prayer_copied', { category: categoryKey, promptIndex });
-        
-      } catch (error) {
-        handleError('copyPrayerToJournal', error);
-      }
-    }
-
-    // ========== PRAYER JOURNAL ==========
-    function savePrayer() {
-      try {
-        const prayerInput = document.getElementById('prayerInput');
-        if (!prayerInput) return;
-        
-        const text = prayerInput.value.trim();
-        if (!text) {
-          showToast('Please write a prayer first', 'error');
-          return;
-        }
-        
-        const prayer = {
-          id: Date.now(),
-          text: text,
-          date: new Date().toISOString(),
-          answered: false,
-          language: AppState.language,
-          category: 'general'
-        };
-        
-        AppState.prayers.unshift(prayer);
-        prayerInput.value = '';
-        loadPrayers();
-        
-        showToast('Prayer saved! God hears you 🙏', 'success');
-        trackEvent('prayer_saved');
-        updateUserStats();
-        vibrate(50);
-        saveAllData();
-        
-      } catch (error) {
-        handleError('savePrayer', error);
-      }
-    }
-
-    function loadPrayers() {
-      try {
-        const container = document.getElementById('prayerList');
-        if (!container) return;
-        
-        if (AppState.prayers.length === 0) {
-          container.innerHTML = `
-            <div style="text-align: center; padding: 40px; opacity: 0.5;">
-              <i class="fas fa-pray" style="font-size: 3rem; margin-bottom: 20px;"></i>
-              <p>No prayers yet. Write your first prayer!</p>
-            </div>
-          `;
-          return;
-        }
-        
-        container.innerHTML = AppState.prayers.map(prayer => `
-          <div class="prayer-item ${prayer.answered ? 'answered' : ''}">
-            <div class="prayer-date">
-              ${new Date(prayer.date).toLocaleDateString()} • ${escapeHtml(getLanguageName(prayer.language))}
-              <button onclick="togglePrayerAnswered(${prayer.id})" style="background: none; border: none; color: ${prayer.answered ? '#e74c3c' : '#2ecc71'}; cursor: pointer;" aria-label="${prayer.answered ? 'Mark as unanswered' : 'Mark as answered'}">
-                <i class="fas fa-${prayer.answered ? 'times' : 'check'}"></i>
-              </button>
-            </div>
-            <div style="line-height: 1.5;">${escapeHtml(prayer.text)}</div>
-          </div>
-        `).join('');
-        
-      } catch (error) {
-        handleError('loadPrayers', error);
-      }
-    }
-
-    function togglePrayerAnswered(prayerId) {
-      try {
-        const prayer = AppState.prayers.find(p => p.id === prayerId);
-        if (!prayer) return;
-        
-        prayer.answered = !prayer.answered;
-        loadPrayers();
-        
-        showToast(prayer.answered ? 'Prayer marked as answered! Praise God! 🙌' : 'Prayer marked as pending', prayer.answered ? 'success' : 'info');
-        trackEvent('prayer_answered');
-        vibrate(prayer.answered ? [50, 50, 100] : [30]);
-        saveAllData();
-        
-      } catch (error) {
-        handleError('togglePrayerAnswered', error);
-      }
-    }
-
-    function recordVoicePrayer() {
-      try {
-        if (!AppState.isOnline) {
-          showToast('Voice recording requires internet connection', 'warning');
-          return;
-        }
-        
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-          showToast('Voice recording not supported in your browser', 'error');
-          return;
-        }
-        
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = AppState.language === 'en' ? 'en-US' : AppState.language;
-        
-        recognition.onstart = () => {
-          showToast('Recording... Speak your prayer', 'info');
-          const prayerInput = document.getElementById('prayerInput');
-          if (prayerInput) prayerInput.placeholder = 'Listening...';
-        };
-        
-        recognition.onresult = (event) => {
-          let transcript = event.results[0][0].transcript;
-          const prayerInput = document.getElementById('prayerInput');
-          if (prayerInput) prayerInput.value = transcript;
-        };
-        
-        recognition.onend = () => {
-          showToast('Recording finished', 'success');
-          const prayerInput = document.getElementById('prayerInput');
-          if (prayerInput) prayerInput.placeholder = 'Edit your prayer or save it...';
-        };
-        
-        recognition.onerror = (event) => {
-          showToast('Voice recognition failed', 'error');
-          handleError('speechRecognition', new Error(event.error));
-        };
-        
-        recognition.start();
-        
-      } catch (error) {
-        handleError('recordVoicePrayer', error);
-      }
-    }
-
-    // ========== STATISTICS & GAMIFICATION ==========
-    function updateUserStats() {
-      try {
-        if (!AppState.userStats) {
-          AppState.userStats = {
-            presentations: 0, slidesViewed: [], prayers: 0, aiQuestions: 0, shares: 0,
-            installDate: new Date().toISOString(), events: [], level: 'Beginner'
-          };
-        }
-        
-        AppState.userStats.prayers = AppState.prayers.length;
-        
-        const streakEl = document.getElementById('streakCount');
-        const versesEl = document.getElementById('versesShared');
-        
-        if (streakEl) streakEl.textContent = AppState.streak.count || 0;
-        if (versesEl) versesEl.textContent = AppState.userStats.slidesViewed?.length || 0;
-        
-        saveUserStats();
-        
-      } catch (error) {
-        handleError('updateUserStats', error);
-      }
-    }
-
-    function updateStatsDisplay() {
-      try {
-        const totalSlidesEl = document.getElementById('totalSlides');
-        const prayerCountEl = document.getElementById('prayerCount');
-        const streakDaysEl = document.getElementById('streakDays');
-        const aiQuestionsEl = document.getElementById('aiQuestions');
-        
-        if (totalSlidesEl) totalSlidesEl.textContent = AppState.userStats.slidesViewed?.length || 0;
-        if (prayerCountEl) prayerCountEl.textContent = AppState.prayers.length;
-        if (streakDaysEl) streakDaysEl.textContent = AppState.streak.count || 0;
-        if (aiQuestionsEl) aiQuestionsEl.textContent = AppState.userStats.aiQuestions || 0;
-        
-        const totalPoints = (AppState.userStats.slidesViewed?.length || 0) + 
-                           (AppState.prayers.length * 2) + 
-                           (AppState.userStats.aiQuestions || 0) * 3 +
-                           (AppState.userStats.shares || 0) * 2;
-        
-        let level = 'Beginner';
-        if (totalPoints >= 500) level = 'Apostle';
-        else if (totalPoints >= 200) level = 'Revivalist';
-        else if (totalPoints >= 100) level = 'Minister';
-        else if (totalPoints >= 50) level = 'Evangelist';
-        
-        const userLevelEl = document.getElementById('userLevel');
-        if (userLevelEl) userLevelEl.textContent = level;
-        AppState.userStats.level = level;
-        
-        checkAchievements();
-        updateAchievementsDisplay();
-        saveUserStats();
-        
-      } catch (error) {
-        handleError('updateStatsDisplay', error);
-      }
-    }
-
-    function checkStreak() {
-      try {
-        const today = new Date().toDateString();
-        const lastDate = AppState.streak.lastDate;
-        
-        if (lastDate === today) return;
-        
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        if (lastDate === yesterday.toDateString()) {
-          AppState.streak.count++;
-          if (AppState.streak.count > 1) {
-            showToast(`🔥 ${AppState.streak.count}-day streak! Keep going!`, 'success');
-          }
-        } else if (lastDate && lastDate !== today) {
-          AppState.streak.count = 1;
-        } else {
-          AppState.streak.count = 1;
-        }
-        
-        AppState.streak.lastDate = today;
-        safeSetItem('streak', JSON.stringify(AppState.streak));
-        
-      } catch (error) {
-        handleError('checkStreak', error);
-      }
-    }
-
-    function trackSlideView(slideId) {
-      try {
-        if (!AppState.userStats.slidesViewed) AppState.userStats.slidesViewed = [];
-        
-        if (!AppState.userStats.slidesViewed.includes(slideId)) {
-          AppState.userStats.slidesViewed.push(slideId);
-          updateUserStats();
-          checkAchievements();
-        }
-        
-      } catch (error) {
-        handleError('trackSlideView', error);
-      }
-    }
-
-    function checkAchievements() {
-      try {
-        const newAchievements = [];
-        const totalPoints = (AppState.userStats.slidesViewed?.length || 0) + 
-                           (AppState.prayers.length * 2) + 
-                           (AppState.userStats.aiQuestions || 0) * 3 +
-                           (AppState.userStats.shares || 0) * 2;
-        
-        const achievements = AppState.achievements || [];
-        
-        if (AppState.userStats.slidesViewed?.length >= 5 && !achievements.includes('learner')) {
-          newAchievements.push('Learner - Viewed 5 slides');
-          achievements.push('learner');
-        }
-        
-        if (AppState.userStats.slidesViewed?.length >= APP_DATA.slides.length && !achievements.includes('scholar')) {
-          newAchievements.push('Scholar - Viewed all slides');
-          achievements.push('scholar');
-        }
-        
-        if (AppState.prayers.length >= 3 && !achievements.includes('prayer_warrior')) {
-          newAchievements.push('Prayer Warrior - Saved 3 prayers');
-          achievements.push('prayer_warrior');
-        }
-        
-        if (totalPoints >= 50 && !achievements.includes('evangelist')) {
-          newAchievements.push('Evangelist - Earned 50 points');
-          achievements.push('evangelist');
-        }
-        
-        if (AppState.streak.count >= 7 && !achievements.includes('faithful')) {
-          newAchievements.push('Faithful - 7 day streak');
-          achievements.push('faithful');
-        }
-        
-        if (newAchievements.length > 0) {
-          AppState.achievements = achievements;
-          safeSetItem('achievements', JSON.stringify(achievements));
-          newAchievements.forEach(achievement => {
-            showToast(`🏆 Achievement Unlocked: ${achievement}`, 'success');
-            vibrate([100, 50, 100]);
-          });
-        }
-        
-      } catch (error) {
-        handleError('checkAchievements', error);
-      }
-    }
-
-    function updateAchievementsDisplay() {
-      try {
-        const container = document.getElementById('achievementsList');
-        if (!container) return;
-        
-        if (!AppState.achievements || AppState.achievements.length === 0) {
-          container.innerHTML = '<div style="text-align: center; opacity: 0.5; padding: 20px;">No achievements yet. Keep using the app!</div>';
-          return;
-        }
-        
-        container.innerHTML = AppState.achievements.map(achievement => `
-          <div class="achievement-item">
-            <i class="fas fa-trophy"></i>
-            <span>${escapeHtml(achievement)}</span>
-          </div>
-        `).join('');
-        
-      } catch (error) {
-        handleError('updateAchievementsDisplay', error);
-      }
-    }
-
-    // ========== SETTINGS ==========
-    function toggleDarkMode() {
-      try {
-        AppState.darkMode = !AppState.darkMode;
-        document.body.classList.toggle('dark-mode', AppState.darkMode);
-        safeSetItem('darkMode', AppState.darkMode);
-        vibrate(20);
-        trackEvent('dark_mode_toggled');
-        
-      } catch (error) {
-        handleError('toggleDarkMode', error);
-      }
-    }
-
-    function changeLanguage() {
-      try {
-        const select = document.getElementById('languageSelect');
-        if (!select) return;
-        
-        AppState.language = select.value;
-        safeSetItem('language', AppState.language);
-        showToast(`Language: ${getLanguageName(AppState.language)}`, 'success');
-        trackEvent('language_changed', { language: AppState.language });
-        vibrate(20);
-        
-      } catch (error) {
-        handleError('changeLanguage', error);
-      }
-    }
-
-    function getLanguageName(code) {
-      const languages = { en: 'English', yo: 'Yoruba', ig: 'Igbo', ha: 'Hausa', pcm: 'Nigerian Pidgin' };
-      return languages[code] || 'English';
-    }
-
-    function updateVoiceSettings() {
-      showToast('Voice settings updated', 'info');
-      vibrate(15);
-    }
-
-    function showLanguageSettings() {
-      showScreen('settings-screen');
-      setTimeout(() => {
-        const langSelect = document.getElementById('languageSelect');
-        if (langSelect) langSelect.focus();
-      }, 300);
-    }
-
-    // ========== SHARING ==========
-    async function shareApp() {
-      try {
-        vibrate(30);
-        
-        const shareData = {
-          title: 'GospelSwipe Pro',
-          text: `Check out this amazing gospel presentation app! ${APP_DATA.metrics.betaUsers}+ believers sharing the gospel. Made in Nigeria 🇳🇬`,
-          url: window.location.href
-        };
-        
-        if (navigator.share && AppState.isOnline) {
-          try {
-            await navigator.share(shareData);
-            AppState.userStats.shares++;
-            updateUserStats();
-            showToast('Thank you for sharing the gospel!', 'success');
-            trackEvent('app_shared');
-          } catch {
-            fallbackShare();
-          }
-        } else {
-          fallbackShare();
-        }
-        
-        function fallbackShare() {
-          copyToClipboard(`${shareData.text}\n\n${shareData.url}`);
-          showToast('Link copied! Share with others', 'success');
-          trackEvent('app_shared_fallback');
-        }
-        
-      } catch (error) {
-        handleError('shareApp', error);
-      }
-    }
-
-    async function shareVerse(verse, reference) {
-      try {
-        vibrate(30);
-        
-        const shareData = {
-          title: 'Bible Verse',
-          text: `${verse} - ${reference}\n\nShared via GospelSwipe Pro 📖\n${APP_DATA.metrics.betaUsers}+ believers equipped`,
-          url: window.location.href
-        };
-        
-        if (navigator.share && AppState.isOnline) {
-          try {
-            await navigator.share(shareData);
-            AppState.userStats.shares++;
-            updateUserStats();
-            showToast('Verse shared!', 'success');
-            trackEvent('verse_shared');
-          } catch {
-            fallbackVerseShare();
-          }
-        } else {
-          fallbackVerseShare();
-        }
-        
-        function fallbackVerseShare() {
-          copyToClipboard(shareData.text);
-          showToast('Verse copied!', 'success');
-          trackEvent('verse_shared_fallback');
-        }
-        
-      } catch (error) {
-        handleError('shareVerse', error);
-      }
-    }
-
-    function shareVersePicture(verseText, reference, title = 'Gospel Verse') {
-      try {
-        vibrate(20);
-        
-        const canvas = document.createElement('canvas');
-        canvas.width = 1080;
-        canvas.height = 1080;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) throw new Error('Canvas not supported');
-        
-        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        gradient.addColorStop(0, '#2c3e50');
-        gradient.addColorStop(1, '#3c5a7a');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.font = 'bold 48px -apple-system, BlinkMacSystemFont, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(escapeHtml(title), canvas.width/2, 120);
-        
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 56px -apple-system, BlinkMacSystemFont, sans-serif';
-        ctx.textAlign = 'center';
-        
-        const lines = wrapText(ctx, `"${verseText}"`, canvas.width - 200);
-        lines.forEach((line, i) => {
-          ctx.fillText(line, canvas.width/2, 400 + (i * 80));
-        });
-        
-        ctx.fillStyle = 'rgba(255,255,255,0.9)';
-        ctx.font = '36px -apple-system, BlinkMacSystemFont, sans-serif';
-        ctx.fillText(escapeHtml(reference), canvas.width/2, canvas.height - 250);
-        
-        ctx.fillStyle = '#3498db';
-        ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, sans-serif';
-        ctx.fillText('GospelSwipe Pro', canvas.width/2, canvas.height - 100);
-        
-        ctx.font = '24px -apple-system, BlinkMacSystemFont, sans-serif';
-        ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        ctx.fillText('Made in Nigeria 🇳🇬', canvas.width/2, canvas.height - 60);
-        
-        ctx.font = '64px sans-serif';
-        ctx.fillText('✝️', canvas.width/2, canvas.height - 20);
-        
-        canvas.toBlob(async blob => {
-          try {
-            if (navigator.share && navigator.canShare && AppState.isOnline) {
-              const file = new File([blob], "verse.png", { type: "image/png" });
-              if (navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                  files: [file], title: 'Gospel Verse', text: 'Shared via GospelSwipe Pro 📖'
-                });
-                AppState.userStats.shares++;
-                updateUserStats();
-                trackEvent('verse_shared_as_image');
-                vibrate([50, 50, 100]);
-                return;
-              }
-            }
-            downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
-          } catch (err) {
-            console.error('Share failed:', err);
-            downloadBlob(blob, `verse-${reference.replace(/[^a-zA-Z0-9]/g, '-')}.png`);
-          }
-        });
-        
-      } catch (error) {
-        handleError('shareVersePicture', error);
-        showToast('Image generation failed', 'error');
-      }
-    }
-
-    function downloadBlob(blob, filename) {
-      try {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        handleError('downloadBlob', error);
-      }
-    }
-
-    // ========== MODAL SYSTEM ==========
-    let activeModal = null;
-    
-    function showModal(content) {
-      try {
-        if (activeModal) closeModal();
-        
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        modal.setAttribute('role', 'dialog');
-        modal.setAttribute('aria-modal', 'true');
-        modal.innerHTML = typeof content === 'function' ? content() : content;
-        
-        document.body.appendChild(modal);
-        activeModal = modal;
-        
-        document.body.style.overflow = 'hidden';
-        
-        const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-        const firstFocusable = focusableElements[0];
-        if (firstFocusable) firstFocusable.focus();
-        
-        requestAnimationFrame(() => modal.classList.add('active'));
-        
-        const escapeHandler = (e) => {
-          if (e.key === 'Escape' && activeModal) {
-            closeModal();
-            document.removeEventListener('keydown', escapeHandler);
-          }
-        };
-        document.addEventListener('keydown', escapeHandler);
-        AppState.eventListeners.push({ el: document, event: 'keydown', handler: escapeHandler });
-        
-      } catch (error) {
-        handleError('showModal', error);
-      }
-    }
-
-    function closeModal() {
-      try {
-        if (!activeModal) return;
-        
-        const modal = activeModal;
-        activeModal = null;
-        modal.classList.remove('active');
-        
-        setTimeout(() => {
-          if (modal.parentNode) modal.remove();
-          document.body.style.overflow = '';
-        }, 300);
-        
-      } catch (error) {
-        handleError('closeModal', error);
-      }
-    }
-
-    // ========== PREMIUM FEATURES ==========
-    function showPremiumDetails() {
-      const tiers = APP_DATA.premiumTiers;
-      const tierCards = Object.keys(tiers).map(key => {
-        const tier = tiers[key];
-        const featuresList = tier.features.map(feature => `
-          <li class="premium-feature-item">
-            <i class="fas fa-check-circle"></i>
-            <span>${escapeHtml(feature)}</span>
-          </li>
-        `).join('');
-        
-        return `
-          <div class="premium-tier-card">
-            <div class="premium-tier-header">
-              <div class="premium-tier-name">
-                <i class="fas fa-crown"></i>
-                ${tier.name}
-              </div>
-              <div class="premium-tier-price">
-                $${tier.price}
-                <span class="interval">/${tier.interval}</span>
-              </div>
-            </div>
-            ${tier.target ? `<div class="premium-tier-target">${escapeHtml(tier.target)}</div>` : ''}
-            <ul class="premium-features-list">${featuresList}</ul>
-          </div>
-        `;
-      }).join('');
-      
-      const modalContent = `
-        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-          <i class="fas fa-times"></i>
-        </button>
-        <div style="color: white; padding-top: 10px;">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-            <i class="fas fa-crown" style="font-size: 1.5rem; color: var(--premium);"></i>
-            <h3 style="margin: 0; color: var(--premium);">GospelSwipe Pro Premium</h3>
-          </div>
-          
-          <div class="premium-features-container">
-            ${tierCards}
-            
-            <div class="premium-sustainability">
-              <h4>💰 Support Sustainability</h4>
-              <div class="premium-sustainability-grid">
-                <div class="premium-sustainability-item">
-                  <i class="fas fa-robot"></i>
-                  <span>Claude API for theological AI</span>
-                </div>
-                <div class="premium-sustainability-item">
-                  <i class="fas fa-globe"></i>
-                  <span>Global server distribution</span>
-                </div>
-                <div class="premium-sustainability-item">
-                  <i class="fas fa-shield-alt"></i>
-                  <span>Persecution zone security</span>
-                </div>
-                <div class="premium-sustainability-item">
-                  <i class="fas fa-code"></i>
-                  <span>Continuous mission development</span>
-                </div>
-                <div class="premium-sustainability-item">
-                  <i class="fas fa-hand-holding-heart"></i>
-                  <span>70% profit funds mission work</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="premium-actions">
-              <button class="wallet-btn" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Premium Subscription Inquiry', '_blank')" aria-label="Contact sales">
-                <i class="fas fa-envelope"></i> Contact Sales
-              </button>
-              <button class="wallet-btn" onclick="closeModal()" aria-label="Close modal">
-                <i class="fas fa-times"></i> Close
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      showModal(modalContent);
-      trackEvent('premium_viewed');
-    }
-
-    function showWallet() {
-      showModal(`
-        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-          <i class="fas fa-times"></i>
-        </button>
-        <div style="color: white; padding-top: 10px;">
-          <h3 style="margin-bottom: 20px; color: #f39c12;"><i class="fas fa-coins"></i> Missions Wallet</h3>
-          <div style="background: var(--glass); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-              <span>Current Balance:</span><strong>₿0.000247</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-              <span>Lifetime Given:</span><strong>$47.23</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span>Missions Funded:</span><strong>3 villages</strong>
-            </div>
-          </div>
-          <div class="wallet-actions">
-            <button class="wallet-btn" onclick="window.open('https://buy.stripe.com/test_test', '_blank')" aria-label="Add funds">
-              <i class="fas fa-plus"></i> Add $10
-            </button>
-            <button class="wallet-btn" onclick="window.open('https://www.opendoorsusa.org', '_blank')" aria-label="View recipients">
-              <i class="fas fa-external-link-alt"></i> View Recipients
-            </button>
-          </div>
-        </div>
-      `);
-      
-      trackEvent('wallet_viewed');
-    }
-
-    function showImpact() {
-      showScreen('impact-screen');
-      trackEvent('impact_viewed');
-    }
-
-    function churchDashboardHTML() {
-      return `
-        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-          <i class="fas fa-times"></i>
-        </button>
-        <div style="color: white; padding-top: 10px;">
-          <h3 style="margin-bottom: 20px; color: var(--premium);"><i class="fas fa-church"></i> Church Dashboard Preview</h3>
-          <div style="background: var(--glass); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-            <h4 style="margin-bottom: 15px;">📊 Congregation Overview</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-              <div><strong>Active Members:</strong> 247<br><strong>Presentations:</strong> 1,234<br><strong>Prayers:</strong> 89</div>
-              <div><strong>Avg. Streak:</strong> 14 days<br><strong>Salvations:</strong> 12<br><strong>Growth:</strong> +8% this month</div>
-            </div>
-          </div>
-          <div style="background: var(--glass); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-            <h4 style="margin-bottom: 15px;">📈 Spiritual Health Metrics</h4>
-            <p style="font-size: 0.9rem;">Anonymized engagement scores, discipleship pathways, pastoral care alerts</p>
-          </div>
-          <div style="background: var(--glass); padding: 20px; border-radius: 10px;">
-            <h4 style="margin-bottom: 10px;">✉️ Weekly Pastor Report</h4>
-            <p style="font-size: 0.85rem;">Custom reports every Sunday with actionable insights for sermons and care</p>
-          </div>
-        </div>
-      `;
-    }
-
-    function activateVOMMode() {
-      showModal(`
-        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-          <i class="fas fa-times"></i>
-        </button>
-        <div style="color: white; padding-top: 10px;">
-          <h3 style="margin-bottom: 20px; color: #e74c3c;"><i class="fas fa-shield-alt"></i> Voice of Martyrs Mode</h3>
-          <p style="margin-bottom: 20px; line-height: 1.7;">For believers in persecution zones. This mode:</p>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin: 10px 0;"><i class="fas fa-lock" style="color: #e74c3c;"></i> End-to-end encryption for prayer data</li>
-            <li style="margin: 10px 0;"><i class="fas fa-calculator" style="color: #e74c3c;"></i> Disguises app as calculator/news app</li>
-            <li style="margin: 10px 0;"><i class="fas fa-bolt" style="color: #e74c3c;"></i> One-tap data wipe for emergencies</li>
-            <li style="margin: 10px 0;"><i class="fas fa-globe" style="color: #e74c3c;"></i> Secure server routing for restricted regions</li>
-          </ul>
-          <div style="background: rgba(231, 76, 60, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-            <p style="font-size: 0.9rem;"><strong>Status:</strong> Free for all users<br><strong>Partners:</strong> Open Doors, Voice of the Martyrs</p>
-          </div>
-          <div class="wallet-actions">
-            <button class="wallet-btn" onclick="window.open('https://www.opendoorsusa.org', '_blank')" aria-label="Learn more">
-              <i class="fas fa-info-circle"></i> Learn More
-            </button>
-            <button class="wallet-btn" onclick="closeModal(); showToast('VOM Mode activated. Restart required.', 'success');" aria-label="Activate VOM mode">
-              <i class="fas fa-shield-alt"></i> Activate
-            </button>
-          </div>
-        </div>
-      `);
-      
-      trackEvent('vom_mode_viewed');
-    }
-
-    // ========== DATA EXPORT/IMPORT ==========
-    function exportData() {
-      try {
-        const data = {
-          schemaVersion: APP_DATA.schemaVersion,
-          app: APP_DATA.name,
-          version: APP_DATA.version,
-          exportDate: new Date().toISOString(),
-          userStats: AppState.userStats,
-          prayers: AppState.prayers,
-          streak: AppState.streak,
-          achievements: AppState.achievements,
-          aiPrayerHistory: AppState.aiPrayerHistory,
-          language: AppState.language,
-          darkMode: AppState.darkMode
-        };
-        
-        downloadJSON(data, `gospelswipe-backup-${new Date().toISOString().split('T')[0]}.json`);
-        showToast('Data exported successfully!', 'success');
-        trackEvent('data_exported');
-        vibrate(50);
-        
-      } catch (error) {
-        handleError('exportData', error);
-      }
-    }
-
-    function exportReport() {
-      showModal(`
-        <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-          <i class="fas fa-times"></i>
-        </button>
-        <div style="color: white; padding-top: 10px;">
-          <h3 style="margin-bottom: 20px; color: #f39c12;"><i class="fas fa-file-pdf"></i> Full Support Report (20 Pages)</h3>
-          <p style="margin-bottom: 20px;">Comprehensive documentation for grant organizations:</p>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Mission & Vision Statement</li>
-            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Market Analysis (2.3B Christians)</li>
-            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Competitive Moat Analysis</li>
-            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Financial Projections to $50K MRR</li>
-            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Risk Mitigation Strategies</li>
-            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Founder Story & Vision</li>
-            <li style="margin: 10px 0;"><i class="fas fa-check" style="color: #2ecc71;"></i> Technical Architecture</li>
-          </ul>
-          <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
-            Every dollar traced to eternity. Full transparency guaranteed.
-          </p>
-          <button class="wallet-btn" style="width: 100%; margin-top: 20px;" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=Grant Report Request', '_blank')" aria-label="Email report request">
-            <i class="fas fa-envelope"></i> Email Report Request
-          </button>
-        </div>
-      `);
-      
-      trackEvent('report_export_requested');
-    }
-
-    function clearData() {
-      try {
-        if (!confirm('⚠️ Are you absolutely sure? This will DELETE ALL data permanently.')) return;
-        if (!confirm('⚠️ FINAL WARNING: This cannot be undone. Continue?')) return;
-        
-        localStorage.clear();
-        showToast('All data cleared. Reloading...', 'success');
-        setTimeout(() => {
-          cleanupEventListeners();
-          location.reload();
-        }, 1500);
-        
-      } catch (error) {
-        handleError('clearData', error);
-      }
-    }
-
-    // ========== PWA INSTALL ==========
-    async function installApp() {
-      try {
-        if (!AppState.deferredPrompt) {
-          showToast('Use browser menu to install manually', 'info');
-          return;
-        }
-        
-        try {
-          await AppState.deferredPrompt.prompt();
-          const choice = await AppState.deferredPrompt.userChoice;
-          if (choice.outcome === 'accepted') {
-            showToast('App installed! Access from home screen 🎉', 'success');
-            trackEvent('app_installed');
-            vibrate([100, 50, 100]);
-          }
-          AppState.deferredPrompt = null;
-          const installBtn = document.getElementById('installBtn');
-          if (installBtn) installBtn.classList.add('hidden');
-        } catch (error) {
-          showToast('Use browser menu to install manually', 'info');
-        }
-        
-      } catch (error) {
-        handleError('installApp', error);
-      }
-    }
-
-    function checkInstallPrompt() {
-      const installBtn = document.getElementById('installBtn');
-      if (!installBtn) return;
-      
-      if (window.matchMedia('(display-mode: standalone)').matches) {
-        installBtn.classList.add('hidden');
-      } else if ('standalone' in navigator && navigator.standalone) {
-        installBtn.classList.add('hidden');
-      } else {
-        installBtn.classList.remove('hidden');
-      }
-    }
-
-    // ========== TOAST NOTIFICATION SYSTEM ==========
-    function showToast(message, type = 'info', duration = 4000) {
-      try {
-        const notification = document.getElementById('notification');
-        const messageEl = document.getElementById('notificationMessage');
-        
-        if (!notification || !messageEl) {
-          console.warn('Notification elements not found');
-          return;
-        }
-        
-        const colors = { success: '#2ecc71', error: '#e74c3c', info: '#3498db', warning: '#f39c12', ai: 'linear-gradient(135deg, #3498db, #8e44ad)' };
-        notification.style.background = colors[type] || colors.info;
-        
-        messageEl.textContent = message;
-        notification.classList.add('show');
-        
-        vibrate(type === 'success' ? [30, 30, 50] : type === 'error' ? [100, 50, 100] : [30]);
-        
-        setTimeout(() => notification.classList.remove('show'), duration);
-        
-      } catch (error) {
-        console.error('Toast notification failed:', error);
-      }
-    }
-
-    // ========== OTHER FEATURES ==========
-    function showDailyVerse() {
-      try {
-        const verse = APP_DATA.dailyVerses[Math.floor(Math.random() * APP_DATA.dailyVerses.length)];
-        
-        const modalContent = `
-          <button class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">
-            <i class="fas fa-times"></i>
-          </button>
-          <div style="text-align: center; color: white; padding-top: 10px;">
-            <i class="fas fa-star" style="font-size: 2rem; color: #f39c12; margin-bottom: 15px;"></i>
-            <h3 style="margin-bottom: 20px;">Verse of the Day</h3>
-            <div style="font-size: 1.3rem; line-height: 1.6; margin-bottom: 20px; font-style: italic;">
-              "${escapeHtml(verse.verse)}"
-            </div>
-            <div style="color: #f39c12; font-size: 1.1rem; margin-bottom: 30px;">
-              ${escapeHtml(verse.ref)}
-            </div>
-            <div class="slide-actions">
-              <button class="slide-btn" onclick="shareVerse('${escapeAttr(verse.verse)}', '${escapeAttr(verse.ref)}')" aria-label="Share verse">
-                <i class="fas fa-share"></i> Share
-              </button>
-              <button class="slide-btn primary" onclick="shareVersePicture('${escapeAttr(verse.verse)}', '${escapeAttr(verse.ref)}', 'Daily Verse')" aria-label="Share as image">
-                <i class="fas fa-image"></i> Image
-              </button>
-            </div>
-          </div>
-        `;
-        
-        showModal(modalContent);
-        trackEvent('daily_verse_viewed');
-        
-      } catch (error) {
-        handleError('showDailyVerse', error);
-      }
-    }
-
-    function speakSlide(slideId) {
-      try {
-        const slide = APP_DATA.slides.find(s => s.id === slideId);
-        if (!slide) return;
-        
-        const text = `${slide.title}. ${slide.verse}. ${slide.reference}`;
-        
-        if ('speechSynthesis' in window) {
-          if (AppState.speechSynthesisActive) {
-            speechSynthesis.cancel();
-            AppState.speechSynthesisActive = false;
-          }
-          
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = 'en-US';
-          utterance.rate = parseFloat(document.getElementById('voiceSpeed')?.value || 1);
-          utterance.pitch = 1.1;
-          utterance.volume = 1;
-          
-          utterance.onstart = () => AppState.speechSynthesisActive = true;
-          utterance.onend = () => AppState.speechSynthesisActive = false;
-          utterance.onerror = (e) => {
-            AppState.speechSynthesisActive = false;
-            handleError('speechSynthesis', new Error(e.error));
-          };
-          
-          speechSynthesis.speak(utterance);
-          trackEvent('voice_played', { slide: slideId });
-          vibrate(30);
-        } else {
-          showToast('Voice synthesis unavailable offline', 'info');
-        }
-        
-      } catch (error) {
-        handleError('speakSlide', error);
-      }
-    }
-
-    // ========== UTILITY FUNCTIONS ==========
-    function wrapText(context, text, maxWidth) {
-      try {
-        const words = text.split(' ');
-        const lines = [];
-        let line = '';
-        
-        for (const word of words) {
-          const testLine = line + word + ' ';
-          const metrics = context.measureText(testLine);
-          
-          if (metrics.width > maxWidth && line.length > 0) {
-            lines.push(line);
-            line = word + ' ';
-          } else {
-            line = testLine;
-          }
-        }
-        lines.push(line);
-        return lines;
-        
-      } catch (error) {
-        handleError('wrapText', error);
-        return [text];
-      }
-    }
-
-    function darkenColor(color, amount) {
-      try {
-        const num = parseInt(color.replace('#', ''), 16);
-        const amt = Math.round(2.55 * amount);
-        const R = Math.max(0, (num >> 16) - amt);
-        const G = Math.max(0, (num >> 8 & 0x00FF) - amt);
-        const B = Math.max(0, (num & 0x0000FF) - amt);
-        
-        return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
-      } catch (error) {
-        handleError('darkenColor', error);
-        return color;
-      }
-    }
-
-    function escapeHtml(text) {
-      if (!text) return '';
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    function escapeAttr(text) {
-      if (!text) return '';
-      return text.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
-    }
-
-    function vibrate(pattern) {
-      try {
-        if ('vibrate' in navigator) {
-          if (typeof pattern === 'number') {
-            navigator.vibrate(pattern);
-          } else if (Array.isArray(pattern)) {
-            navigator.vibrate(pattern);
-          }
-        }
-      } catch {
-        console.warn('Vibration not supported');
-      }
-    }
-
-    function downloadJSON(data, filename) {
-      try {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        downloadBlob(blob, filename);
-      } catch (error) {
-        handleError('downloadJSON', error);
-      }
-    }
-
-    function copyToClipboard(text) {
-      try {
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
-        } else {
-          fallbackCopy(text);
-        }
-      } catch (error) {
-        handleError('copyToClipboard', error);
-        fallbackCopy(text);
-      }
-    }
-
-    function fallbackCopy(text) {
-      try {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-      } catch (error) {
-        handleError('fallbackCopy', error);
-      }
-    }
-
-    // ========== DATA PERSISTENCE ==========
-    function saveAllData() {
-      try {
-        safeSetItem('userStats', JSON.stringify(AppState.userStats));
-        safeSetItem('prayers', JSON.stringify(AppState.prayers));
-        safeSetItem('streak', JSON.stringify(AppState.streak));
-        safeSetItem('achievements', JSON.stringify(AppState.achievements));
-        safeSetItem('aiPrayerHistory', JSON.stringify(AppState.aiPrayerHistory));
-        safeSetItem('language', AppState.language);
-        safeSetItem('darkMode', AppState.darkMode);
-      } catch (error) {
-        handleError('saveAllData', error);
-      }
-    }
-
-    function saveUserStats() {
-      try {
-        safeSetItem('userStats', JSON.stringify(AppState.userStats));
-      } catch (error) {
-        handleError('saveUserStats', error);
-      }
-    }
-
-    function safeSetItem(key, value) {
-      try {
-        localStorage.setItem(key, value);
-        return true;
-      } catch (e) {
-        if (e.name === 'QuotaExceededError') {
-          console.warn('LocalStorage quota exceeded, clearing old data');
-          clearOldData();
-          try {
-            localStorage.setItem(key, value);
-            return true;
-          } catch {
-            showToast('Storage full, some data may not be saved', 'warning');
-            return false;
-          }
-        }
-        return false;
-      }
-    }
-
-    function clearOldData() {
-      try {
-        const keys = Object.keys(localStorage);
-        keys.sort((a, b) => {
-          const aDate = localStorage.getItem(`${a}_date`);
-          const bDate = localStorage.getItem(`${b}_date`);
-          return (aDate || 0) - (bDate || 0);
-        });
-        
-        const toRemove = Math.floor(keys.length * 0.2);
-        for (let i = 0; i < toRemove; i++) {
-          localStorage.removeItem(keys[i]);
-        }
-      } catch {
-        console.warn('Failed to clear old data');
-      }
-    }
-
-    // ========== EVENT LISTENER CLEANUP ==========
-    function cleanupEventListeners() {
-      try {
-        AppState.eventListeners.forEach(({ el, event, handler, options }) => {
-          el.removeEventListener(event, handler, options);
-        });
-        AppState.eventListeners = [];
-      } catch {
-        console.warn('Event listener cleanup failed');
-      }
-    }
-
-    // ========== TRACKING ==========
-    function trackEvent(eventName, data = {}) {
-      try {
-        if (!AppState.userStats.events) AppState.userStats.events = [];
-        AppState.userStats.events.push({
-          event: eventName,
-          data,
-          timestamp: new Date().toISOString()
-        });
-        
-        if (AppState.userStats.events.length > 100) {
-          AppState.userStats.events = AppState.userStats.events.slice(-100);
-        }
-        
-      } catch {
-        console.warn('Event tracking failed');
-      }
-    }
-  </script>
+  }
+</script>
 </body>
 </html>
