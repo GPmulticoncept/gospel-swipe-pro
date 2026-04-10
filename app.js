@@ -287,6 +287,142 @@ function showScreen(screenId) {
   finally { setTimeout(() => { AppState.isProcessing = false; }, 120); }
 }
 
+// ========== Slide Translations ==========
+// Full verse + title translations for all 15 slides × 8 languages
+const SLIDE_TRANSLATIONS = {
+  fr: [
+    { title:"L'amour de Dieu",          verse:"Car Dieu a tant aimé le monde qu'il a donné son Fils unique, afin que quiconque croit en lui ne périsse point, mais qu'il ait la vie éternelle.",                                                         reference:"Jean 3:16" },
+    { title:"Le problème du péché",     verse:"Car tous ont péché et sont privés de la gloire de Dieu ; et ils sont gratuitement justifiés par sa grâce, par le moyen de la rédemption qui est en Jésus-Christ.",                                       reference:"Romains 3:23-24" },
+    { title:"Jésus, la solution",       verse:"Mais Dieu prouve son amour envers nous, en ce que, lorsque nous étions encore des pécheurs, Christ est mort pour nous.",                                                                                  reference:"Romains 5:8" },
+    { title:"La réponse de la foi",     verse:"Car c'est par la grâce que vous êtes sauvés, par le moyen de la foi. Et cela ne vient pas de vous, c'est le don de Dieu.",                                                                               reference:"Éphésiens 2:8" },
+    { title:"Nouvelle vie en Christ",   verse:"Si quelqu'un est en Christ, il est une nouvelle créature. Les choses anciennes sont passées ; voici, toutes choses sont devenues nouvelles.",                                                              reference:"2 Corinthiens 5:17" },
+    { title:"La Trinité",               verse:"Allez, faites de toutes les nations des disciples, les baptisant au nom du Père, du Fils et du Saint-Esprit.",                                                                                             reference:"Matthieu 28:19" },
+    { title:"La Parole de Dieu",        verse:"Toute Écriture est inspirée de Dieu, et utile pour enseigner, pour convaincre, pour corriger, pour instruire dans la justice.",                                                                           reference:"2 Timothée 3:16" },
+    { title:"La souffrance et l'espoir",verse:"Nous savons, du reste, que toutes choses concourent au bien de ceux qui aiment Dieu, de ceux qui sont appelés selon son dessein.",                                                                        reference:"Romains 8:28" },
+    { title:"Le seul chemin",           verse:"Jésus lui dit: Je suis le chemin, la vérité, et la vie. Nul ne vient au Père que par moi.",                                                                                                               reference:"Jean 14:6" },
+    { title:"La prière du salut",       verse:"Si tu confesses de ta bouche le Seigneur Jésus, et si tu crois dans ton cœur que Dieu l'a ressuscité des morts, tu seras sauvé.",                                                                        reference:"Romains 10:9" },
+    { title:"Le Saint-Esprit",          verse:"Mais vous recevrez une puissance, le Saint-Esprit survenant sur vous, et vous serez mes témoins à Jérusalem, dans toute la Judée, dans la Samarie, et jusqu'aux extrémités de la terre.",               reference:"Actes 1:8" },
+    { title:"La Grande Mission",        verse:"Allez, faites de toutes les nations des disciples, les baptisant au nom du Père, du Fils et du Saint-Esprit, et enseignez-leur à observer tout ce que je vous ai prescrit.",                              reference:"Matthieu 28:19-20" },
+    { title:"Aimer son prochain",       verse:"Tu aimeras le Seigneur, ton Dieu, de tout ton cœur... Tu aimeras ton prochain comme toi-même. De ces deux commandements dépendent toute la loi et les prophètes.",                                        reference:"Matthieu 22:37-40" },
+    { title:"Le pardon",                verse:"Soyez bons les uns envers les autres, compatissants, vous pardonnant réciproquement, comme Dieu vous a pardonné en Christ.",                                                                              reference:"Éphésiens 4:32" },
+    { title:"L'espérance éternelle",    verse:"Car j'ai la conviction que ni la mort ni la vie... ni aucune autre créature ne pourra nous séparer de l'amour de Dieu manifesté en Jésus-Christ notre Seigneur.",                                        reference:"Romains 8:38-39" }
+  ],
+  sw: [
+    { title:"Upendo wa Mungu",           verse:"Kwa maana Mungu aliupenda ulimwengu kiasi kwamba alimtoa Mwanawe wa pekee, ili kila amwaminiye asipotee, bali awe na uzima wa milele.",                                                                  reference:"Yohana 3:16" },
+    { title:"Tatizo la dhambi",          verse:"Kwa sababu wote wametenda dhambi, na kupungukiwa utukufu wa Mungu; na kuhesabiwa haki bure kwa neema yake, kwa njia ya ukombozi ulio katika Kristo Yesu.",                                              reference:"Warumi 3:23-24" },
+    { title:"Yesu, suluhisho",           verse:"Lakini Mungu aonyesha upendo wake kwetu, kwa kuwa Kristo alikufa kwa ajili yetu tulipokuwa bado wadhambi.",                                                                                              reference:"Warumi 5:8" },
+    { title:"Mwitikio wa imani",         verse:"Kwa maana mmeokolewa kwa neema, kwa njia ya imani; na hilo halikutoka kwenu, ni kipawa cha Mungu.",                                                                                                      reference:"Waefeso 2:8" },
+    { title:"Maisha mapya katika Kristo",verse:"Kwa hiyo, mtu akiwa ndani ya Kristo, amekuwa kiumbe kipya; ya kale yamepita, tazama, yamekuwa mapya.",                                                                                                   reference:"2 Wakorintho 5:17" },
+    { title:"Utatu Mtakatifu",           verse:"Nendeni basi mkawafanye mataifa yote kuwa wanafunzi, mkiwabatiza kwa jina la Baba na Mwana na Roho Mtakatifu.",                                                                                          reference:"Mathayo 28:19" },
+    { title:"Neno la Mungu",             verse:"Kila andiko lenye pumzi ya Mungu lina faida kwa mafundisho, na kwa kuwaonya watu makosa yao, na kwa kuwarekebisha, na kwa kuwaadibisha katika haki.",                                                    reference:"2 Timotheo 3:16" },
+    { title:"Mateso na tumaini",         verse:"Nasi tunajua ya kwamba mambo yote yanawafanyia wema wale wampendao Mungu, ndio wale walioitwa kwa kusudi lake.",                                                                                          reference:"Warumi 8:28" },
+    { title:"Njia pekee",                verse:"Yesu akamwambia, Mimi ndimi njia, na kweli, na uzima; mtu haji kwa Baba ila kwa njia yangu.",                                                                                                            reference:"Yohana 14:6" },
+    { title:"Sala ya wokovu",            verse:"Kwa sababu ukimkiri Yesu kwa kinywa chako kwamba yeye ni Bwana, na kuamini moyoni mwako kwamba Mungu alimfufua katika wafu, utaokoka.",                                                                  reference:"Warumi 10:9" },
+    { title:"Roho Mtakatifu",            verse:"Lakini mtapokea nguvu, akija juu yenu Roho Mtakatifu; nanyi mtakuwa mashahidi wangu Yerusalemu, na Uyahudi wote, na Samaria, na hata mwisho wa nchi.",                                                  reference:"Matendo 1:8" },
+    { title:"Agizo Kuu",                 verse:"Nendeni basi mkawafanye mataifa yote kuwa wanafunzi, mkiwabatiza na kuwafundisha kuyashika yote niliyowaamrisha.",                                                                                       reference:"Mathayo 28:19-20" },
+    { title:"Penda jirani yako",         verse:"Mpende Bwana Mungu wako kwa moyo wako wote... Mpende jirani yako kama nafsi yako. Amri hizi mbili ndiyo msingi wa torati yote na manabii.",                                                              reference:"Mathayo 22:37-40" },
+    { title:"Msamaha",                   verse:"Muwe wapole ninyi kwa ninyi, wenye huruma, mkisameheana, kama Mungu naye alivyowasamehe katika Kristo.",                                                                                                 reference:"Waefeso 4:32" },
+    { title:"Tumaini la milele",         verse:"Kwa maana nimekuwa na hakika kwamba wala mauti, wala uhai... wala kiumbe kingine chochote, havitaweza kututenga na upendo wa Mungu.",                                                                    reference:"Warumi 8:38-39" }
+  ],
+  ar: [
+    { title:"محبة الله",                 verse:"لأنه هكذا أحبَّ اللهُ العالمَ حتى بذل ابنه الوحيد، لكي لا يهلك كل من يؤمن به بل تكون له الحياة الأبدية.",                                                                                              reference:"يوحنا ٣:١٦" },
+    { title:"مشكلة الخطية",              verse:"إذ الجميع أخطأوا وأعوزهم مجد الله، متبررين مجاناً بنعمته بالفداء الذي بيسوع المسيح.",                                                                                                                  reference:"رومية ٣:٢٣-٢٤" },
+    { title:"يسوع الحل",                 verse:"لكن الله بيّن محبته لنا، لأنه ونحن بعد خطاة مات المسيح لأجلنا.",                                                                                                                                        reference:"رومية ٥:٨" },
+    { title:"استجابة الإيمان",           verse:"لأنكم بالنعمة مخلصون بالإيمان، وذلك ليس منكم. هو عطية الله.",                                                                                                                                            reference:"أفسس ٢:٨" },
+    { title:"حياة جديدة في المسيح",      verse:"إذاً إن كان أحد في المسيح فهو خليقة جديدة. الأشياء العتيقة قد مضت. ها قد صارت كل الأشياء جديدة.",                                                                                                     reference:"٢كورنثوس ٥:١٧" },
+    { title:"الثالوث",                   verse:"اذهبوا وتلمذوا جميع الأمم وعمدوهم باسم الآب والابن والروح القدس.",                                                                                                                                       reference:"متى ٢٨:١٩" },
+    { title:"كلمة الله",                 verse:"كل الكتاب هو موحى به من الله، ونافع للتعليم والتوبيخ والتقويم والتأديب الذي في البر.",                                                                                                                   reference:"٢تيموثاوس ٣:١٦" },
+    { title:"المعاناة والرجاء",          verse:"ونحن نعلم أن كل الأشياء تعمل معاً للخير للذين يحبون الله الذين هم مدعوون حسب قصده.",                                                                                                                    reference:"رومية ٨:٢٨" },
+    { title:"الطريق الوحيد",             verse:"قال له يسوع: أنا هو الطريق والحق والحياة. ليس أحد يأتي إلى الآب إلا بي.",                                                                                                                               reference:"يوحنا ١٤:٦" },
+    { title:"صلاة الخلاص",              verse:"لأنك إن اعترفت بفمك بالرب يسوع وآمنت بقلبك أن الله أقامه من الأموات خلصت.",                                                                                                                              reference:"رومية ١٠:٩" },
+    { title:"الروح القدس",               verse:"لكنكم ستنالون قوة متى حل الروح القدس عليكم وتكونون لي شهوداً في أورشليم وفي كل اليهودية والسامرة وإلى أقصى الأرض.",                                                                                   reference:"أعمال ١:٨" },
+    { title:"الوصية العظيمة",            verse:"اذهبوا وتلمذوا جميع الأمم وعمدوهم باسم الآب والابن والروح القدس وعلموهم أن يحفظوا جميع ما أوصيتكم به.",                                                                                               reference:"متى ٢٨:١٩-٢٠" },
+    { title:"أحبب قريبك",                verse:"تحب الرب إلهك من كل قلبك... تحب قريبك كنفسك. بهاتين الوصيتين يتعلق الناموس كله والأنبياء.",                                                                                                              reference:"متى ٢٢:٣٧-٤٠" },
+    { title:"المغفرة",                   verse:"كونوا لطفاء بعضكم نحو بعض رحماء متسامحين كما سامحكم الله أيضاً في المسيح.",                                                                                                                              reference:"أفسس ٤:٣٢" },
+    { title:"الرجاء الأبدي",             verse:"لأني مقتنع بأنه لا موت ولا حياة... ولا خليقة أخرى تقدر أن تفصلنا عن محبة الله التي في المسيح يسوع ربنا.",                                                                                              reference:"رومية ٨:٣٨-٣٩" }
+  ],
+  yo: [
+    { title:"Ife Ọlọrun",               verse:"Nitoripe Ọlọrun fẹran aye bayii, ti o fi Ọmọ rẹ kanṣoṣo fun, ki ẹnikẹni ti o ba gbagbọ ninu rẹ ki o má parun, bali ki o ni iye aiyérayé.",                                                               reference:"Johanu 3:16" },
+    { title:"Isoro Ẹṣẹ",               verse:"Nitoripe gbogbo eniyan ti ṣẹ, wọn si kọjá ogo Ọlọrun, ti a si da wọn lare lainidi nipasẹ ore-ọfẹ rẹ nipasẹ igbala ti o wà ninu Jesu Kristi.",                                                            reference:"Romani 3:23-24" },
+    { title:"Jesu, Ojutu naa",          verse:"Ṣugbọn Ọlọrun fi ife tirẹ hàn si wa, ni ọna pe, nigba ti a wà li awọn ẹlẹṣẹ sibẹ, Kristi kú fún wa.",                                                                                                   reference:"Romani 5:8" },
+    { title:"Esi Igbagbọ",             verse:"Nitoripe ẹ ti gba igbala nipasẹ ore-ọfẹ, nipasẹ igbagbọ; kii ṣe ti ẹ, ẹbun Ọlọrun ni.",                                                                                                                  reference:"Efesu 2:8" },
+    { title:"Iye Titun ninu Kristi",    verse:"Nitorina, bi ẹnikẹni bá wà ninu Kristi, ẹda titun ni; ohun atijọ ti kọja, kiyesi i, gbogbo nkan di titun.",                                                                                               reference:"2 Korinti 5:17" },
+    { title:"Mẹtalọkan",               verse:"Nitorina lọ, ẹ kọ gbogbo orílẹ-èdè ni ẹkọ, ti ẹ bá wọn ni baptisi ni orukọ Baba, ati Ọmọ, ati Ẹmí Mimọ.",                                                                                               reference:"Matteu 28:19" },
+    { title:"Ọrọ Ọlọrun",             verse:"Gbogbo iwe-mimọ ni ìmísí Ọlọrun ti fi ìmísí rẹ fun, o wulo si fun ẹkọ, fun atunse, fun atunse ihuwasi, fun ẹkọ ninu ododo.",                                                                               reference:"2 Timotiu 3:16" },
+    { title:"Ijiya ati Ireti",          verse:"A si mọ wipe gbogbo nkan n ṣiṣẹ papọ fun rere fun awọn ti o fẹ Ọlọrun, fun awọn ti a ti pe ni gẹgẹ bi ero rẹ.",                                                                                          reference:"Romani 8:28" },
+    { title:"Ọna Kanṣoṣo",            verse:"Jesu wi fún un pe, Emi ni ọna, ati otitọ, ati iye: ẹnikẹni kò tọ̀ Baba wá bikoṣe nipasẹ mi.",                                                                                                             reference:"Johanu 14:6" },
+    { title:"Adura Igbala",            verse:"Nitoripe bi o bá jẹwọ Jesu gẹgẹ bi Oluwa pẹlu ẹnu rẹ, ti o si gbagbọ ninu ọkàn rẹ pe Ọlọrun jí i dide lati ọdọ awọn okú, a ó gbà ọ.",                                                                   reference:"Romani 10:9" },
+    { title:"Ẹmí Mimọ",               verse:"Ṣugbọn ẹ ó gba agbara, nigbati Ẹmí Mimọ bá bọ sori yín; ẹ ó si jẹ ẹlẹri mi ni Jerusalemu ati ni gbogbo Judea ati Samaria, ati títí di ìpàrí ayé.",                                                       reference:"Iṣẹ Aposteli 1:8" },
+    { title:"Àṣẹ Nla",               verse:"Nitorina lọ, ẹ kọ gbogbo orílẹ-èdè ni ẹkọ, ti ẹ bá wọn ni baptisi ati kọ wọn lati gbọràn si ohun gbogbo ti mo pàṣẹ fún yín.",                                                                             reference:"Matteu 28:19-20" },
+    { title:"Fi Ẹlẹgbẹ Rẹ Lẹ",       verse:"Fẹ Oluwa Ọlọrun rẹ pẹlu gbogbo ọkàn rẹ... fẹ ẹlẹgbẹ rẹ bi ara rẹ. Lori àṣẹ méjì wọ̀nyí gbogbo ofin ati awọn woli gbé.",                                                                                reference:"Matteu 22:37-40" },
+    { title:"Idariji",                 verse:"Jẹ ki ẹ si dáa, ẹ si ní ìjẹ̀pọ, ẹ si dariji ara ẹni, gẹgẹ bi Ọlọrun ninu Kristi ti dariji yín.",                                                                                                         reference:"Efesu 4:32" },
+    { title:"Ireti Aiyérayé",          verse:"Nitori mo ti ni idaniloju pe bẹẹni ikú, bẹẹni ìye... bẹẹni ohun ìpilẹ̀ṣẹ̀ kankan kò le ya wa kuro lọwọ ife Ọlọrun.",                                                                                    reference:"Romani 8:38-39" }
+  ],
+  ig: [
+    { title:"Ịhụnanya Chineke",        verse:"N'ihi na Chineke hụrụ ụwa n'anya nke ukwuu, ọ nyere Ọkpara ya naanị, ka onye ọ bụla kwere ya ghara ike, kama nwee ndụ ebighi ebi.",                                                                       reference:"Jọn 3:16" },
+    { title:"Nsogbu Mmehie",           verse:"Ọ bụ n'ihi na onye niile mere mmehie, ha nweghịkwa otuto Chineke; ha nọ n'ezi n'ụzọ n'ùgwù ya, site n'ozigbo nzọpụta dị na Kraịst Jizọs.",                                                               reference:"Rom 3:23-24" },
+    { title:"Jizọs, Ihe Ọgwụ naa",    verse:"Ma Chineke gosipụtara ịhụnanya ya n'ụzọ a, na mgbe anyị ka bụ ndị mmehie, Kraịst nwụọ n'ihi anyị.",                                                                                                       reference:"Rom 5:8" },
+    { title:"Ọzaaza Okwukwe",          verse:"N'ihi na ọ bụ n'ùgwù ka e chekwara unu n'ụzọ okwukwe; nke ahụ abụghị ike nke unu, ọ bụ onyinye Chineke.",                                                                                                reference:"Efe 2:8" },
+    { title:"Ndụ Ọhụrụ na Kraịst",    verse:"Ya mere, onye ọ bụla dị na Kraịst bụ ọhụrụ. Ihe ochie agafeela, lee, ihe niile aghọọla ọhụrụ.",                                                                                                           reference:"2 Kọr 5:17" },
+    { title:"Ụlọ Atọ",                verse:"Nọọ, mụọ mba niile ụmụ akwụkwọ, na-abatịzi ha n'aha Nna na Ọkpara na Mmụọ Nsọ.",                                                                                                                          reference:"Mat 28:19" },
+    { title:"Okwu Chineke",            verse:"Akwụkwọ nsọ niile si n'iku ume Chineke pụta, na-aba uru maka nkuzi, maka ịkọ mmehie, maka nzụzụ n'ọtọ.",                                                                                                 reference:"2 Tim 3:16" },
+    { title:"Ịta Ahụ na Olileanya",    verse:"Anyị maara na ihe niile na-arụkọ ọrụ ọma nye ndị hụrụ Chineke n'anya, ndị a kpọọrọ n'ịrịba ama nke ya.",                                                                                                  reference:"Rom 8:28" },
+    { title:"Ụzọ Naanị",              verse:"Jizọs sịrị ya: Abụ m ụzọ na eziokwu na ndụ. Onye ọ bụla abịaghị n'ebe Nna, ma ọ bụ site n'ụzọ m.",                                                                                                       reference:"Jọn 14:6" },
+    { title:"Ekpere Nzọpụta",         verse:"N'ihi na ọ bụrụ na ị kwụpụta Jizọs na ọ bụ Onyenwe anyị n'ọnụ gị, wee kwere n'obi gị na Chineke biliwo ya n'ọnwụ, a ga-ezọpụta gị.",                                                                    reference:"Rom 10:9" },
+    { title:"Mmụọ Nsọ",               verse:"Ma unu ga-anata ike, Mmụọ Nsọ abịaruo unu; unu ga-abụ ndị ọ bụ m ama ha na Jerụsalem na Judia niile na Sameria na ọtụtụ ndị mmadụ nọ n'ókèala.",                                                          reference:"Eme 1:8" },
+    { title:"Àjà Maka Ụwa Niile",     verse:"Nọọ mụọ mba niile ụmụ akwụkwọ, na-abatịzi ha ma na-akụzi ha ịrụ ihe niile m nyere unu iwu.",                                                                                                              reference:"Mat 28:19-20" },
+    { title:"Hụ Agbataobi Gị N'anya", verse:"Hụ Onyenwe Chineke gị n'anya n'obi gị niile... Hụ agbataobi gị n'anya dị ka ị hụ onwe gị n'anya. Iwu abụọ ndị a bụ ntọala iwu niile na ndị amụma.",                                                      reference:"Mat 22:37-40" },
+    { title:"Ịgbaghara",              verse:"Bụrụ ezigbo na ụnụ na-asọmpi maka ibe ụnụ, na-agbaghara ibe ụnụ ihe ha rere ụnụ, dị ka Chineke si agbaghara ụnụ na Kraịst.",                                                                              reference:"Efe 4:32" },
+    { title:"Olileanya Ebighi Ebi",   verse:"N'ihi na achọtara m na ọnwụ, ma ndụ... ma ihe ọ bụla e kere eke enweghị ike ịkewapụ anyị n'ịhụnanya Chineke dị na Kraịst Jizọs Onyenwe anyị.",                                                             reference:"Rom 8:38-39" }
+  ],
+  ha: [
+    { title:"Ƙaunar Allah",            verse:"Don haka ne Allah ya ƙaunaci duniya, har ya ba da ɗansa kaɗai, domin duk wanda ya gaskata da shi kada ya halaka, sai dai ya sami rai na har abada.",                                                        reference:"Yahaya 3:16" },
+    { title:"Matsalar Zunubi",         verse:"Don duk sun yi zunubi, sun kuma ɓata ɗaukakar Allah; kuma ana tabbatar da su kyauta ta alherin sa, ta hanyar fansa da ke cikin Yesu Kiristi.",                                                              reference:"Romawa 3:23-24" },
+    { title:"Yesu, Mafita",            verse:"Sai dai Allah ya nuna ƙaunarsa a gare mu, da cewa, yayinda muna har yanzu masu zunubi, Kiristi ya mutu dominmu.",                                                                                            reference:"Romawa 5:8" },
+    { title:"Amsa na Bangaskiya",      verse:"Domin an cece ku ta alheri, ta wurin bangaskiya; kuma wannan ba daga gare ku ba ne, kyautar Allah ce.",                                                                                                      reference:"Afisawa 2:8" },
+    { title:"Sabuwar Rai a Kiristi",   verse:"Saboda haka, in akwai wani a cikin Kiristi, sabo ne a cikin halitta; abubuwa na dā sun wuce, duba, duk abubuwa sun zama saba.",                                                                             reference:"2 Korantiyawa 5:17" },
+    { title:"Triniti",                 verse:"Ku je ku mai da al'umma duka almajira, kuna yi musu baftisma da sunan Uba, da Ɗa, da Ruhu Mai Tsarki.",                                                                                                     reference:"Matiyu 28:19" },
+    { title:"Maganar Allah",           verse:"Dukan Littafi Mai Tsarki yana da numfashin Allah, kuma yana da amfani wajen koyarwa, da tuba, da gyarawa, da horo na adalci.",                                                                               reference:"2 Timotawus 3:16" },
+    { title:"Wahala da Bege",          verse:"Mun kuma san cewa duk abubuwa suna haɗin gwiwa domin alheri ga waɗanda suke ƙaunar Allah, ga waɗanda aka kira su bisa ga ƙudurinsa.",                                                                        reference:"Romawa 8:28" },
+    { title:"Hanya Ɗaya Kaɗai",       verse:"Yesu ya ce masa, Ni ne hanya, da gaskiya, da rai: ba wanda yake zuwa wurin Uba, sai ta wurina.",                                                                                                             reference:"Yahaya 14:6" },
+    { title:"Addu'ar Ceto",            verse:"Domin idan ka furta da baƙinka cewa Yesu Ubangiji ne, kuma ka gaskata a zuciyarka cewa Allah ya tāyar da shi daga matattu, za a cece ka.",                                                                   reference:"Romawa 10:9" },
+    { title:"Ruhu Mai Tsarki",         verse:"Amma za ku karɓi iko, bayan da Ruhu Mai Tsarki ya sauko muku; kuma za ku zama shaidu a gare ni a Urushalima, da dukan Yahudiya, da Samariya, da har iyakar ƙasa.",                                          reference:"Ayyukan Manzanni 1:8" },
+    { title:"Babbar Hukuma",           verse:"Ku je ku mai da al'umma duka almajira, kuna yi musu baftisma kuna kuma koyar da su su bi duk abin da na umarce ku.",                                                                                        reference:"Matiyu 28:19-20" },
+    { title:"Ka Ƙaunaci Maƙwabcinka", verse:"Za ka ƙaunaci Ubangiji Allahnka da dukan zuciyarka... Za ka ƙaunaci maƙwabcinka kamar kanka. Waɗannan umarnonin biyu sune ginshiƙin dukan Attaura da Annabawa.",                                             reference:"Matiyu 22:37-40" },
+    { title:"Gafara",                  verse:"Ku zama masu kirki gare juna, masu jinƙai, kuna gafarta juna, kamar yadda Allah ya gafarta muku a cikin Kiristi.",                                                                                           reference:"Afisawa 4:32" },
+    { title:"Begen Har Abada",         verse:"Domin na tabbata cewa ni mutuwa, ni rai... ba kuma wata halitta da za ta iya raba mu da ƙaunar Allah.",                                                                                                       reference:"Romawa 8:38-39" }
+  ],
+  pcm: [
+    { title:"God Im Love",             verse:"Becos God love dis world well-well, e give im only Son, so dat anybody wey believe am no go perish but go get everlasting life.",                                                                            reference:"John 3:16" },
+    { title:"Di Sin Problem",          verse:"Becos everybody don sin, dem no reach God im glory. But dem dey justified free-free by im grace through di redemption wey dey in Christ Jesus.",                                                             reference:"Romans 3:23-24" },
+    { title:"Jesus, Di Solution",      verse:"But God show im own love to us, say while we still dey sin, Christ die for us.",                                                                                                                             reference:"Romans 5:8" },
+    { title:"Faith Response",          verse:"Becos na by grace una don save, through faith. E no come from una — na God im gift.",                                                                                                                        reference:"Ephesians 2:8" },
+    { title:"New Life for Christ",     verse:"So if anybody dey inside Christ, na new creature e be. Di old things don pass. See, everything don become new.",                                                                                             reference:"2 Corinthians 5:17" },
+    { title:"Di Trinity",              verse:"Go make disciples of all nations, baptize dem for di name of di Father, di Son, and di Holy Spirit.",                                                                                                        reference:"Matthew 28:19" },
+    { title:"God Im Word",             verse:"All scripture wey God breathe out dey useful for teaching, for correction, for rebuke, for instruction in righteousness.",                                                                                   reference:"2 Timothy 3:16" },
+    { title:"Suffering and Hope",      verse:"We know say all things dey work together for good for dem wey love God, for dem wey e call according to im purpose.",                                                                                        reference:"Romans 8:28" },
+    { title:"Di Only Way",             verse:"Jesus tell am say, I be di way, di truth and di life. Nobody go come to di Father except through me.",                                                                                                       reference:"John 14:6" },
+    { title:"Prayer of Salvation",     verse:"Becos if you confess with your mouth say Jesus na Lord and you believe for your heart say God raise am from dead, you go save.",                                                                             reference:"Romans 10:9" },
+    { title:"Di Holy Spirit",          verse:"But you go receive power when di Holy Spirit come upon you. And you go be my witness for Jerusalem, all Judea, Samaria, and to di ends of di earth.",                                                        reference:"Acts 1:8" },
+    { title:"Great Commission",        verse:"Go make disciples of all nations, baptize dem and teach dem to obey everything I don command una.",                                                                                                           reference:"Matthew 28:19-20" },
+    { title:"Love Your Neighbour",     verse:"Love di Lord your God with all your heart... Love your neighbour like yourself. These two commandments na di foundation of all di law and prophets.",                                                        reference:"Matthew 22:37-40" },
+    { title:"Forgiveness",             verse:"Be kind to one another, tenderhearted, forgiving each other just like how God forgive una through Christ.",                                                                                                  reference:"Ephesians 4:32" },
+    { title:"Eternal Hope",            verse:"Becos I don sure say neither death nor life... nor any other creature go fit separate us from di love of God.",                                                                                              reference:"Romans 8:38-39" }
+  ]
+};
+
+// Helper: get translated slide title+verse for current language
+function getSlideInLanguage(slide) {
+  const lang = AppState.language;
+  if (lang === 'en') return { title: slide.title, verse: slide.verse, reference: slide.reference };
+  const trans = SLIDE_TRANSLATIONS[lang];
+  if (!trans) return { title: slide.title, verse: slide.verse, reference: slide.reference };
+  const match = trans[slide.id - 1];
+  return match
+    ? { title: match.title, verse: match.verse, reference: match.reference }
+    : { title: slide.title, verse: slide.verse, reference: slide.reference };
+}
+
 // ========== Slide System ==========
 function initializeSlides() {
   const container = document.getElementById('slidesContainer');
@@ -302,15 +438,16 @@ function initializeSlides() {
 
     const isFirst = index === 0;
     const isLast = index === slides.length - 1;
+    const loc = getSlideInLanguage(slide); // translated title, verse, reference
 
     el.innerHTML = `
       <div class="slide-content">
         <div class="slide-header">
           <div class="slide-number">${t('slide') || 'Slide'} ${slide.id}/${slides.length}</div>
-          <h2 class="slide-title">${escapeHtml(slide.title)}</h2>
+          <h2 class="slide-title">${escapeHtml(loc.title)}</h2>
         </div>
-        <div class="slide-verse">${escapeHtml(slide.verse)}</div>
-        <div class="slide-reference">${escapeHtml(slide.reference)}</div>
+        <div class="slide-verse">${escapeHtml(loc.verse)}</div>
+        <div class="slide-reference">${escapeHtml(loc.reference)}</div>
         <div class="slide-actions">
           <button class="slide-btn" onclick="speakSlide(${slide.id})" aria-label="Listen">
             <i class="fas fa-volume-up"></i> ${t('listen') || 'Listen'}
@@ -318,10 +455,10 @@ function initializeSlides() {
           <button class="slide-btn" onclick="askAI('${escapeAttr(slide.topic)}')" aria-label="Explain">
             <i class="fas fa-robot"></i> ${t('aiExplain') || 'Explain'}
           </button>
-          <button class="slide-btn" onclick="shareVerse('${escapeAttr(slide.verse)}','${escapeAttr(slide.reference)}')" aria-label="Share">
+          <button class="slide-btn" onclick="shareVerse('${escapeAttr(loc.verse)}','${escapeAttr(loc.reference)}')" aria-label="Share">
             <i class="fas fa-share"></i> ${t('share') || 'Share'}
           </button>
-          <button class="slide-btn primary" onclick="shareVersePicture('${escapeAttr(slide.verse)}','${escapeAttr(slide.reference)}','${escapeAttr(slide.title)}')" aria-label="Image">
+          <button class="slide-btn primary" onclick="shareVersePicture('${escapeAttr(loc.verse)}','${escapeAttr(loc.reference)}','${escapeAttr(loc.title)}')" aria-label="Image">
             <i class="fas fa-image"></i> ${t('image') || 'Image'}
           </button>
         </div>
@@ -597,14 +734,39 @@ function showEvangelismJournal() {
 
     <!-- History -->
     <div style="font-size:0.8rem;font-weight:700;opacity:0.6;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Recent Encounters</div>
-    <div id="evangelismHistory" style="max-height:240px;overflow-y:auto;">${historyHTML}</div>
+    <div id="evangelismHistory" style="max-height:200px;overflow-y:auto;">${historyHTML}</div>
+    ${totalReached > 0 ? `
+    <button id="shareJournalBtn" class="action-btn" style="width:100%;margin-top:14px;background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.4);color:#25d366;">
+      <i class="fab fa-whatsapp"></i> Share My Impact Report
+    </button>` : ''}
   `);
 
   // Wire up the log button via event delegation
   requestAnimationFrame(() => {
     const btn = document.getElementById('logEvangelismBtn');
     if (btn) btn.addEventListener('click', logEvangelism);
+    const shareBtn = document.getElementById('shareJournalBtn');
+    if (shareBtn) shareBtn.addEventListener('click', shareJournalReport);
   });
+}
+
+function shareJournalReport() {
+  const records = safeParse(localStorage.getItem('evangelismRecords'), []);
+  if (!records.length) return;
+  const decisions = records.filter(r => r.response === 'prayed').length;
+  const interested = records.filter(r => r.response === 'interested').length;
+  const heard = records.filter(r => r.response === 'listened').length;
+  const month = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  const msg = `📖 *My GospelSwipe Soul Journal — ${month}*\n\n` +
+    `🌍 People I reached with the gospel: *${records.length}*\n` +
+    `🙏 Prayed to receive Christ: *${decisions}*\n` +
+    `💬 Open & interested: *${interested}*\n` +
+    `👂 Heard the Word: *${heard}*\n\n` +
+    `Every seed matters. To God be the glory! 🔥\n\n` +
+    `📱 Download GospelSwipe Pro (free & offline):\n` +
+    `https://gpmulticoncept.github.io`;
+  const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
 }
 
 function logEvangelism() {
@@ -1511,7 +1673,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ========== Expose Globals ==========
-window.showEvangelismJournal = showEvangelismJournal;
+// ========== WhatsApp Gospel Invite ==========
+function shareGospelWhatsApp() {
+  vibrate(30);
+  const msg =
+    `✝️ *GospelSwipe Pro — Free Gospel App*\n\n` +
+    `Hey! I'm using this free app to share the gospel. It has 15 gospel presentations, 200 prayers, works completely *offline*, and supports *8 languages* including Yoruba, Hausa, Igbo and Pidgin.\n\n` +
+    `Perfect for personal evangelism, house fellowships, and crusade follow-up.\n\n` +
+    `📱 Download free (no app store needed):\n` +
+    `👉 https://gpmulticoncept.github.io\n\n` +
+    `Made in Nigeria 🇳🇬 • Zero ads • Zero tracking`;
+  const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+  AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
+  refreshStats();
+}
+
+window.shareGospelWhatsApp = shareGospelWhatsApp;
+window.shareJournalReport = shareJournalReport;
 window.logEvangelism = logEvangelism;
 window.showScreen = showScreen;
 window.startPresentation = startPresentation;
