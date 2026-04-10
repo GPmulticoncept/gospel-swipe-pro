@@ -764,7 +764,7 @@ function shareJournalReport() {
     `👂 Heard the Word: *${heard}*\n\n` +
     `Every seed matters. To God be the glory! 🔥\n\n` +
     `📱 Download GospelSwipe Pro (free & offline):\n` +
-    `https://gpmulticoncept.github.io`;
+    `https://gpmulticoncept.github.io/gospel-swipe-pro/`;
   const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
   window.open(url, '_blank');
 }
@@ -999,26 +999,27 @@ function showLanguageSettings() {
 }
 
 // ========== Sharing ==========
+const APP_URL = 'https://gpmulticoncept.github.io/gospel-swipe-pro/';
+
 async function shareApp() {
   vibrate(30);
-  const metrics = AppState.contentData?.metrics || FALLBACK_CONTENT.metrics;
   const data = {
     title: 'GospelSwipe Pro',
-    text: `Check out GospelSwipe Pro! ${metrics.betaUsers}+ believers sharing the gospel. Made in Nigeria 🇳🇬`,
-    url: location.href
+    text: `Check out GospelSwipe Pro — free offline gospel app! 15 gospel slides, 200 prayers, 8 languages. Made in Nigeria 🇳🇬`,
+    url: APP_URL
   };
   try {
     if (navigator.share && AppState.isOnline) {
       await navigator.share(data);
       AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
-      updateUserStats();
+      refreshStats();
     } else throw new Error('No native share');
-  } catch { copyToClipboard(data.text + '\n\n' + data.url); showToast('Link copied!', 'success'); }
+  } catch { copyToClipboard(data.text + '\n\n' + APP_URL); showToast('Link copied!', 'success'); }
 }
 
 async function shareVerse(verse, ref) {
   vibrate(30);
-  const data = { title: 'Bible Verse', text: `"${verse}" — ${ref}\n\nvia GospelSwipe Pro`, url: location.href };
+  const data = { title: 'Bible Verse', text: `"${verse}" — ${ref}\n\nvia GospelSwipe Pro`, url: APP_URL };
   try {
     if (navigator.share && AppState.isOnline) { await navigator.share(data); showToast('Verse shared!', 'success'); }
     else throw new Error();
@@ -1051,7 +1052,7 @@ function shareVersePicture(verse, ref, title) {
   ctx.fillText(ref, 540, 300 + lines.length * 80 + 60);
 
   ctx.fillStyle = '#3498db'; ctx.font = 'bold 30px sans-serif';
-  ctx.fillText('GospelSwipe Pro • gospelswipe.app', 540, 980);
+  ctx.fillText('GospelSwipe Pro • gpmulticoncept.github.io/gospel-swipe-pro', 540, 980);
 
   canvas.toBlob(blob => {
     if (!blob) return;
@@ -1176,22 +1177,48 @@ function showWallet() {
 
 function showImpact() { showScreen('impact-screen'); }
 
+// ========== Icon Constants ==========
+const NORMAL_ICON = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMmMzZTUwIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzFhMjYzNCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iY3Jvc3MiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMzQ5OGRiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzJlY2M3MSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9InVybCgjYmcpIi8+CiAgPHJlY3QgeD0iMjIwIiB5PSI4MCIgd2lkdGg9IjcyIiBoZWlnaHQ9IjM1MiIgcng9IjIwIiBmaWxsPSJ1cmwoI2Nyb3NzKSIvPgogIDxyZWN0IHg9IjEwMCIgeT0iMTcwIiB3aWR0aD0iMzEyIiBoZWlnaHQ9IjcyIiByeD0iMjAiIGZpbGw9InVybCgjY3Jvc3MpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPg==';
+
+const VOM_ICON = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjgwIiBmaWxsPSIjMmQyZDJkIi8+CiAgPHJlY3QgeD0iNjAiIHk9IjYwIiB3aWR0aD0iMzkyIiBoZWlnaHQ9IjM5MiIgcng9IjQwIiBmaWxsPSIjM2EzYTNhIi8+CiAgPHJlY3QgeD0iODAiIHk9IjgwIiB3aWR0aD0iMzUyIiBoZWlnaHQ9IjEyMCIgcng9IjIwIiBmaWxsPSIjNTU1Ii8+CiAgPHRleHQgeD0iMzkwIiB5PSIxNzgiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iODAiIGZpbGw9IiMyZWNjNzEiIHRleHQtYW5jaG9yPSJlbmQiPjA8L3RleHQ+CiAgPHJlY3QgeD0iOTAiIHk9IjIzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiM2NjYiLz4KICA8cmVjdCB4PSIxNzUiIHk9IjIzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiM2NjYiLz4KICA8cmVjdCB4PSIyNjAiIHk9IjIzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiNlNzRjM2MiLz4KICA8cmVjdCB4PSIzNDUiIHk9IjIzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiNmMzljMTIiLz4KICA8cmVjdCB4PSI5MCIgeT0iMjk1IiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzY2NiIvPgogIDxyZWN0IHg9IjE3NSIgeT0iMjk1IiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzY2NiIvPgogIDxyZWN0IHg9IjI2MCIgeT0iMjk1IiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzY2NiIvPgogIDxyZWN0IHg9IjM0NSIgeT0iMjk1IiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iI2YzOWMxMiIvPgogIDxyZWN0IHg9IjkwIiB5PSIzNjAiIHdpZHRoPSIxNTUiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzY2NiIvPgogIDxyZWN0IHg9IjI2MCIgeT0iMzYwIiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzY2NiIvPgogIDxyZWN0IHg9IjM0NSIgeT0iMzYwIiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzM0OThkYiIvPgo8L3N2Zz4=';
+
+function setAppIcon(iconSrc, title) {
+  // Update favicon
+  const el = document.getElementById('appFavicon') || document.querySelector('link[rel="icon"]');
+  if (el) el.href = iconSrc;
+  // Update title
+  const titleEl = document.querySelector('title');
+  if (titleEl) titleEl.textContent = title;
+  // Update apple touch icon if present
+  const appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+  if (appleIcon) appleIcon.href = iconSrc;
+}
+
 function activateVOMMode() {
   AppState.vomMode = !AppState.vomMode;
-  const titleEl = document.querySelector('title');
-  const iconEl = document.querySelector('link[rel="icon"]');
+
   if (AppState.vomMode) {
-    if (titleEl) titleEl.textContent = 'Calculator';
-    if (iconEl) iconEl.href = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🧮</text></svg>';
-    AppState.prayers = AppState.prayers.map(p => ({ ...p, text: btoa(unescape(encodeURIComponent(p.text))) }));
+    setAppIcon(VOM_ICON, 'Calculator');
+    // Encrypt prayers
+    try {
+      AppState.prayers = AppState.prayers.map(p => ({
+        ...p,
+        text: btoa(unescape(encodeURIComponent(p.text)))
+      }));
+    } catch (e) { /* already encoded */ }
     saveAllData();
-    showToast('VOM Mode activated. App disguised.', 'success');
+    showToast('🔒 VOM Mode on. App disguised as Calculator.', 'success');
   } else {
-    if (titleEl) titleEl.textContent = 'GospelSwipe Pro';
-    if (iconEl) iconEl.href = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB5PSIuOWVtIiBmb250LXNpemU9IjkwIj7wn5udeTwvdGV4dD48L3N2Zz4=';
-    try { AppState.prayers = AppState.prayers.map(p => ({ ...p, text: decodeURIComponent(escape(atob(p.text))) })); } catch { /* already decoded */ }
+    setAppIcon(NORMAL_ICON, 'GospelSwipe Pro');
+    // Decrypt prayers
+    try {
+      AppState.prayers = AppState.prayers.map(p => ({
+        ...p,
+        text: decodeURIComponent(escape(atob(p.text)))
+      }));
+    } catch (e) { /* already decoded */ }
     saveAllData();
-    showToast('VOM Mode deactivated.', 'info');
+    showToast('🔓 VOM Mode off. App restored.', 'info');
   }
   loadPrayers();
 }
@@ -1642,10 +1669,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const langSelect = document.getElementById('languageSelect');
   if (langSelect) langSelect.value = AppState.language;
 
-  // VOM disguise
+  // VOM disguise — restore state from last session
   if (AppState.vomMode) {
-    const titleEl = document.querySelector('title');
-    if (titleEl) titleEl.textContent = 'Calculator';
+    setAppIcon(VOM_ICON, 'Calculator');
   }
 
   // Load data
@@ -1668,6 +1694,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       checkStreak();
       updateStatsDisplay();
       showToast(t('welcomeMessage') || 'Welcome to GospelSwipe Pro!', 'success');
+      // Handle manifest shortcut actions
+      const params = new URLSearchParams(location.search);
+      const action = params.get('action');
+      if (action === 'present') setTimeout(() => startPresentation(), 600);
+      else if (action === 'prayer') setTimeout(() => showScreen('prayer-screen'), 600);
+      else if (action === 'journal') setTimeout(() => showEvangelismJournal(), 600);
     }, 450);
   }, 1200);
 });
@@ -1681,7 +1713,7 @@ function shareGospelWhatsApp() {
     `Hey! I'm using this free app to share the gospel. It has 15 gospel presentations, 200 prayers, works completely *offline*, and supports *8 languages* including Yoruba, Hausa, Igbo and Pidgin.\n\n` +
     `Perfect for personal evangelism, house fellowships, and crusade follow-up.\n\n` +
     `📱 Download free (no app store needed):\n` +
-    `👉 https://gpmulticoncept.github.io\n\n` +
+    `👉 https://gpmulticoncept.github.io/gospel-swipe-pro/\n\n` +
     `Made in Nigeria 🇳🇬 • Zero ads • Zero tracking`;
   const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
   window.open(url, '_blank');
@@ -1689,6 +1721,7 @@ function shareGospelWhatsApp() {
   refreshStats();
 }
 
+window.showEvangelismJournal = showEvangelismJournal;
 window.shareGospelWhatsApp = shareGospelWhatsApp;
 window.shareJournalReport = shareJournalReport;
 window.logEvangelism = logEvangelism;
