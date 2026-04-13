@@ -1155,22 +1155,31 @@ function showPremiumDetails() {
 function showWallet() {
   showModal(`
     <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
-    <h3 style="margin-bottom:6px;"><i class="fas fa-heart" style="color:#e74c3c;"></i> Support This Ministry</h3>
-    <p style="font-size:0.9rem;opacity:0.8;margin-bottom:20px;line-height:1.6;">
-      GospelSwipe Pro is 100% free. If this app has blessed you or helped you share the gospel,
-      consider supporting the work so we can keep building and reach more souls.
-    </p>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <button class="action-btn primary" onclick="window.open('https://ko-fi.com/gospelswipe','_blank');closeModal();"
-        style="background:linear-gradient(135deg,#FF5E5B,#e74c3c);border-color:transparent;">
-        <i class="fas fa-coffee"></i> Support on Ko-fi
-      </button>
-      <button class="action-btn" onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=GospelSwipe Support','_blank');closeModal();">
-        <i class="fas fa-envelope"></i> Partner with Us
-      </button>
+    <div style="text-align:center;margin-bottom:16px;">
+      <i class="fas fa-heart" style="color:#e74c3c;font-size:2rem;"></i>
+      <h3 style="margin:8px 0 4px;">Support This Ministry</h3>
+      <p style="font-size:0.85rem;opacity:0.7;">GospelSwipe Pro is 100% free — always will be.<br>Your support keeps it alive and growing.</p>
     </div>
-    <p style="font-size:0.75rem;opacity:0.45;text-align:center;margin-top:16px;">
-      Every contribution funds development, hosting, and outreach in Nigeria 🇳🇬
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button class="action-btn primary"
+        onclick="window.open('https://selar.com/showlove/gospelswipe','_blank');closeModal();"
+        style="background:linear-gradient(135deg,#3498db,#2ecc71);border-color:transparent;font-size:1rem;padding:16px;">
+        <i class="fas fa-heart"></i> &nbsp;Support on Selar
+      </button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button class="action-btn"
+          onclick="window.open('https://wa.me/2347034542773?text=Hi%20Haggai%2C%20I%20want%20to%20support%20GospelSwipe%20Pro','_blank');closeModal();"
+          style="background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.4);color:#25d366;">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </button>
+        <button class="action-btn"
+          onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=GospelSwipe%20Partnership','_blank');closeModal();">
+          <i class="fas fa-envelope"></i> Email Us
+        </button>
+      </div>
+    </div>
+    <p style="font-size:0.72rem;opacity:0.4;text-align:center;margin-top:14px;line-height:1.5;">
+      Accepts cards from anywhere in the world.<br>Funds go directly to development &amp; outreach in Nigeria 🇳🇬
     </p>
   `);
 }
