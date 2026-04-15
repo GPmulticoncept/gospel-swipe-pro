@@ -1155,31 +1155,69 @@ function showPremiumDetails() {
 function showWallet() {
   showModal(`
     <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
-    <div style="text-align:center;margin-bottom:16px;">
-      <i class="fas fa-heart" style="color:#e74c3c;font-size:2rem;"></i>
-      <h3 style="margin:8px 0 4px;">Support This Ministry</h3>
-      <p style="font-size:0.85rem;opacity:0.7;">GospelSwipe Pro is 100% free — always will be.<br>Your support keeps it alive and growing.</p>
+
+    <!-- Header -->
+    <div style="text-align:center;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:18px;">
+      <div style="font-size:2rem;margin-bottom:6px;">✝️</div>
+      <h3 style="font-size:1.15rem;margin-bottom:5px;">Support This Ministry</h3>
+      <p style="font-size:0.82rem;opacity:0.6;line-height:1.55;">
+        GospelSwipe Pro is 100% free — always will be.<br>
+        Every contribution funds development and outreach in Nigeria.
+      </p>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <button class="action-btn primary"
-        onclick="window.open('https://selar.com/showlove/gospelswipe','_blank');closeModal();"
-        style="background:linear-gradient(135deg,#3498db,#2ecc71);border-color:transparent;font-size:1rem;padding:16px;">
-        <i class="fas fa-heart"></i> &nbsp;Support on Selar
-      </button>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <button class="action-btn"
-          onclick="window.open('https://wa.me/2347034542773?text=Hi%20Haggai%2C%20I%20want%20to%20support%20GospelSwipe%20Pro','_blank');closeModal();"
-          style="background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.4);color:#25d366;">
-          <i class="fab fa-whatsapp"></i> WhatsApp
-        </button>
-        <button class="action-btn"
-          onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=GospelSwipe%20Partnership','_blank');closeModal();">
-          <i class="fas fa-envelope"></i> Email Us
-        </button>
+
+    <!-- Option 1: Show Love (any amount) -->
+    <div style="background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.25);border-radius:18px;padding:16px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="background:rgba(52,152,219,0.2);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="fas fa-heart" style="color:#3498db;font-size:1rem;"></i>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:0.95rem;">Show Love — Any Amount</div>
+          <div style="font-size:0.76rem;opacity:0.55;">Give ₦500, ₦2,000, anything you feel led to</div>
+        </div>
       </div>
+      <button class="action-btn"
+        onclick="window.open('https://selar.com/showlove/gospelswipe','_blank');closeModal();"
+        style="width:100%;background:linear-gradient(135deg,#3498db,#2980b9);border-color:transparent;color:#fff;font-weight:700;padding:13px;justify-content:center;">
+        <i class="fas fa-hand-holding-heart"></i> &nbsp;Give Any Amount
+      </button>
     </div>
-    <p style="font-size:0.72rem;opacity:0.4;text-align:center;margin-top:14px;line-height:1.5;">
-      Accepts cards from anywhere in the world.<br>Funds go directly to development &amp; outreach in Nigeria 🇳🇬
+
+    <!-- Option 2: Partnership Certificate -->
+    <div style="background:rgba(243,156,18,0.08);border:1px solid rgba(243,156,18,0.25);border-radius:18px;padding:16px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="background:rgba(243,156,18,0.18);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="fas fa-certificate" style="color:#f39c12;font-size:1rem;"></i>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:0.95rem;">Gospel Partnership — ₦5,000</div>
+          <div style="font-size:0.76rem;opacity:0.55;">Get a personalised Partnership Certificate</div>
+        </div>
+      </div>
+      <button class="action-btn"
+        onclick="window.open('https://selar.com/0306077o80','_blank');closeModal();"
+        style="width:100%;background:linear-gradient(135deg,#f39c12,#d68910);border-color:transparent;color:#fff;font-weight:700;padding:13px;justify-content:center;">
+        <i class="fas fa-award"></i> &nbsp;Become a Partner — ₦5,000
+      </button>
+    </div>
+
+    <!-- Secondary options -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="action-btn"
+        onclick="window.open('https://wa.me/2347034542773?text=Hi%20Haggai%2C%20I%20want%20to%20support%20GospelSwipe%20Pro','_blank');closeModal();"
+        style="background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.3);color:#25d366;justify-content:center;padding:11px;">
+        <i class="fab fa-whatsapp"></i> &nbsp;WhatsApp
+      </button>
+      <button class="action-btn"
+        onclick="window.open('mailto:haggai.enitan.dev@gmail.com?subject=GospelSwipe%20Partnership','_blank');closeModal();"
+        style="justify-content:center;padding:11px;">
+        <i class="fas fa-envelope"></i> &nbsp;Email Us
+      </button>
+    </div>
+
+    <p style="font-size:0.7rem;opacity:0.35;text-align:center;margin-top:14px;">
+      Accepts cards worldwide · Secure payments via Selar.co 🇳🇬
     </p>
   `);
 }
