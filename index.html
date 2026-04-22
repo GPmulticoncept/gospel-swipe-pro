@@ -178,9 +178,76 @@
     <!-- Bottom Buttons -->
     <div class="home-bottom-buttons">
       <div class="install-info" data-i18n="installInfo">🔒 Offline First • ⚡ Instant Load • 📱 PWA • Zero Tracking</div>
-      <button onclick="installApp()" id="installBtn" class="install-btn hidden" aria-label="Install app">
+      <button onclick="showInstallPopup()" id="installBtn" class="install-btn" aria-label="Install app">
         <i class="fas fa-download" aria-hidden="true"></i>
-        <span data-i18n="installApp">Install App</span>
+        <span data-i18n="installApp">Add to Home Screen</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== INSTALL POPUP OVERLAY ===== -->
+  <div id="installPopupOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:flex-end;justify-content:center;padding:0;" onclick="if(event.target===this)closeInstallPopup()">
+    <div id="installPopupCard" style="background:#1a2c3d;border-radius:28px 28px 0 0;padding:28px 24px 40px;width:100%;max-width:480px;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);">
+
+      <!-- Handle bar -->
+      <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:4px;margin:0 auto 22px;"></div>
+
+      <!-- Icon + Title -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMmMzZTUwIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMWEyNjM0Ii8+PC9saW5lYXJHcmFkaWVudD48bGluZWFyR3JhZGllbnQgaWQ9ImNyb3NzIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMzQ5OGRiIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMmVjYzcxIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9InVybCgjYmcpIi8+PHJlY3QgeD0iMjIwIiB5PSI4MCIgd2lkdGg9IjcyIiBoZWlnaHQ9IjM1MiIgcng9IjIwIiBmaWxsPSJ1cmwoI2Nyb3NzKSIvPjxyZWN0IHg9IjEwMCIgeT0iMTcwIiB3aWR0aD0iMzEyIiBoZWlnaHQ9IjcyIiByeD0iMjAiIGZpbGw9InVybCgjY3Jvc3MpIi8+PC9zdmc+"
+          style="width:56px;height:56px;border-radius:14px;" alt="GospelSwipe Pro">
+        <div>
+          <div style="font-weight:800;font-size:1.15rem;color:#fff;">GospelSwipe Pro</div>
+          <div style="font-size:0.8rem;opacity:0.5;margin-top:2px;">Free • Offline • No Ads</div>
+        </div>
+      </div>
+
+      <!-- Android / Desktop section -->
+      <div id="installAndroid">
+        <div style="background:rgba(52,152,219,0.1);border:1px solid rgba(52,152,219,0.25);border-radius:18px;padding:16px;margin-bottom:12px;">
+          <div style="font-size:0.82rem;opacity:0.65;margin-bottom:12px;">Tap the button below to install directly on your device:</div>
+          <button id="installNativeBtn" onclick="doNativeInstall()"
+            style="width:100%;background:linear-gradient(135deg,#3498db,#2ecc71);border:none;border-radius:14px;padding:15px;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;">
+            <i class="fas fa-download"></i> Install GospelSwipe Pro
+          </button>
+        </div>
+      </div>
+
+      <!-- iPhone / iOS section -->
+      <div id="installIOS" style="display:none;">
+        <div style="background:rgba(52,152,219,0.1);border:1px solid rgba(52,152,219,0.25);border-radius:18px;padding:18px;margin-bottom:12px;">
+          <div style="font-weight:700;font-size:0.92rem;margin-bottom:14px;color:#3498db;">📱 Install on iPhone / iPad</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="background:rgba(52,152,219,0.2);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;color:#3498db;">1</div>
+              <div style="font-size:0.88rem;opacity:0.85;line-height:1.5;">Tap the <strong style="color:#3498db;">Share</strong> button at the bottom of your browser
+                <div style="font-size:1.4rem;margin-top:4px;">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="background:rgba(52,152,219,0.2);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;color:#3498db;">2</div>
+              <div style="font-size:0.88rem;opacity:0.85;line-height:1.5;">Scroll down and tap <strong style="color:#3498db;">"Add to Home Screen"</strong></div>
+            </div>
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="background:rgba(46,204,113,0.2);border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;color:#2ecc71;">3</div>
+              <div style="font-size:0.88rem;opacity:0.85;line-height:1.5;">Tap <strong style="color:#2ecc71;">"Add"</strong> — done! 🎉</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Benefits -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:10px;text-align:center;font-size:0.78rem;opacity:0.7;">⚡ Instant access</div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:10px;text-align:center;font-size:0.78rem;opacity:0.7;">📶 Works offline</div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:10px;text-align:center;font-size:0.78rem;opacity:0.7;">🔒 Zero tracking</div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:10px;text-align:center;font-size:0.78rem;opacity:0.7;">🆓 Free forever</div>
+      </div>
+
+      <button onclick="closeInstallPopup()" style="width:100%;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:13px;color:rgba(255,255,255,0.5);font-size:0.9rem;cursor:pointer;font-family:inherit;">
+        Maybe Later
       </button>
     </div>
   </div>
@@ -464,6 +531,35 @@
         <div class="impact-card-value">50K</div>
         <div class="impact-card-label" data-i18n="targetConversions">Target Converts</div>
       </div>
+    </div>
+
+    <!-- Testimonials -->
+    <div style="margin-bottom:18px;">
+      <h3 style="font-size:1rem;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">
+        <i class="fas fa-quote-left" style="color:#f39c12;margin-right:6px;"></i> What Users Are Saying
+      </h3>
+
+      <!-- Bro Lucky -->
+      <div style="background:var(--glass);border:1px solid rgba(243,156,18,0.3);border-radius:22px;padding:18px;margin-bottom:12px;position:relative;">
+        <div style="font-size:2rem;color:rgba(243,156,18,0.25);position:absolute;top:12px;right:16px;line-height:1;">"</div>
+        <p style="font-size:0.92rem;line-height:1.65;font-style:italic;margin-bottom:14px;opacity:0.9;">
+          "It has impressive features, particularly its multilingual capabilities, tool for evangelism, and its effectiveness as a tool for church growth. Also, it is unique in highlighting often overlooked aspects of gospel apps, such as the persecution of Christians."
+        </p>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#f39c12,#e67e22);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;font-size:1rem;">L</div>
+          <div>
+            <div style="font-weight:700;font-size:0.88rem;">Lucky Ossai</div>
+            <div style="font-size:0.75rem;opacity:0.55;">🇳🇱 Nigerian Believer, Netherlands</div>
+          </div>
+          <div style="margin-left:auto;background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);border-radius:10px;padding:4px 10px;font-size:0.7rem;color:#2ecc71;font-weight:700;">VERIFIED USER</div>
+        </div>
+      </div>
+
+      <!-- Add your testimony CTA -->
+      <button onclick="shareGospelWhatsApp()"
+        style="width:100%;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.18);border-radius:18px;padding:14px;color:rgba(255,255,255,0.5);font-size:0.82rem;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <i class="fas fa-plus-circle"></i> Used this app? Share your testimony
+      </button>
     </div>
 
     <!-- Grant Budget -->

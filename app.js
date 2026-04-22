@@ -1280,19 +1280,81 @@ function showPremiumDetails_church() {
 }
 
 // ========== PWA Install ==========
-function installApp() {
-  if (!AppState.deferredPrompt) { showToast(t('installPrompt') || 'Use browser menu to install', 'info'); return; }
-  AppState.deferredPrompt.prompt();
-  AppState.deferredPrompt.userChoice.then(() => {
-    AppState.deferredPrompt = null;
-    document.getElementById('installBtn')?.classList.add('hidden');
+// ========== Smart Install System (Android + iPhone + iPad) ==========
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+function isInStandaloneMode() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+}
+
+function showInstallPopup() {
+  if (isInStandaloneMode()) {
+    showToast('✅ App is already installed!', 'success');
+    return;
+  }
+  const overlay = document.getElementById('installPopupOverlay');
+  const card    = document.getElementById('installPopupCard');
+  const android = document.getElementById('installAndroid');
+  const ios     = document.getElementById('installIOS');
+  if (!overlay) return;
+
+  // Show correct section
+  if (isIOS()) {
+    if (android) android.style.display = 'none';
+    if (ios)     ios.style.display = 'block';
+  } else {
+    // Android/Desktop — show native button or fallback
+    const nativeBtn = document.getElementById('installNativeBtn');
+    if (!AppState.deferredPrompt && nativeBtn) {
+      nativeBtn.innerHTML = '<i class="fas fa-info-circle"></i> Use browser menu → "Add to Home Screen"';
+      nativeBtn.style.background = 'rgba(52,152,219,0.2)';
+    }
+    if (android) android.style.display = 'block';
+    if (ios)     ios.style.display = 'none';
+  }
+
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (card) card.style.transform = 'translateY(0)';
+    });
   });
 }
+
+function closeInstallPopup() {
+  const overlay = document.getElementById('installPopupOverlay');
+  const card    = document.getElementById('installPopupCard');
+  if (card) card.style.transform = 'translateY(100%)';
+  setTimeout(() => { if (overlay) overlay.style.display = 'none'; }, 350);
+}
+
+function doNativeInstall() {
+  if (AppState.deferredPrompt) {
+    AppState.deferredPrompt.prompt();
+    AppState.deferredPrompt.userChoice.then(result => {
+      if (result.outcome === 'accepted') {
+        showToast('🎉 GospelSwipe Pro installed!', 'success');
+        closeInstallPopup();
+        const btn = document.getElementById('installBtn');
+        if (btn) btn.style.display = 'none';
+      }
+      AppState.deferredPrompt = null;
+    });
+  } else {
+    closeInstallPopup();
+    showToast('Use your browser menu → "Add to Home Screen"', 'info');
+  }
+}
+
+// Legacy: keep installApp pointing to popup
+function installApp() { showInstallPopup(); }
+
 function checkInstallPrompt() {
   const btn = document.getElementById('installBtn');
-  if (!btn) return;
-  const installed = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-  installed ? btn.classList.add('hidden') : btn.classList.remove('hidden');
+  if (btn) btn.style.display = 'flex';
 }
 
 // ========== Toast ==========
@@ -1796,7 +1858,10 @@ window.shareVerse = shareVerse;
 window.shareVersePicture = shareVersePicture;
 window.downloadAllContent = downloadAllContent;
 window.clearOfflineContent = clearOfflineContent;
-window.installApp = installApp;
+window.showInstallPopup  = showInstallPopup;
+window.closeInstallPopup = closeInstallPopup;
+window.doNativeInstall   = doNativeInstall;
+window.installApp        = installApp;
 window.exportData = exportData;
 window.clearData = clearData;
 window.exportReport = exportReport;
