@@ -764,7 +764,7 @@ function shareJournalReport() {
     `👂 Heard the Word: *${heard}*\n\n` +
     `Every seed matters. To God be the glory! 🔥\n\n` +
     `📱 Download GospelSwipe Pro (free & offline):\n` +
-    `https://gpmulticoncept.github.io/gospel-swipe-pro/`;
+    `https://gospelswipe.app/`;
   const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
   window.open(url, '_blank');
 }
@@ -999,7 +999,7 @@ function showLanguageSettings() {
 }
 
 // ========== Sharing ==========
-const APP_URL = 'https://gpmulticoncept.github.io/gospel-swipe-pro/';
+const APP_URL = 'https://gospelswipe.app/';
 
 async function shareApp() {
   vibrate(30);
@@ -1052,7 +1052,7 @@ function shareVersePicture(verse, ref, title) {
   ctx.fillText(ref, 540, 300 + lines.length * 80 + 60);
 
   ctx.fillStyle = '#3498db'; ctx.font = 'bold 30px sans-serif';
-  ctx.fillText('GospelSwipe Pro • gpmulticoncept.github.io/gospel-swipe-pro', 540, 980);
+  ctx.fillText('GospelSwipe Pro • gospelswipe.app', 540, 980);
 
   canvas.toBlob(blob => {
     if (!blob) return;
@@ -1822,7 +1822,7 @@ function shareGospelWhatsApp() {
     `Hey! I'm using this free app to share the gospel. It has 15 gospel presentations, 200 prayers, works completely *offline*, and supports *8 languages* including Yoruba, Hausa, Igbo and Pidgin.\n\n` +
     `Perfect for personal evangelism, house fellowships, and crusade follow-up.\n\n` +
     `📱 Download free (no app store needed):\n` +
-    `👉 https://gpmulticoncept.github.io/gospel-swipe-pro/\n\n` +
+    `👉 https://gospelswipe.app/\n\n` +
     `Made in Nigeria 🇳🇬 • Zero ads • Zero tracking`;
   const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
   window.open(url, '_blank');
