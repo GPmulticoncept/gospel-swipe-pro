@@ -1827,6 +1827,144 @@ function hexToRgb(hex) {
 }
 
 // ============================================================
+// LIVING FAITH MODULE
+// ============================================================
+let _lfIndex = -1; // -1 = today's entry
+
+function _getLFEntry() {
+  if (_lfIndex < 0) return (typeof getTodayLivingFaith === 'function') ? getTodayLivingFaith() : LIVING_FAITH[0];
+  return LIVING_FAITH[_lfIndex % LIVING_FAITH.length];
+}
+
+function loadLivingFaith() {
+  _lfIndex = -1;
+  _renderLF();
+
+  // Swipe support on lfCard
+  const card = document.getElementById('lfCard');
+  if (card && !card._swipeReady) {
+    card._swipeReady = true;
+    let _sx = 0, _sy = 0;
+    card.addEventListener('touchstart', e => {
+      _sx = e.changedTouches[0].clientX;
+      _sy = e.changedTouches[0].clientY;
+    }, { passive: true });
+    card.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - _sx;
+      const dy = e.changedTouches[0].clientY - _sy;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+        if (dx < 0) lfBrowse(1); else lfBrowse(-1);
+      }
+    }, { passive: true });
+  }
+}
+
+function _renderLF() {
+  const f = _getLFEntry();
+  if (!f) return;
+
+  const el = id => document.getElementById(id);
+
+  // Theme card border
+  const card = el('lfCard');
+  if (card) {
+    card.style.background = `rgba(${hexToRgb(f.theme)},0.1)`;
+    card.style.borderColor = `rgba(${hexToRgb(f.theme)},0.25)`;
+  }
+  const vBox = el('lfVerseBox');
+  if (vBox) vBox.style.borderLeftColor = f.theme;
+
+  if (el('lfThought'))   el('lfThought').textContent  = f.thought;
+  if (el('lfVerse'))     el('lfVerse').textContent     = `"${f.verse}"`;
+  if (el('lfRef'))       el('lfRef').textContent       = `— ${f.ref}`;
+  if (el('lfQuestion'))  el('lfQuestion').textContent  = f.question;
+
+  // Week badge label
+  const badge = el('lfWeekBadge');
+  if (badge) {
+    const totalIdx = _lfIndex < 0
+      ? LIVING_FAITH.indexOf(getTodayLivingFaith())
+      : _lfIndex % LIVING_FAITH.length;
+    badge.textContent = _lfIndex < 0
+      ? 'THIS WEEK\'S REFLECTION'
+      : `WEEK ${totalIdx + 1} OF 52`;
+  }
+
+  // Share button
+  const shareBtn = el('lfShareBtn');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      vibrate(20);
+      const msg =
+        `💭 *Living Faith*\n\n"${f.thought}"\n\n` +
+        `📖 ${f.ref} — "${f.verse}"\n\n` +
+        `🤍 Sit with this: _${f.question}_\n\n` +
+        `📱 GospelSwipe Pro — gospelswipe.app`;
+      if (navigator.share) {
+        navigator.share({ title: 'Living Faith', text: msg }).catch(() => {
+          window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+        });
+      } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+      }
+    };
+  }
+
+  // Restore complete button state
+  const completeBtn = el('lfCompleteBtn');
+  if (completeBtn) {
+    const lastRead = localStorage.getItem('lfLastRead');
+    const today = new Date().toDateString();
+    if (lastRead === today) {
+      completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> Reflected Today ✓';
+      completeBtn.style.background = 'rgba(46,204,113,0.3)';
+      completeBtn.disabled = true;
+    } else {
+      completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> I\'ve Sat With This';
+      completeBtn.style.background = '';
+      completeBtn.disabled = false;
+    }
+  }
+
+  // Animate card on every render
+  if (card) {
+    card.style.animation = 'none';
+    void card.offsetWidth; // reflow
+    card.style.animation = 'fadeIn 0.3s ease';
+  }
+}
+
+function lfBrowse(dir) {
+  vibrate(15);
+  if (_lfIndex < 0) {
+    const today = typeof getTodayLivingFaith === 'function' ? getTodayLivingFaith() : LIVING_FAITH[0];
+    _lfIndex = LIVING_FAITH.indexOf(today);
+    if (_lfIndex < 0) _lfIndex = 0;
+  }
+  _lfIndex = (_lfIndex + dir + LIVING_FAITH.length) % LIVING_FAITH.length;
+  _renderLF();
+}
+
+function markLFRead() {
+  const today = new Date().toDateString();
+  localStorage.setItem('lfLastRead', today);
+  AppState.userStats.lfStreak = (AppState.userStats.lfStreak || 0) + 1;
+  showToast('🔥 Keep going. Faith grows in the sitting still.', 'success');
+  vibrate(50);
+  const btn = document.getElementById('lfCompleteBtn');
+  if (btn) {
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> Reflected Today ✓';
+    btn.style.background = 'rgba(46,204,113,0.3)';
+    btn.disabled = true;
+  }
+  refreshStats();
+}
+
+window.loadLivingFaith = loadLivingFaith;
+window.lfBrowse       = lfBrowse;
+window.markLFRead     = markLFRead;
+
+// ============================================================
 // FEATURE 2: EVANGELISM TRAINING
 // ============================================================
 const TRAINING_METHODS = [
