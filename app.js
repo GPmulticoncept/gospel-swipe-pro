@@ -1760,12 +1760,13 @@ function loadDevotional() {
   const verseBox = document.getElementById('devoVerseBox');
   if (verseBox) verseBox.style.borderLeftColor = d.theme;
 
-  set('devoTitle', d.title);
-  set('devoVerse', `"${d.verse}"`);
-  set('devoRef', `— ${d.ref}`);
-  set('devoReflection', d.reflection);
-  set('devoPrayer', d.prayer);
-  set('devoAction', d.action);
+  const _dt = id => document.getElementById(id);
+  if (_dt('devoTitle'))      _dt('devoTitle').textContent      = d.title;
+  if (_dt('devoVerse'))      _dt('devoVerse').textContent      = `"${d.verse}"`;
+  if (_dt('devoRef'))        _dt('devoRef').textContent        = `— ${d.ref}`;
+  if (_dt('devoReflection')) _dt('devoReflection').textContent = d.reflection;
+  if (_dt('devoPrayer'))     _dt('devoPrayer').textContent     = d.prayer;
+  if (_dt('devoAction'))     _dt('devoAction').textContent     = d.action;
 
   // Wire share button
   const shareBtn = document.getElementById('devoShareBtn');
@@ -1774,6 +1775,22 @@ function loadDevotional() {
       const msg = `📖 *${d.title}*\n\n"${d.verse}"\n— ${d.ref}\n\n${d.reflection.substring(0,120)}...\n\n📱 GospelSwipe Pro — gospelswipe.app`;
       window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
     };
+  }
+
+  // Swipe on devo card: left = share, right = dismiss gracefully
+  const devoCard = document.getElementById('devoCard');
+  if (devoCard && !devoCard._swipeReady) {
+    devoCard._swipeReady = true;
+    let _dsx = 0;
+    devoCard.addEventListener('touchstart', e => { _dsx = e.changedTouches[0].clientX; }, { passive: true });
+    devoCard.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - _dsx;
+      if (dx < -60) {
+        // Swipe left = share
+        const shareBtn = document.getElementById('devoShareBtn');
+        if (shareBtn) shareBtn.click();
+      }
+    }, { passive: true });
   }
 
   // Check if already read today
@@ -1945,6 +1962,23 @@ function loadTraining() {
   _trainingMethod = 0;
   _trainingStep = 0;
   renderTrainingMethod();
+  // Swipe support — attach once, guard with flag
+  const container = document.getElementById('trainingSteps');
+  if (container && !container._swipeReady) {
+    container._swipeReady = true;
+    let _sx = 0, _sy = 0;
+    container.addEventListener('touchstart', e => {
+      _sx = e.changedTouches[0].clientX;
+      _sy = e.changedTouches[0].clientY;
+    }, { passive: true });
+    container.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - _sx;
+      const dy = e.changedTouches[0].clientY - _sy;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) {
+        if (dx < 0) nextStep(); else prevStep();
+      }
+    }, { passive: true });
+  }
 }
 
 function selectMethod(idx) {
@@ -1958,10 +1992,11 @@ function selectMethod(idx) {
 
 function renderTrainingMethod() {
   const m = TRAINING_METHODS[_trainingMethod];
-  set('methodDesc', m.desc);
-  renderTrainingStep();
+  const md = document.getElementById('methodDesc');
+  if (md) md.textContent = m.desc;
   const complete = document.getElementById('trainingComplete');
   if (complete) complete.style.display = 'none';
+  renderTrainingStep();
 }
 
 function renderTrainingStep() {
@@ -1971,7 +2006,7 @@ function renderTrainingStep() {
   if (!container) return;
 
   container.innerHTML = `
-    <div class="training-step-card">
+    <div class="training-step-card" style="animation:fadeIn 0.28s ease;">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
         <div class="training-step-number" style="background:rgba(${hexToRgbTraining(s.color)},0.15);color:${s.color};">
           ${s.icon}
@@ -1995,16 +2030,15 @@ function renderTrainingStep() {
     ).join('');
   }
 
-  // Buttons
+  // Buttons — always make visible, then set state
   const prev = document.getElementById('prevStepBtn');
   const next = document.getElementById('nextStepBtn');
-  if (prev) prev.disabled = _trainingStep === 0;
+  if (prev) { prev.style.display = 'flex'; prev.disabled = _trainingStep === 0; }
   if (next) {
-    if (_trainingStep === m.steps.length - 1) {
-      next.innerHTML = 'Finish <i class="fas fa-flag-checkered"></i>';
-    } else {
-      next.innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
-    }
+    next.style.display = 'flex';
+    next.innerHTML = _trainingStep === m.steps.length - 1
+      ? 'Finish <i class="fas fa-flag-checkered"></i>'
+      : 'Next <i class="fas fa-arrow-right"></i>';
   }
 }
 
