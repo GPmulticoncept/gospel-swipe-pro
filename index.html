@@ -109,12 +109,48 @@
         <h3 data-i18n="prayerJournal">Prayer</h3>
         <p data-i18n="prayerDesc">Journal & voice</p>
       </div>
-      <div class="feature-card" onclick="showDailyVerse()" role="listitem" tabindex="0"
-        aria-label="Daily Bible verse" onkeydown="if(event.key==='Enter')showDailyVerse()">
-        <i class="fas fa-book-bible" aria-hidden="true"></i>
-        <h3 data-i18n="dailyVerse">Daily Verse</h3>
-        <p data-i18n="verseDesc">Personalized</p>
+      <div class="feature-card" onclick="showScreen('devotional-screen');loadDevotional()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(243,156,18,0.15),rgba(230,126,34,0.15));"
+        aria-label="Daily Devotional" onkeydown="if(event.key==='Enter'){showScreen('devotional-screen');loadDevotional()}">
+        <i class="fas fa-book-open" style="color:#f39c12;" aria-hidden="true"></i>
+        <h3>Daily Devotional</h3>
+        <p>Verse, reflection &amp; prayer</p>
+        <span class="feature-badge" style="background:rgba(243,156,18,0.2);color:#f39c12;">52 TOPICS</span>
       </div>
+      <div class="feature-card" onclick="showScreen('training-screen');loadTraining()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(52,152,219,0.15),rgba(41,128,185,0.15));"
+        aria-label="Evangelism Training" onkeydown="if(event.key==='Enter'){showScreen('training-screen');loadTraining()}">
+        <i class="fas fa-graduation-cap" style="color:#3498db;" aria-hidden="true"></i>
+        <h3>Evangelism Training</h3>
+        <p>3 proven gospel methods</p>
+        <span class="feature-badge" style="background:rgba(52,152,219,0.2);color:#3498db;">FREE</span>
+      </div>
+      <div class="feature-card" onclick="showScreen('newbeliever-screen');loadNewBeliever()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.15));"
+        aria-label="New Believer Guide" onkeydown="if(event.key==='Enter'){showScreen('newbeliever-screen');loadNewBeliever()}">
+        <i class="fas fa-seedling" style="color:#2ecc71;" aria-hidden="true"></i>
+        <h3>New Believer Guide</h3>
+        <p>7-day journey for new faith</p>
+        <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;">7 DAYS</span>
+      </div>
+      <div class="feature-card" onclick="showAudioModal()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(52,152,219,0.15),rgba(41,128,185,0.15));"
+        aria-label="Scripture Audio Mode" onkeydown="if(event.key==='Enter')showAudioModal()">
+        <i class="fas fa-volume-up" style="color:#3498db;" aria-hidden="true"></i>
+        <h3>Audio Mode</h3>
+        <p>Hear slides &amp; devotionals</p>
+        <span class="feature-badge" style="background:rgba(52,152,219,0.2);color:#3498db;">OFFLINE</span>
+      </div>
+
+      <div class="feature-card" onclick="showTractGenerator()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.15));"
+        aria-label="Gospel Tract Generator" onkeydown="if(event.key==='Enter')showTractGenerator()">
+        <i class="fas fa-share-nodes" style="color:#2ecc71;" aria-hidden="true"></i>
+        <h3>Gospel Tract</h3>
+        <p>Create shareable images</p>
+        <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;">NEW</span>
+      </div>
+
       <div class="feature-card" onclick="showScreen('stats-screen')" role="listitem" tabindex="0"
         aria-label="View progress stats" onkeydown="if(event.key==='Enter')showScreen('stats-screen')">
         <i class="fas fa-chart-line" aria-hidden="true"></i>
@@ -183,6 +219,153 @@
         <span data-i18n="installApp">Add to Home Screen</span>
       </button>
     </div>
+  </div>
+
+  <!-- ===== DAILY DEVOTIONAL SCREEN ===== -->
+  <div id="devotional-screen" class="screen" role="region" aria-label="Daily Devotional">
+    <div class="journal-header">
+      <h2><i class="fas fa-book-open" style="color:#f39c12;" aria-hidden="true"></i> Daily Devotional</h2>
+      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- Day badge -->
+    <div id="devoDayBadge" style="text-align:center;margin-bottom:16px;">
+      <span style="background:rgba(243,156,18,0.15);border:1px solid rgba(243,156,18,0.3);color:#f39c12;padding:6px 18px;border-radius:20px;font-size:0.82rem;font-weight:700;letter-spacing:0.4px;">TODAY'S DEVOTIONAL</span>
+    </div>
+
+    <!-- Theme + Title -->
+    <div id="devoCard" style="border-radius:24px;padding:24px 20px;margin-bottom:16px;background:rgba(243,156,18,0.1);border:1px solid rgba(243,156,18,0.25);">
+      <h2 id="devoTitle" style="font-size:1.4rem;font-weight:800;margin-bottom:12px;line-height:1.3;"></h2>
+
+      <!-- Verse box -->
+      <div id="devoVerseBox" style="background:rgba(0,0,0,0.3);border-left:4px solid #f39c12;border-radius:0 16px 16px 0;padding:16px 18px;margin-bottom:14px;">
+        <p id="devoVerse" style="font-size:1.05rem;font-style:italic;line-height:1.7;margin-bottom:8px;"></p>
+        <p id="devoRef" style="font-weight:700;font-size:0.88rem;opacity:0.8;"></p>
+      </div>
+
+      <!-- Share verse -->
+      <button id="devoShareBtn" class="action-btn" style="width:100%;justify-content:center;margin-bottom:0;background:rgba(243,156,18,0.12);border-color:rgba(243,156,18,0.3);color:#f39c12;">
+        <i class="fas fa-share-alt"></i> Share This Verse
+      </button>
+    </div>
+
+    <!-- Reflection -->
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:20px;padding:18px 18px 14px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <i class="fas fa-lightbulb" style="color:#f39c12;"></i>
+        <span style="font-weight:700;font-size:0.9rem;">Reflection</span>
+      </div>
+      <p id="devoReflection" style="font-size:0.9rem;line-height:1.75;opacity:0.88;"></p>
+    </div>
+
+    <!-- Prayer -->
+    <div style="background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.22);border-radius:20px;padding:18px 18px 14px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <i class="fas fa-hands-praying" style="color:#3498db;"></i>
+        <span style="font-weight:700;font-size:0.9rem;">Prayer</span>
+      </div>
+      <p id="devoPrayer" style="font-size:0.88rem;line-height:1.75;opacity:0.88;font-style:italic;"></p>
+    </div>
+
+    <!-- Action -->
+    <div style="background:rgba(46,204,113,0.08);border:1px solid rgba(46,204,113,0.22);border-radius:20px;padding:18px 18px 14px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <i class="fas fa-bolt" style="color:#2ecc71;"></i>
+        <span style="font-weight:700;font-size:0.9rem;">Today's Action</span>
+      </div>
+      <p id="devoAction" style="font-size:0.88rem;line-height:1.75;opacity:0.88;"></p>
+    </div>
+
+    <!-- Done button -->
+    <button onclick="markDevoComplete()" class="action-btn primary" style="width:100%;justify-content:center;font-size:1rem;padding:15px;">
+      <i class="fas fa-check-circle"></i> I've Read Today's Devotional
+    </button>
+
+    <p style="text-align:center;font-size:0.75rem;opacity:0.35;margin-top:14px;">New devotional every week • 52 topics • All offline</p>
+  </div>
+
+  <!-- ===== EVANGELISM TRAINING SCREEN ===== -->
+  <div id="training-screen" class="screen" role="region" aria-label="Evangelism Training">
+    <div class="journal-header">
+      <h2><i class="fas fa-graduation-cap" style="color:#3498db;" aria-hidden="true"></i> Evangelism Training</h2>
+      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <p style="font-size:0.85rem;opacity:0.65;margin-bottom:20px;line-height:1.6;">Three proven methods to share the gospel with confidence. Swipe through each step. Works completely offline.</p>
+
+    <!-- Method selector tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
+      <button class="training-tab active" onclick="selectMethod(0)" id="tab-0">Romans Road</button>
+      <button class="training-tab" onclick="selectMethod(1)" id="tab-1">The Bridge</button>
+      <button class="training-tab" onclick="selectMethod(2)" id="tab-2">Three Circles</button>
+    </div>
+
+    <!-- Method description -->
+    <div id="methodDesc" style="background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.2);border-radius:18px;padding:14px 16px;margin-bottom:16px;font-size:0.85rem;line-height:1.6;opacity:0.85;"></div>
+
+    <!-- Steps container -->
+    <div id="trainingSteps" style="position:relative;"></div>
+
+    <!-- Step navigation -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:10px;">
+      <button id="prevStepBtn" onclick="prevStep()" class="action-btn" style="flex:1;justify-content:center;" disabled>
+        <i class="fas fa-arrow-left"></i> Previous
+      </button>
+      <div id="stepDots" style="display:flex;gap:6px;align-items:center;"></div>
+      <button id="nextStepBtn" onclick="nextStep()" class="action-btn primary" style="flex:1;justify-content:center;">
+        Next <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+
+    <!-- Practice prompt -->
+    <div id="trainingComplete" style="display:none;background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.3);border-radius:18px;padding:16px;margin-top:16px;text-align:center;">
+      <div style="font-size:1.8rem;margin-bottom:8px;">🎉</div>
+      <div style="font-weight:700;margin-bottom:6px;">Method Complete!</div>
+      <p style="font-size:0.85rem;opacity:0.75;margin-bottom:12px;">Now practise with a friend or log a real conversation in your Soul Journal.</p>
+      <button onclick="showEvangelismJournal()" class="action-btn primary" style="width:100%;justify-content:center;">
+        <i class="fas fa-book-open"></i> Open Soul Journal
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== NEW BELIEVER GUIDE SCREEN ===== -->
+  <div id="newbeliever-screen" class="screen" role="region" aria-label="New Believer Guide">
+    <div class="journal-header">
+      <h2><i class="fas fa-seedling" style="color:#2ecc71;" aria-hidden="true"></i> New Believer's Guide</h2>
+      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <p style="font-size:0.85rem;opacity:0.65;margin-bottom:6px;line-height:1.6;">Just gave your life to Christ — or helping someone who did? This 7-day guide covers everything a new believer needs to know to get started strong.</p>
+
+    <!-- Progress bar -->
+    <div style="background:rgba(255,255,255,0.08);border-radius:20px;height:8px;margin-bottom:20px;overflow:hidden;">
+      <div id="nbProgress" style="height:100%;background:linear-gradient(90deg,#2ecc71,#27ae60);border-radius:20px;transition:width 0.4s ease;width:14%;"></div>
+    </div>
+
+    <!-- Day selector -->
+    <div style="display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
+      <button class="nb-day-btn active" onclick="selectNBDay(0)" id="nbd-0">Day 1</button>
+      <button class="nb-day-btn" onclick="selectNBDay(1)" id="nbd-1">Day 2</button>
+      <button class="nb-day-btn" onclick="selectNBDay(2)" id="nbd-2">Day 3</button>
+      <button class="nb-day-btn" onclick="selectNBDay(3)" id="nbd-3">Day 4</button>
+      <button class="nb-day-btn" onclick="selectNBDay(4)" id="nbd-4">Day 5</button>
+      <button class="nb-day-btn" onclick="selectNBDay(5)" id="nbd-5">Day 6</button>
+      <button class="nb-day-btn" onclick="selectNBDay(6)" id="nbd-6">Day 7</button>
+    </div>
+
+    <!-- Day content -->
+    <div id="nbDayContent" style="animation:fadeIn 0.3s ease;"></div>
+
+    <!-- Mark complete -->
+    <button id="nbCompleteBtn" onclick="markNBDayComplete()" class="action-btn primary" style="width:100%;justify-content:center;margin-top:16px;font-size:1rem;padding:15px;">
+      <i class="fas fa-check"></i> Mark Day Complete
+    </button>
   </div>
 
   <!-- ===== INSTALL POPUP OVERLAY ===== -->
@@ -611,6 +794,7 @@
 <!-- Scripts — order matters: prayers + translations first, then app -->
 <script src="prayers.js"></script>
 <script src="translations.js"></script>
+<script src="devotionals.js"></script>
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {

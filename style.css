@@ -626,3 +626,98 @@ textarea:focus-visible { outline:2px solid var(--secondary); }
   .features-grid { grid-template-columns:repeat(4,1fr); }
   #home-screen, .screen { padding-left:32px; padding-right:32px; }
 }
+
+/* ===== Devotional Screen ===== */
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+#devotional-screen .screen { animation:fadeIn 0.3s ease; }
+
+/* ===== Training Tabs ===== */
+.training-tab {
+  padding:9px 18px; border-radius:20px; border:1px solid rgba(52,152,219,0.3);
+  background:rgba(52,152,219,0.08); color:rgba(255,255,255,0.65);
+  font-size:0.82rem; font-weight:600; cursor:pointer;
+  white-space:nowrap; font-family:inherit; transition:all 0.2s;
+  flex-shrink:0;
+}
+.training-tab.active, .training-tab:hover {
+  background:rgba(52,152,219,0.25); border-color:#3498db; color:#fff;
+}
+
+/* ===== Training Step Card ===== */
+.training-step-card {
+  background:var(--glass); border:1px solid var(--glass-border);
+  border-radius:22px; padding:20px; margin-bottom:4px;
+  animation:fadeIn 0.3s ease;
+}
+.training-step-number {
+  width:42px; height:42px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:1.1rem; margin-bottom:12px;
+  flex-shrink:0;
+}
+.training-verse-block {
+  background:rgba(0,0,0,0.25); border-left:3px solid #3498db;
+  border-radius:0 12px 12px 0; padding:12px 14px;
+  margin:12px 0; font-style:italic; font-size:0.9rem;
+  line-height:1.65;
+}
+.training-tip {
+  background:rgba(46,204,113,0.08); border:1px solid rgba(46,204,113,0.2);
+  border-radius:14px; padding:12px 14px; margin-top:12px;
+  font-size:0.84rem; line-height:1.6; color:#2ecc71;
+}
+
+/* ===== Step Dots ===== */
+.step-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(255,255,255,0.2); transition:background 0.2s;
+}
+.step-dot.active { background:#3498db; }
+.step-dot.done { background:#2ecc71; }
+
+/* ===== New Believer Day Buttons ===== */
+.nb-day-btn {
+  padding:8px 16px; border-radius:20px; border:1px solid rgba(46,204,113,0.25);
+  background:rgba(46,204,113,0.06); color:rgba(255,255,255,0.6);
+  font-size:0.8rem; font-weight:600; cursor:pointer;
+  white-space:nowrap; font-family:inherit; transition:all 0.2s;
+  flex-shrink:0; position:relative;
+}
+.nb-day-btn.active, .nb-day-btn:hover {
+  background:rgba(46,204,113,0.2); border-color:#2ecc71; color:#fff;
+}
+.nb-day-btn.completed {
+  background:rgba(46,204,113,0.15); border-color:#2ecc71; color:#2ecc71;
+}
+.nb-day-btn.completed::after {
+  content:'✓'; position:absolute; top:-6px; right:-4px;
+  background:#2ecc71; color:#000; border-radius:50%;
+  width:16px; height:16px; font-size:0.6rem;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800;
+}
+
+/* ===== NB Day Content ===== */
+.nb-section {
+  background:var(--glass); border:1px solid var(--glass-border);
+  border-radius:20px; padding:18px; margin-bottom:12px;
+  animation:fadeIn 0.3s ease;
+}
+.nb-verse-box {
+  background:rgba(0,0,0,0.25); border-left:4px solid #2ecc71;
+  border-radius:0 14px 14px 0; padding:14px 16px; margin:12px 0;
+  font-style:italic; line-height:1.7;
+}
+.nb-truth-item {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06);
+  font-size:0.88rem; line-height:1.6;
+}
+.nb-truth-item:last-child { border-bottom:none; }
+.nb-truth-icon {
+  width:32px; height:32px; border-radius:50%;
+  background:rgba(46,204,113,0.15); display:flex;
+  align-items:center; justify-content:center;
+  flex-shrink:0; font-size:0.85rem;
+}
+

@@ -764,7 +764,7 @@ function shareJournalReport() {
     `👂 Heard the Word: *${heard}*\n\n` +
     `Every seed matters. To God be the glory! 🔥\n\n` +
     `📱 Download GospelSwipe Pro (free & offline):\n` +
-    `https://gospelswipe.app/`;
+    `https://gpmulticoncept.github.io/gospel-swipe-pro/`;
   const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
   window.open(url, '_blank');
 }
@@ -999,7 +999,7 @@ function showLanguageSettings() {
 }
 
 // ========== Sharing ==========
-const APP_URL = 'https://gospelswipe.app/';
+const APP_URL = 'https://gpmulticoncept.github.io/gospel-swipe-pro/';
 
 async function shareApp() {
   vibrate(30);
@@ -1052,7 +1052,7 @@ function shareVersePicture(verse, ref, title) {
   ctx.fillText(ref, 540, 300 + lines.length * 80 + 60);
 
   ctx.fillStyle = '#3498db'; ctx.font = 'bold 30px sans-serif';
-  ctx.fillText('GospelSwipe Pro • gospelswipe.app', 540, 980);
+  ctx.fillText('GospelSwipe Pro • gpmulticoncept.github.io/gospel-swipe-pro', 540, 980);
 
   canvas.toBlob(blob => {
     if (!blob) return;
@@ -1742,6 +1742,881 @@ function setupEventListeners() {
   }
 })();
 
+// ============================================================
+// FEATURE 1: DAILY DEVOTIONAL
+// ============================================================
+function loadDevotional() {
+  const d = (typeof getTodayDevotional === 'function')
+    ? getTodayDevotional()
+    : (typeof DEVOTIONALS !== 'undefined' ? DEVOTIONALS[0] : null);
+  if (!d) return;
+
+  // Theme the card
+  const card = document.getElementById('devoCard');
+  if (card) {
+    card.style.background = `rgba(${hexToRgb(d.theme)},0.1)`;
+    card.style.borderColor = `rgba(${hexToRgb(d.theme)},0.25)`;
+  }
+  const verseBox = document.getElementById('devoVerseBox');
+  if (verseBox) verseBox.style.borderLeftColor = d.theme;
+
+  set('devoTitle', d.title);
+  set('devoVerse', `"${d.verse}"`);
+  set('devoRef', `— ${d.ref}`);
+  set('devoReflection', d.reflection);
+  set('devoPrayer', d.prayer);
+  set('devoAction', d.action);
+
+  // Wire share button
+  const shareBtn = document.getElementById('devoShareBtn');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      const msg = `📖 *${d.title}*\n\n"${d.verse}"\n— ${d.ref}\n\n${d.reflection.substring(0,120)}...\n\n📱 GospelSwipe Pro — gospelswipe.app`;
+      window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    };
+  }
+
+  // Check if already read today
+  const lastRead = localStorage.getItem('devoLastRead');
+  const today = new Date().toDateString();
+  const completeBtn = document.querySelector('#devotional-screen .action-btn.primary');
+  if (completeBtn && lastRead === today) {
+    completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> Read Today ✓';
+    completeBtn.style.background = 'rgba(46,204,113,0.3)';
+    completeBtn.disabled = true;
+  }
+}
+
+function markDevoComplete() {
+  const today = new Date().toDateString();
+  localStorage.setItem('devoLastRead', today);
+  AppState.userStats.devoStreak = (AppState.userStats.devoStreak || 0) + 1;
+  showToast('🙏 Devotional complete! Keep seeking God daily.', 'success');
+  vibrate(50);
+  const btn = document.querySelector('#devotional-screen .action-btn.primary');
+  if (btn) {
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> Read Today ✓';
+    btn.style.background = 'rgba(46,204,113,0.3)';
+    btn.disabled = true;
+  }
+  refreshStats();
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+// ============================================================
+// FEATURE 2: EVANGELISM TRAINING
+// ============================================================
+const TRAINING_METHODS = [
+  {
+    name: 'Romans Road',
+    desc: 'Romans Road uses five key scriptures from the book of Romans to take someone from understanding their sin to receiving salvation. It is simple, scripturally grounded, and easy to memorise.',
+    steps: [
+      {
+        title: 'Step 1 — Everyone Has Sinned',
+        icon: '⚠️', color: '#e74c3c',
+        verse: '"For all have sinned and fall short of the glory of God." — Romans 3:23',
+        explanation: 'Start here. This establishes common ground — you are not attacking the person, you are including yourself. Everyone, including you, has sinned. Sin means falling short of God\'s perfect standard. There is no one who is the exception.',
+        tip: 'Say it gently: "The Bible says all of us — including me — have sinned and fallen short of what God intended for our lives."'
+      },
+      {
+        title: 'Step 2 — Sin Has a Consequence',
+        icon: '💀', color: '#e74c3c',
+        verse: '"For the wages of sin is death, but the gift of God is eternal life in Christ Jesus our Lord." — Romans 6:23',
+        explanation: 'Sin is not just behaviour — it earns a wage: death. Spiritual separation from God both now and eternally. BUT — notice the contrast. The same verse holds the solution: God\'s gift is eternal life. This is the pivot from bad news to good news.',
+        tip: 'Pause on the word "gift." Ask: "Have you ever refused a gift? Gifts are free — you just have to receive them."'
+      },
+      {
+        title: 'Step 3 — God Showed His Love',
+        icon: '❤️', color: '#e74c3c',
+        verse: '"But God demonstrates his own love for us in this: While we were still sinners, Christ died for us." — Romans 5:8',
+        explanation: 'God did not wait for us to get better. While we were still sinners — at our worst — Christ died. This is the gospel in one sentence. Not religion. Not self-improvement. God acting first, out of love, on our behalf.',
+        tip: 'Emphasise the timing: "While we were STILL sinners. Not after we cleaned up. Before we even asked."'
+      },
+      {
+        title: 'Step 4 — Confess and Believe',
+        icon: '🗣️', color: '#2ecc71',
+        verse: '"If you declare with your mouth, \'Jesus is Lord,\' and believe in your heart that God raised him from the dead, you will be saved." — Romans 10:9',
+        explanation: 'Salvation has two parts: confession with the mouth and belief in the heart. It is both internal (genuine faith) and external (public acknowledgement). This is the invitation. This is the step they take.',
+        tip: 'Ask: "Do you believe that Jesus died for your sins and rose again?" If yes: "Would you like to confess Him as Lord right now?"'
+      },
+      {
+        title: 'Step 5 — Lead the Prayer',
+        icon: '🙏', color: '#2ecc71',
+        verse: '"Everyone who calls on the name of the Lord will be saved." — Romans 10:13',
+        explanation: 'Lead them in a simple prayer. You do not need elaborate words. What matters is the sincerity of their heart. After they pray, affirm what just happened — they are now a child of God. Then connect them to a church.',
+        tip: 'Sample prayer: "Lord Jesus, I believe You died for my sins and rose again. I confess You as Lord. Forgive me and come into my heart. I receive eternal life. Amen." Then say: "If you meant that, you are now saved."'
+      }
+    ]
+  },
+  {
+    name: 'The Bridge',
+    desc: 'The Bridge Illustration is a visual tool showing the gap between sinful humanity and holy God, and how Jesus is the only bridge across. Ideal for visual learners — you can draw it on paper or the ground as you speak.',
+    steps: [
+      {
+        title: 'Step 1 — Draw God\'s Side',
+        icon: '✝️', color: '#f39c12',
+        verse: '"For God is holy." — 1 Peter 1:16 | "God is love." — 1 John 4:8',
+        explanation: 'Draw a cliff on the right side. Label it GOD. Explain: God is holy — completely perfect with no sin. God is also love — He desires relationship with us. These two facts create the tension: a God who loves us but cannot ignore our sin.',
+        tip: 'Say: "Picture a canyon. On one side is God — holy, perfect, loving. Draw it with me if you have paper."'
+      },
+      {
+        title: 'Step 2 — Draw Humanity\'s Side',
+        icon: '👤', color: '#e74c3c',
+        verse: '"For all have sinned and fall short of the glory of God." — Romans 3:23',
+        explanation: 'Draw a cliff on the left side. Label it US / HUMANITY. There is a gap between the two sides — that gap is sin. We were created for relationship with God, but sin broke that connection. No matter how good we try to be, we cannot jump across.',
+        tip: 'Draw someone on the left side trying to jump across — but falling into the canyon. "No human effort can bridge this gap. Not religion, not good deeds, not education."'
+      },
+      {
+        title: 'Step 3 — Human Solutions Don\'t Work',
+        icon: '❌', color: '#e74c3c',
+        verse: '"There is a way that appears to be right, but in the end it leads to death." — Proverbs 14:12',
+        explanation: 'People try many ways to get to God: good works, religion, self-improvement, money, fame. Draw these as short planks that fall into the canyon. None of them reach. The gap is not a gap of effort — it is a gap of sin that only God can close.',
+        tip: 'Ask: "What do you think gets a person to heaven?" Listen fully. Then gently show why those planks fall short.'
+      },
+      {
+        title: 'Step 4 — Jesus Is the Bridge',
+        icon: '🌉', color: '#2ecc71',
+        verse: '"Jesus answered, \'I am the way and the truth and the life. No one comes to the Father except through me.\'" — John 14:6',
+        explanation: 'Draw a cross laid across the canyon — connecting both sides. That is Jesus. He is fully God and fully man — the only One who could span the gap. His death paid for our sin. His resurrection proved it worked. The bridge is built. It is open. It is free.',
+        tip: 'Draw the cross bridging both cliffs. "Jesus is not one of many paths. He IS the path. The bridge is built. But you have to choose to walk across it."'
+      },
+      {
+        title: 'Step 5 — Cross the Bridge',
+        icon: '👣', color: '#2ecc71',
+        verse: '"Yet to all who did receive him, to those who believed in his name, he gave the right to become children of God." — John 1:12',
+        explanation: 'The bridge exists. The question is whether they will cross it. Receiving Jesus means choosing to leave your side and walk to God\'s side — trusting Jesus completely as Lord and Saviour. It is a one-time decision that changes everything forever.',
+        tip: 'Ask: "The bridge is there. Jesus has done everything. The only question is: will you cross? Would you like to pray and receive Him right now?"'
+      }
+    ]
+  },
+  {
+    name: 'Three Circles',
+    desc: 'The Three Circles method (also called God\'s Story) was developed by Jimmy Scroggins. It uses three overlapping circles to explain God\'s design, brokenness, and the gospel. Perfect for conversational, natural settings.',
+    steps: [
+      {
+        title: 'Circle 1 — God\'s Design',
+        icon: '⭕', color: '#3498db',
+        verse: '"God saw all that he had made, and it was very good." — Genesis 1:31',
+        explanation: 'Draw a circle. Label it GOD\'S DESIGN. In the beginning, everything was created perfectly. Humanity was in perfect relationship with God, with each other, and with creation. We were made in His image — for love, purpose, meaning, and wholeness. That was the original design.',
+        tip: 'Ask: "Do you believe people are meant for something better than what we see in the world? That\'s what we\'re looking for — that original design."'
+      },
+      {
+        title: 'Circle 2 — Brokenness',
+        icon: '💔', color: '#e74c3c',
+        verse: '"For all have sinned and fall short of the glory of God." — Romans 3:23',
+        explanation: 'Draw a broken circle with a crack, separated from the first. Label it BROKENNESS. When humanity chose sin, we broke from God\'s design. That brokenness affects everything: relationships, identity, society, the world itself. We feel it — in emptiness, addiction, conflict, grief, and death. We all know something is wrong.',
+        tip: 'Say: "Look at the world — corruption, broken families, addiction, war. That\'s not what we were designed for. Something went very wrong." Connect it to their personal story if they share openly.'
+      },
+      {
+        title: 'Step 3 — Our Broken Recoveries',
+        icon: '🔄', color: '#e74c3c',
+        verse: '"There is a way that appears to be right, but in the end it leads to death." — Proverbs 14:12',
+        explanation: 'People try to escape brokenness on their own. Draw arrows going OUT of the brokenness circle but looping back in — money, success, relationships, religion, pleasure. They feel better briefly, then return to the same emptiness. Human solutions are cycles, not escapes.',
+        tip: 'Ask gently: "Have you ever tried to fill that emptiness with something — and it worked for a while, then stopped?" Most people will immediately relate to this.'
+      },
+      {
+        title: 'Circle 3 — The Gospel',
+        icon: '✝️', color: '#2ecc71',
+        verse: '"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." — John 3:16',
+        explanation: 'Draw a cross between the broken circle and God\'s design circle, with an arrow leading from brokenness back to design. Jesus entered brokenness — lived perfectly, died for our sin, rose again — and opened a path back to God\'s design. Not self-improvement. God coming to us.',
+        tip: 'Say: "Jesus did not stand outside our brokenness and call us to come to Him. He ENTERED our brokenness and paid the price to bring us back. That\'s different from every other religion."'
+      },
+      {
+        title: 'Step 5 — Pursue and Follow',
+        icon: '👣', color: '#2ecc71',
+        verse: '"Repent and believe the good news." — Mark 1:15',
+        explanation: 'Draw an arrow from the brokenness circle, through the cross, into God\'s design circle. This is the response: Repent — turn away from the broken recovery attempts. Believe — trust that Jesus is the way back. Follow — live in ongoing relationship with Him. Salvation is not a moment only, it is a new direction.',
+        tip: 'Ask: "Which circle are you in right now — God\'s design, or brokenness? Would you like to take the step through the cross and back to what you were designed for?"'
+      }
+    ]
+  }
+];
+
+let _trainingMethod = 0;
+let _trainingStep = 0;
+
+function loadTraining() {
+  _trainingMethod = 0;
+  _trainingStep = 0;
+  renderTrainingMethod();
+}
+
+function selectMethod(idx) {
+  _trainingMethod = idx;
+  _trainingStep = 0;
+  document.querySelectorAll('.training-tab').forEach((t,i) => {
+    t.classList.toggle('active', i === idx);
+  });
+  renderTrainingMethod();
+}
+
+function renderTrainingMethod() {
+  const m = TRAINING_METHODS[_trainingMethod];
+  set('methodDesc', m.desc);
+  renderTrainingStep();
+  const complete = document.getElementById('trainingComplete');
+  if (complete) complete.style.display = 'none';
+}
+
+function renderTrainingStep() {
+  const m = TRAINING_METHODS[_trainingMethod];
+  const s = m.steps[_trainingStep];
+  const container = document.getElementById('trainingSteps');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="training-step-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <div class="training-step-number" style="background:rgba(${hexToRgbTraining(s.color)},0.15);color:${s.color};">
+          ${s.icon}
+        </div>
+        <div style="font-weight:700;font-size:1rem;line-height:1.3;">${s.title}</div>
+      </div>
+      <div class="training-verse-block">${escapeHtml(s.verse)}</div>
+      <p style="font-size:0.88rem;line-height:1.72;opacity:0.88;margin-bottom:8px;">${escapeHtml(s.explanation)}</p>
+      <div class="training-tip">
+        <i class="fas fa-lightbulb" style="margin-right:6px;"></i>
+        <strong>Field Tip:</strong> ${escapeHtml(s.tip)}
+      </div>
+    </div>
+  `;
+
+  // Dots
+  const dotsEl = document.getElementById('stepDots');
+  if (dotsEl) {
+    dotsEl.innerHTML = m.steps.map((_,i) =>
+      `<div class="step-dot ${i < _trainingStep ? 'done' : i === _trainingStep ? 'active' : ''}"></div>`
+    ).join('');
+  }
+
+  // Buttons
+  const prev = document.getElementById('prevStepBtn');
+  const next = document.getElementById('nextStepBtn');
+  if (prev) prev.disabled = _trainingStep === 0;
+  if (next) {
+    if (_trainingStep === m.steps.length - 1) {
+      next.innerHTML = 'Finish <i class="fas fa-flag-checkered"></i>';
+    } else {
+      next.innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
+    }
+  }
+}
+
+function hexToRgbTraining(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+function nextStep() {
+  const m = TRAINING_METHODS[_trainingMethod];
+  if (_trainingStep < m.steps.length - 1) {
+    _trainingStep++;
+    renderTrainingStep();
+  } else {
+    // Complete
+    const container = document.getElementById('trainingSteps');
+    if (container) container.innerHTML = '';
+    const dotsEl = document.getElementById('stepDots');
+    if (dotsEl) dotsEl.innerHTML = '';
+    const prev = document.getElementById('prevStepBtn');
+    const next = document.getElementById('nextStepBtn');
+    if (prev) prev.style.display = 'none';
+    if (next) next.style.display = 'none';
+    const complete = document.getElementById('trainingComplete');
+    if (complete) complete.style.display = 'block';
+    showToast(`🎉 "${m.name}" method complete! You are ready.`, 'success');
+    vibrate([50,30,80]);
+  }
+}
+
+function prevStep() {
+  if (_trainingStep > 0) {
+    _trainingStep--;
+    renderTrainingStep();
+    const prev = document.getElementById('prevStepBtn');
+    const next = document.getElementById('nextStepBtn');
+    if (next) next.style.display = 'flex';
+    if (prev) prev.style.display = 'flex';
+  }
+}
+
+// ============================================================
+// FEATURE 3: NEW BELIEVER 7-DAY GUIDE
+// ============================================================
+const NB_DAYS = [
+  {
+    day: 1, title: 'You Are Saved — What Just Happened',
+    colour: '#2ecc71', icon: 'fa-heart',
+    verse: '"Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!" — 2 Corinthians 5:17',
+    intro: 'Something extraordinary just happened. You are not the same person you were before you prayed that prayer. This is not a feeling — it is a fact declared by God Himself.',
+    truths: [
+      { icon: '✅', text: 'Your sins are completely forgiven — every one of them, past, present, and future.' },
+      { icon: '✅', text: 'You are now a child of God. Not a servant, not a visitor — a son or daughter.' },
+      { icon: '✅', text: 'The Holy Spirit now lives inside you. You are never alone.' },
+      { icon: '✅', text: 'Eternal life has begun. Not in heaven eventually — it starts right now.' },
+      { icon: '✅', text: 'Your old identity is gone. You are a new creation.' }
+    ],
+    action: 'Tell one person that you gave your life to Christ today. Say it out loud. That one step of confession matters more than you know.'
+  },
+  {
+    day: 2, title: 'Talk to God — How to Pray',
+    colour: '#3498db', icon: 'fa-hands-praying',
+    verse: '"Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God." — Philippians 4:6',
+    intro: 'Prayer is simply talking to God. He is not far away and does not require special words. He is your Father. You can speak to Him the same way you would speak to someone who loves you completely.',
+    truths: [
+      { icon: '🙏', text: 'Pray in your own language — Yoruba, Pidgin, English, whatever is natural to you.' },
+      { icon: '📖', text: 'Start with thanksgiving — thank God for at least three things before asking for anything.' },
+      { icon: '❤️', text: 'Be honest — God already knows what you are thinking. Pretending serves no one.' },
+      { icon: '🎧', text: 'Leave space to listen — prayer is a conversation, not a monologue.' },
+      { icon: '📅', text: 'Pray every day, even for just five minutes. Build the habit before building the length.' }
+    ],
+    action: 'Pray for five minutes right now. Talk to God about your day, your fears, your hopes, and say thank you for your salvation.'
+  },
+  {
+    day: 3, title: 'Read the Bible — God\'s Word to You',
+    colour: '#f39c12', icon: 'fa-book-bible',
+    verse: '"Your word is a lamp for my feet, a light on my path." — Psalm 119:105',
+    intro: 'The Bible is not just a religious book. It is God speaking to you. When you read it, you are not reading history — you are listening to your Father. Start with the New Testament, specifically the Gospel of John.',
+    truths: [
+      { icon: '📖', text: 'Start with the Gospel of John — it is written for people who are new to faith.' },
+      { icon: '🗓️', text: 'Read a little every day. Consistency matters more than quantity. One chapter daily is enough.' },
+      { icon: '✍️', text: 'Write down one verse that speaks to you. Carry it through your day.' },
+      { icon: '🤔', text: 'When you do not understand something, do not panic. Ask a pastor or trusted believer.' },
+      { icon: '💡', text: 'Ask before you read: "Holy Spirit, speak to me through this." He will.' }
+    ],
+    action: 'Open John chapter 1 right now and read it fully. Write down one verse that stood out to you.'
+  },
+  {
+    day: 4, title: 'Find a Church — You Need Community',
+    colour: '#9b59b6', icon: 'fa-church',
+    verse: '"And let us not give up meeting together, as some are in the habit of doing, but encouraging one another." — Hebrews 10:25',
+    intro: 'Christianity is not a solo journey. You were designed for community — for worship, accountability, friendship, growth, and service together. A church is not a perfect place. It is a family of imperfect people who love the same Jesus.',
+    truths: [
+      { icon: '🏛️', text: 'Find a church that teaches the Bible clearly and accurately, not just motivational talks.' },
+      { icon: '👋', text: 'Introduce yourself as a new believer. Most churches have dedicated new believer programmes.' },
+      { icon: '🤝', text: 'Attend consistently for at least two months before deciding if a church is right for you.' },
+      { icon: '🛡️', text: 'Avoid isolation. The enemy targets believers who are alone and disconnected.' },
+      { icon: '💪', text: 'Church is not just where you receive — it is where you serve and grow.' }
+    ],
+    action: 'Find one church within reasonable distance of you. Commit to attending this Sunday. Tell someone you are going.'
+  },
+  {
+    day: 5, title: 'Baptism — Your Public Declaration',
+    colour: '#3498db', icon: 'fa-water',
+    verse: '"Repent and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of your sins. And you will receive the gift of the Holy Spirit." — Acts 2:38',
+    intro: 'Baptism does not save you — Jesus already did that. Baptism is your public declaration that you belong to Him. It is an outward symbol of an inward reality: the old you has died and the new you has risen with Christ.',
+    truths: [
+      { icon: '💧', text: 'Baptism is a command, not an option. Jesus was baptised. He said to be baptised.' },
+      { icon: '📣', text: 'It is your public announcement to the world, the church, and spiritual forces: I belong to Jesus.' },
+      { icon: '🌅', text: 'Going under the water = the old sinful self dying. Coming up = new life in Christ.' },
+      { icon: '⏰', text: 'Do it soon after salvation — the New Testament shows people being baptised the same day.' },
+      { icon: '🙋', text: 'Tell your pastor or church leader you are ready. They will guide you through it.' }
+    ],
+    action: 'Speak to a pastor or church leader this week about being baptised. Put a date on it. Do not delay.'
+  },
+  {
+    day: 6, title: 'The Holy Spirit — Your Helper',
+    colour: '#2ecc71', icon: 'fa-wind',
+    verse: '"But the Advocate, the Holy Spirit, whom the Father will send in my name, will teach you all things and will remind you of everything I have said to you." — John 14:26',
+    intro: 'You are not living the Christian life on your own strength. The Holy Spirit — God Himself — lives inside you. He is your Helper, Teacher, Comforter, and Guide. This is not optional Christianity. Every believer has the Spirit.',
+    truths: [
+      { icon: '🕊️', text: 'The Holy Spirit is not a feeling — He is a Person. The third Person of the Trinity.' },
+      { icon: '📚', text: 'He teaches you the Bible as you read it. Ask Him to speak before you start.' },
+      { icon: '🛑', text: 'He convicts you of sin — not to condemn you, but to restore you and keep you on track.' },
+      { icon: '💪', text: 'He empowers you to live differently — fruit of the Spirit: love, joy, peace, patience...' },
+      { icon: '🎤', text: 'He gives you words when you share your faith and do not know what to say.' }
+    ],
+    action: 'Ask the Holy Spirit to fill you afresh right now. Simply say: "Holy Spirit, I yield to You. Fill me, lead me, and use me today."'
+  },
+  {
+    day: 7, title: 'Share Your Faith — You Have Good News',
+    colour: '#f39c12', icon: 'fa-bullhorn',
+    verse: '"But you will receive power when the Holy Spirit comes on you; and you will be my witnesses in Jerusalem, and in all Judea and Samaria, and to the ends of the earth." — Acts 1:8',
+    intro: 'You have the best news in the world. Someone who loves you shared it with you — now it is your turn. Sharing your faith does not require years of training or perfect theological knowledge. It starts with your personal story.',
+    truths: [
+      { icon: '📖', text: 'Your testimony is your most powerful tool. It is: what your life was before, how you came to Christ, and what changed.' },
+      { icon: '🌱', text: 'You do not have to have all the answers. Saying "I don\'t know but I can find out" is perfectly fine.' },
+      { icon: '💬', text: 'Start with the people closest to you — family, friends, neighbours. Pray for them by name first.' },
+      { icon: '📱', text: 'Use GospelSwipe Pro to share the gospel visually when words feel hard. Let the slides do the work.' },
+      { icon: '🔥', text: 'You are a witness, not a lawyer. A witness simply tells what they saw and experienced. Do that.' }
+    ],
+    action: 'Write your testimony in three sentences: life before Christ, how you received Christ, life after Christ. Share it with one person this week.'
+  }
+];
+
+let _nbCurrentDay = 0;
+const _nbCompletedDays = new Set(
+  JSON.parse(localStorage.getItem('nbCompletedDays') || '[]')
+);
+
+function loadNewBeliever() {
+  _nbCurrentDay = 0;
+  updateNBDayButtons();
+  renderNBDay(0);
+}
+
+function selectNBDay(idx) {
+  _nbCurrentDay = idx;
+  updateNBDayButtons();
+  renderNBDay(idx);
+}
+
+function updateNBDayButtons() {
+  NB_DAYS.forEach((_,i) => {
+    const btn = document.getElementById(`nbd-${i}`);
+    if (!btn) return;
+    btn.classList.remove('active','completed');
+    if (i === _nbCurrentDay) btn.classList.add('active');
+    if (_nbCompletedDays.has(i)) btn.classList.add('completed');
+  });
+  // Progress bar
+  const prog = document.getElementById('nbProgress');
+  if (prog) {
+    const pct = Math.max(14, Math.round((_nbCompletedDays.size / 7) * 100));
+    prog.style.width = pct + '%';
+  }
+}
+
+function renderNBDay(idx) {
+  const d = NB_DAYS[idx];
+  const container = document.getElementById('nbDayContent');
+  if (!container) return;
+
+  const truthsHTML = d.truths.map(t => `
+    <div class="nb-truth-item">
+      <div class="nb-truth-icon" style="background:rgba(${hexToRgbTraining(d.colour)},0.12);color:${d.colour};">${t.icon}</div>
+      <div>${escapeHtml(t.text)}</div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div class="nb-section">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="background:rgba(${hexToRgbTraining(d.colour)},0.15);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="fas ${d.icon}" style="color:${d.colour};font-size:1.1rem;"></i>
+        </div>
+        <div>
+          <div style="font-size:0.72rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Day ${d.day} of 7</div>
+          <div style="font-weight:800;font-size:1.05rem;line-height:1.3;">${d.title}</div>
+        </div>
+      </div>
+      <div class="nb-verse-box" style="border-left-color:${d.colour};">${escapeHtml(d.verse)}</div>
+      <p style="font-size:0.88rem;line-height:1.72;opacity:0.88;margin-bottom:16px;">${escapeHtml(d.intro)}</p>
+      <div>${truthsHTML}</div>
+    </div>
+    <div style="background:rgba(${hexToRgbTraining(d.colour)},0.08);border:1px solid rgba(${hexToRgbTraining(d.colour)},0.22);border-radius:18px;padding:16px;margin-bottom:4px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <i class="fas fa-bolt" style="color:${d.colour};"></i>
+        <span style="font-weight:700;font-size:0.88rem;">Today's Action</span>
+      </div>
+      <p style="font-size:0.86rem;line-height:1.72;opacity:0.88;">${escapeHtml(d.action)}</p>
+    </div>
+  `;
+
+  // Update complete button
+  const btn = document.getElementById('nbCompleteBtn');
+  if (btn) {
+    if (_nbCompletedDays.has(idx)) {
+      btn.innerHTML = '<i class="fas fa-check-circle"></i> Day ' + (idx+1) + ' Complete ✓';
+      btn.style.background = 'rgba(46,204,113,0.3)';
+      btn.disabled = true;
+    } else {
+      btn.innerHTML = '<i class="fas fa-check"></i> Mark Day ' + (idx+1) + ' Complete';
+      btn.style.background = '';
+      btn.disabled = false;
+    }
+  }
+}
+
+function markNBDayComplete() {
+  _nbCompletedDays.add(_nbCurrentDay);
+  safeSetItem('nbCompletedDays', JSON.stringify([..._nbCompletedDays]));
+  updateNBDayButtons();
+
+  const d = NB_DAYS[_nbCurrentDay];
+  showToast(`✅ Day ${d.day} complete! Keep going — you are growing.`, 'success');
+  vibrate([40,20,60]);
+
+  // Update button
+  const btn = document.getElementById('nbCompleteBtn');
+  if (btn) {
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> Day ' + (_nbCurrentDay+1) + ' Complete ✓';
+    btn.style.background = 'rgba(46,204,113,0.3)';
+    btn.disabled = true;
+  }
+
+  // Auto advance to next day
+  if (_nbCurrentDay < 6) {
+    setTimeout(() => {
+      _nbCurrentDay++;
+      updateNBDayButtons();
+      renderNBDay(_nbCurrentDay);
+      const nextBtn = document.getElementById(`nbd-${_nbCurrentDay}`);
+      if (nextBtn) nextBtn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+    }, 1200);
+  } else {
+    setTimeout(() => {
+      showToast('🎉 7-Day Guide complete! Welcome to the family of God! 🙌', 'success');
+    }, 1300);
+  }
+}
+
+// ============================================================
+// FEATURE 4: SCRIPTURE AUDIO MODE
+// ============================================================
+let _audioActive = false;
+let _audioUtterance = null;
+let _audioQueue = [];
+let _audioQueueIdx = 0;
+
+function getAudioVoice(lang) {
+  const voices = window.speechSynthesis.getVoices();
+  const langMap = { fr:'fr', ar:'ar', yo:'yo', ig:'ig', ha:'ha', sw:'sw', pcm:'en-NG', en:'en' };
+  const target = langMap[lang] || 'en';
+  return voices.find(v => v.lang.startsWith(target)) ||
+         voices.find(v => v.lang.startsWith('en')) ||
+         voices[0] || null;
+}
+
+function speakText(text, lang, onEnd) {
+  if (!window.speechSynthesis) {
+    showToast('Audio not supported on this device', 'info');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.voice = getAudioVoice(lang || AppState.language || 'en');
+  utt.rate = 0.88;
+  utt.pitch = 1.0;
+  utt.volume = 1.0;
+  utt.onend = onEnd || null;
+  utt.onerror = () => {};
+  _audioUtterance = utt;
+  // Chrome mobile fix: voices load async
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      utt.voice = getAudioVoice(lang || AppState.language || 'en');
+      window.speechSynthesis.speak(utt);
+    };
+  } else {
+    window.speechSynthesis.speak(utt);
+  }
+}
+
+function stopAudio() {
+  _audioActive = false;
+  _audioQueue = [];
+  window.speechSynthesis?.cancel();
+  updateAudioModeUI(false);
+}
+
+function updateAudioModeUI(playing) {
+  const btn = document.getElementById('audioModeBtn');
+  if (!btn) return;
+  if (playing) {
+    btn.innerHTML = '<i class="fas fa-stop-circle" style="color:#e74c3c;"></i> Stop Audio';
+    btn.style.borderColor = 'rgba(231,76,60,0.4)';
+  } else {
+    btn.innerHTML = '<i class="fas fa-volume-up" style="color:#3498db;"></i> Audio Mode';
+    btn.style.borderColor = '';
+  }
+}
+
+function showAudioModal() {
+  const slides = AppState.contentData?.slides || FALLBACK_CONTENT.slides;
+  const lang = AppState.language || 'en';
+
+  showModal(`
+    <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div style="text-align:center;margin-bottom:20px;">
+      <i class="fas fa-volume-up" style="font-size:2.5rem;color:#3498db;margin-bottom:10px;display:block;"></i>
+      <h3 style="margin-bottom:6px;">Scripture Audio Mode</h3>
+      <p style="font-size:0.83rem;opacity:0.65;line-height:1.5;">
+        Listen to all 15 gospel slides read aloud.<br>Works offline — uses your device's built-in voice.
+      </p>
+    </div>
+
+    <div style="background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.22);border-radius:18px;padding:14px 16px;margin-bottom:14px;font-size:0.84rem;line-height:1.65;opacity:0.85;">
+      <strong style="color:#3498db;">Current language:</strong> ${lang.toUpperCase()} —
+      ${lang === 'ar' ? 'Arabic' : lang === 'yo' ? 'Yoruba' : lang === 'ig' ? 'Igbo' :
+        lang === 'ha' ? 'Hausa' : lang === 'fr' ? 'French' : lang === 'sw' ? 'Swahili' :
+        lang === 'pcm' ? 'Pidgin' : 'English'}.
+      Change language in Settings to hear a different language.
+    </div>
+
+    <!-- Individual slide picker -->
+    <div style="font-size:0.78rem;font-weight:700;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Choose what to hear</div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+      <button class="action-btn primary" onclick="playAllSlides();closeModal();"
+        style="justify-content:center;padding:14px;font-size:0.95rem;">
+        <i class="fas fa-play-circle"></i> &nbsp;Play All 15 Slides
+      </button>
+      <button class="action-btn" onclick="playCurrentSlide();closeModal();"
+        style="justify-content:center;">
+        <i class="fas fa-play"></i> &nbsp;Play Current Slide Only
+      </button>
+      <button class="action-btn" onclick="playDailyDevotional();closeModal();"
+        style="justify-content:center;background:rgba(243,156,18,0.1);border-color:rgba(243,156,18,0.3);color:#f39c12;">
+        <i class="fas fa-book-open"></i> &nbsp;Read Today's Devotional Aloud
+      </button>
+    </div>
+
+    <button onclick="stopAudio();closeModal();" class="action-btn"
+      style="width:100%;justify-content:center;background:rgba(231,76,60,0.1);border-color:rgba(231,76,60,0.3);color:#e74c3c;">
+      <i class="fas fa-stop"></i> &nbsp;Stop Audio
+    </button>
+  `);
+}
+
+function playAllSlides() {
+  const slides = AppState.contentData?.slides || FALLBACK_CONTENT.slides;
+  const lang = AppState.language || 'en';
+  _audioActive = true;
+  _audioQueueIdx = 0;
+  _audioQueue = slides.map(s => {
+    const loc = getSlideInLanguage(s);
+    return `${loc.title}. ${loc.verse} — ${loc.reference}`;
+  });
+  updateAudioModeUI(true);
+  showToast('🔊 Playing all 15 slides...', 'info');
+  playNextInQueue();
+}
+
+function playNextInQueue() {
+  if (!_audioActive || _audioQueueIdx >= _audioQueue.length) {
+    stopAudio();
+    if (_audioActive) showToast('✅ Audio complete!', 'success');
+    return;
+  }
+  const text = _audioQueue[_audioQueueIdx];
+  _audioQueueIdx++;
+  speakText(text, AppState.language || 'en', () => {
+    if (_audioActive) setTimeout(playNextInQueue, 600);
+  });
+}
+
+function playCurrentSlide() {
+  const slides = AppState.contentData?.slides || FALLBACK_CONTENT.slides;
+  const idx = Math.max(0, AppState.currentSlide || 0);
+  const s = slides[idx];
+  if (!s) return;
+  const loc = getSlideInLanguage(s);
+  const text = `${loc.title}. ${loc.verse} — ${loc.reference}`;
+  speakText(text, AppState.language || 'en');
+  showToast('🔊 Reading slide aloud...', 'info');
+}
+
+function playDailyDevotional() {
+  if (typeof getTodayDevotional !== 'function') return;
+  const d = getTodayDevotional();
+  const text = `${d.title}. ${d.verse} — ${d.ref}. Reflection: ${d.reflection}. Prayer: ${d.prayer}`;
+  speakText(text, 'en');
+  showToast('🔊 Reading devotional aloud...', 'info');
+}
+
+// ============================================================
+// FEATURE 5: GOSPEL TRACT GENERATOR
+// ============================================================
+const TRACT_VERSES = [
+  { verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.", ref: "John 3:16", bg: "#1a2c3d" },
+  { verse: "For all have sinned and fall short of the glory of God, and all are justified freely by his grace through the redemption that came by Christ Jesus.", ref: "Romans 3:23-24", bg: "#1a1a2e" },
+  { verse: "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.", ref: "Romans 5:8", bg: "#0d2137" },
+  { verse: "For it is by grace you have been saved, through faith — and this is not from yourselves, it is the gift of God.", ref: "Ephesians 2:8", bg: "#1c2a1c" },
+  { verse: "I am the way and the truth and the life. No one comes to the Father except through me.", ref: "John 14:6", bg: "#1e1a2e" },
+  { verse: "If you declare with your mouth, 'Jesus is Lord,' and believe in your heart that God raised him from the dead, you will be saved.", ref: "Romans 10:9", bg: "#1a2c2c" },
+  { verse: "Come to me, all you who are weary and burdened, and I will give you rest.", ref: "Matthew 11:28", bg: "#1a1e2c" },
+  { verse: "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!", ref: "2 Corinthians 5:17", bg: "#1c2c1a" },
+];
+
+let _tractVerseIdx = 0;
+
+function showTractGenerator() {
+  _tractVerseIdx = 0;
+  renderTractModal();
+}
+
+function renderTractModal() {
+  const v = TRACT_VERSES[_tractVerseIdx];
+  const lang = AppState.language || 'en';
+
+  showModal(`
+    <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div style="text-align:center;margin-bottom:16px;">
+      <i class="fas fa-share-nodes" style="font-size:2rem;color:#2ecc71;margin-bottom:8px;display:block;"></i>
+      <h3 style="margin-bottom:4px;">Gospel Tract Generator</h3>
+      <p style="font-size:0.8rem;opacity:0.6;">Create a shareable gospel image — one tap to WhatsApp</p>
+    </div>
+
+    <!-- Live preview canvas -->
+    <div style="border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
+      <canvas id="tractCanvas" width="800" height="450" style="width:100%;display:block;"></canvas>
+    </div>
+
+    <!-- Verse picker -->
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;">
+      ${TRACT_VERSES.map((t,i) => `
+        <button onclick="selectTractVerse(${i})"
+          style="flex-shrink:0;padding:6px 14px;border-radius:16px;border:1px solid ${i===_tractVerseIdx?'#2ecc71':'rgba(255,255,255,0.15)'};background:${i===_tractVerseIdx?'rgba(46,204,113,0.2)':'rgba(255,255,255,0.05)'};color:${i===_tractVerseIdx?'#2ecc71':'rgba(255,255,255,0.6)'};font-size:0.75rem;cursor:pointer;white-space:nowrap;font-family:inherit;">
+          ${t.ref.split(' ')[0]} ${t.ref.split(' ')[1] || ''}
+        </button>
+      `).join('')}
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="downloadTract()" class="action-btn primary"
+        style="justify-content:center;padding:14px;font-size:0.95rem;background:linear-gradient(135deg,#2ecc71,#27ae60);border-color:transparent;">
+        <i class="fas fa-download"></i> &nbsp;Download Image
+      </button>
+      <button onclick="shareTractWhatsApp()" class="action-btn"
+        style="justify-content:center;padding:14px;background:rgba(37,211,102,0.12);border-color:rgba(37,211,102,0.3);color:#25d366;font-size:0.95rem;">
+        <i class="fab fa-whatsapp"></i> &nbsp;Share to WhatsApp
+      </button>
+    </div>
+  `);
+
+  // Draw immediately
+  requestAnimationFrame(() => drawTract(_tractVerseIdx));
+}
+
+function drawTract(idx) {
+  const canvas = document.getElementById('tractCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 800, H = 450;
+  const v = TRACT_VERSES[idx];
+
+  // Background gradient
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, v.bg);
+  bg.addColorStop(1, '#0a0f14');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Dot grid
+  ctx.fillStyle = 'rgba(255,255,255,0.04)';
+  for (let x = 20; x < W; x += 28)
+    for (let y = 20; y < H; y += 28) {
+      ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill();
+    }
+
+  // Top accent line
+  const accent = ctx.createLinearGradient(0, 0, W, 0);
+  accent.addColorStop(0, '#3498db');
+  accent.addColorStop(1, '#2ecc71');
+  ctx.fillStyle = accent;
+  ctx.fillRect(0, 0, W, 4);
+
+  // Cross icon top-left
+  ctx.fillStyle = 'rgba(52,152,219,0.6)';
+  ctx.fillRect(48, 26, 8, 28);
+  ctx.fillStyle = 'rgba(46,204,113,0.6)';
+  ctx.fillRect(38, 34, 28, 8);
+
+  // App name top right
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '500 13px -apple-system,sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('GospelSwipe Pro • gospelswipe.app', W - 30, 44);
+
+  // Verse text — word wrapped
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'italic 700 22px Georgia,serif';
+  ctx.textAlign = 'center';
+  const maxW = W - 100;
+  const words = `"${v.verse}"`.split(' ');
+  let line = '';
+  let lineY = 130;
+  const lines = [];
+  for (const word of words) {
+    const test = line + (line ? ' ' : '') + word;
+    if (ctx.measureText(test).width > maxW && line) {
+      lines.push(line); line = word;
+    } else { line = test; }
+  }
+  if (line) lines.push(line);
+  // centre vertically in middle zone
+  const totalH = lines.length * 34;
+  lineY = (H - 80) / 2 - totalH / 2 + 40;
+  lines.forEach(l => { ctx.fillText(l, W/2, lineY); lineY += 34; });
+
+  // Reference
+  const refGrad = ctx.createLinearGradient(W/2-100, 0, W/2+100, 0);
+  refGrad.addColorStop(0, '#3498db');
+  refGrad.addColorStop(1, '#2ecc71');
+  ctx.fillStyle = refGrad;
+  ctx.font = 'bold 18px -apple-system,sans-serif';
+  ctx.fillText(`— ${v.ref}`, W/2, lineY + 10);
+
+  // Bottom CTA bar
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(0, H - 54, W, 54);
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = '500 14px -apple-system,sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('📱 Get the free offline gospel app — gospelswipe.app', W/2, H - 24);
+}
+
+function selectTractVerse(idx) {
+  _tractVerseIdx = idx;
+  // Re-render modal so buttons update
+  renderTractModal();
+}
+
+function downloadTract() {
+  const canvas = document.getElementById('tractCanvas');
+  if (!canvas) return;
+  drawTract(_tractVerseIdx);
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `GospelTract_${TRACT_VERSES[_tractVerseIdx].ref.replace(/[^a-zA-Z0-9]/g,'_')}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('📥 Tract downloaded! Share it to spread the gospel.', 'success');
+    AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
+    refreshStats();
+  }, 'image/png');
+}
+
+function shareTractWhatsApp() {
+  const v = TRACT_VERSES[_tractVerseIdx];
+  const msg = `✝️ *${v.ref}*\n\n"${v.verse}"\n\n📱 Read the full gospel — free & offline:\n*gospelswipe.app*`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
+  refreshStats();
+  showToast('📤 Opening WhatsApp...', 'success');
+}
+
+window.showAudioModal       = showAudioModal;
+window.playAllSlides        = playAllSlides;
+window.playCurrentSlide     = playCurrentSlide;
+window.playDailyDevotional  = playDailyDevotional;
+window.stopAudio            = stopAudio;
+window.showTractGenerator   = showTractGenerator;
+window.selectTractVerse     = selectTractVerse;
+window.downloadTract        = downloadTract;
+window.shareTractWhatsApp   = shareTractWhatsApp;
+window.loadDevotional       = loadDevotional;
+window.markDevoComplete     = markDevoComplete;
+window.loadTraining         = loadTraining;
+window.selectMethod         = selectMethod;
+window.nextStep             = nextStep;
+window.prevStep             = prevStep;
+window.loadNewBeliever      = loadNewBeliever;
+window.selectNBDay          = selectNBDay;
+window.markNBDayComplete    = markNBDayComplete;
+
 // ========== Initialization ==========
 document.addEventListener('DOMContentLoaded', async () => {
   const loading = document.getElementById('loading');
@@ -1822,7 +2697,7 @@ function shareGospelWhatsApp() {
     `Hey! I'm using this free app to share the gospel. It has 15 gospel presentations, 200 prayers, works completely *offline*, and supports *8 languages* including Yoruba, Hausa, Igbo and Pidgin.\n\n` +
     `Perfect for personal evangelism, house fellowships, and crusade follow-up.\n\n` +
     `📱 Download free (no app store needed):\n` +
-    `👉 https://gospelswipe.app/\n\n` +
+    `👉 https://gpmulticoncept.github.io/gospel-swipe-pro/\n\n` +
     `Made in Nigeria 🇳🇬 • Zero ads • Zero tracking`;
   const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
   window.open(url, '_blank');
