@@ -1840,19 +1840,20 @@ function loadLivingFaith() {
   _lfIndex = -1;
   _renderLF();
 
-  // Swipe support on lfCard
-  const card = document.getElementById('lfCard');
-  if (card && !card._swipeReady) {
-    card._swipeReady = true;
+  // Swipe on the whole screen — not just the card
+  const screen = document.getElementById('livingfaith-screen');
+  if (screen && !screen._swipeReady) {
+    screen._swipeReady = true;
     let _sx = 0, _sy = 0;
-    card.addEventListener('touchstart', e => {
+    screen.addEventListener('touchstart', e => {
       _sx = e.changedTouches[0].clientX;
       _sy = e.changedTouches[0].clientY;
     }, { passive: true });
-    card.addEventListener('touchend', e => {
+    screen.addEventListener('touchend', e => {
       const dx = e.changedTouches[0].clientX - _sx;
       const dy = e.changedTouches[0].clientY - _sy;
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      // Only trigger if horizontal swipe dominates and is significant
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) {
         if (dx < 0) lfBrowse(1); else lfBrowse(-1);
       }
     }, { passive: true });
