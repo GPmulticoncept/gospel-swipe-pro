@@ -1760,13 +1760,13 @@ function loadDevotional() {
   const verseBox = document.getElementById('devoVerseBox');
   if (verseBox) verseBox.style.borderLeftColor = d.theme;
 
-  const _dt = id => document.getElementById(id);
-  if (_dt('devoTitle'))      _dt('devoTitle').textContent      = d.title;
-  if (_dt('devoVerse'))      _dt('devoVerse').textContent      = `"${d.verse}"`;
-  if (_dt('devoRef'))        _dt('devoRef').textContent        = `— ${d.ref}`;
-  if (_dt('devoReflection')) _dt('devoReflection').textContent = d.reflection;
-  if (_dt('devoPrayer'))     _dt('devoPrayer').textContent     = d.prayer;
-  if (_dt('devoAction'))     _dt('devoAction').textContent     = d.action;
+  const _d = id => document.getElementById(id);
+  if (_d('devoTitle'))      _d('devoTitle').textContent      = d.title;
+  if (_d('devoVerse'))      _d('devoVerse').textContent      = `"${d.verse}"`;
+  if (_d('devoRef'))        _d('devoRef').textContent        = `— ${d.ref}`;
+  if (_d('devoReflection')) _d('devoReflection').textContent = d.reflection;
+  if (_d('devoPrayer'))     _d('devoPrayer').textContent     = d.prayer;
+  if (_d('devoAction'))     _d('devoAction').textContent     = d.action;
 
   // Wire share button
   const shareBtn = document.getElementById('devoShareBtn');
@@ -1775,22 +1775,6 @@ function loadDevotional() {
       const msg = `📖 *${d.title}*\n\n"${d.verse}"\n— ${d.ref}\n\n${d.reflection.substring(0,120)}...\n\n📱 GospelSwipe Pro — gospelswipe.app`;
       window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
     };
-  }
-
-  // Swipe on devo card: left = share, right = dismiss gracefully
-  const devoCard = document.getElementById('devoCard');
-  if (devoCard && !devoCard._swipeReady) {
-    devoCard._swipeReady = true;
-    let _dsx = 0;
-    devoCard.addEventListener('touchstart', e => { _dsx = e.changedTouches[0].clientX; }, { passive: true });
-    devoCard.addEventListener('touchend', e => {
-      const dx = e.changedTouches[0].clientX - _dsx;
-      if (dx < -60) {
-        // Swipe left = share
-        const shareBtn = document.getElementById('devoShareBtn');
-        if (shareBtn) shareBtn.click();
-      }
-    }, { passive: true });
   }
 
   // Check if already read today
@@ -1825,145 +1809,6 @@ function hexToRgb(hex) {
   const b = parseInt(hex.slice(5,7),16);
   return `${r},${g},${b}`;
 }
-
-// ============================================================
-// LIVING FAITH MODULE
-// ============================================================
-let _lfIndex = -1; // -1 = today's entry
-
-function _getLFEntry() {
-  if (_lfIndex < 0) return (typeof getTodayLivingFaith === 'function') ? getTodayLivingFaith() : LIVING_FAITH[0];
-  return LIVING_FAITH[_lfIndex % LIVING_FAITH.length];
-}
-
-function loadLivingFaith() {
-  _lfIndex = -1;
-  _renderLF();
-
-  // Swipe on the whole screen — not just the card
-  const screen = document.getElementById('livingfaith-screen');
-  if (screen && !screen._swipeReady) {
-    screen._swipeReady = true;
-    let _sx = 0, _sy = 0;
-    screen.addEventListener('touchstart', e => {
-      _sx = e.changedTouches[0].clientX;
-      _sy = e.changedTouches[0].clientY;
-    }, { passive: true });
-    screen.addEventListener('touchend', e => {
-      const dx = e.changedTouches[0].clientX - _sx;
-      const dy = e.changedTouches[0].clientY - _sy;
-      // Only trigger if horizontal swipe dominates and is significant
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) {
-        if (dx < 0) lfBrowse(1); else lfBrowse(-1);
-      }
-    }, { passive: true });
-  }
-}
-
-function _renderLF() {
-  const f = _getLFEntry();
-  if (!f) return;
-
-  const el = id => document.getElementById(id);
-
-  // Theme card border
-  const card = el('lfCard');
-  if (card) {
-    card.style.background = `rgba(${hexToRgb(f.theme)},0.1)`;
-    card.style.borderColor = `rgba(${hexToRgb(f.theme)},0.25)`;
-  }
-  const vBox = el('lfVerseBox');
-  if (vBox) vBox.style.borderLeftColor = f.theme;
-
-  if (el('lfThought'))   el('lfThought').textContent  = f.thought;
-  if (el('lfVerse'))     el('lfVerse').textContent     = `"${f.verse}"`;
-  if (el('lfRef'))       el('lfRef').textContent       = `— ${f.ref}`;
-  if (el('lfQuestion'))  el('lfQuestion').textContent  = f.question;
-
-  // Week badge label
-  const badge = el('lfWeekBadge');
-  if (badge) {
-    const totalIdx = _lfIndex < 0
-      ? LIVING_FAITH.indexOf(getTodayLivingFaith())
-      : _lfIndex % LIVING_FAITH.length;
-    badge.textContent = _lfIndex < 0
-      ? 'THIS WEEK\'S REFLECTION'
-      : `WEEK ${totalIdx + 1} OF 52`;
-  }
-
-  // Share button
-  const shareBtn = el('lfShareBtn');
-  if (shareBtn) {
-    shareBtn.onclick = () => {
-      vibrate(20);
-      const msg =
-        `💭 *Living Faith*\n\n"${f.thought}"\n\n` +
-        `📖 ${f.ref} — "${f.verse}"\n\n` +
-        `🤍 Sit with this: _${f.question}_\n\n` +
-        `📱 GospelSwipe Pro — gospelswipe.app`;
-      if (navigator.share) {
-        navigator.share({ title: 'Living Faith', text: msg }).catch(() => {
-          window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
-        });
-      } else {
-        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
-      }
-    };
-  }
-
-  // Restore complete button state
-  const completeBtn = el('lfCompleteBtn');
-  if (completeBtn) {
-    const lastRead = localStorage.getItem('lfLastRead');
-    const today = new Date().toDateString();
-    if (lastRead === today) {
-      completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> Reflected Today ✓';
-      completeBtn.style.background = 'rgba(46,204,113,0.3)';
-      completeBtn.disabled = true;
-    } else {
-      completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> I\'ve Sat With This';
-      completeBtn.style.background = '';
-      completeBtn.disabled = false;
-    }
-  }
-
-  // Animate card on every render
-  if (card) {
-    card.style.animation = 'none';
-    void card.offsetWidth; // reflow
-    card.style.animation = 'fadeIn 0.3s ease';
-  }
-}
-
-function lfBrowse(dir) {
-  vibrate(15);
-  if (_lfIndex < 0) {
-    const today = typeof getTodayLivingFaith === 'function' ? getTodayLivingFaith() : LIVING_FAITH[0];
-    _lfIndex = LIVING_FAITH.indexOf(today);
-    if (_lfIndex < 0) _lfIndex = 0;
-  }
-  _lfIndex = (_lfIndex + dir + LIVING_FAITH.length) % LIVING_FAITH.length;
-  _renderLF();
-}
-
-function markLFRead() {
-  const today = new Date().toDateString();
-  localStorage.setItem('lfLastRead', today);
-  AppState.userStats.lfStreak = (AppState.userStats.lfStreak || 0) + 1;
-  showToast('🔥 Keep going. Faith grows in the sitting still.', 'success');
-  vibrate(50);
-  const btn = document.getElementById('lfCompleteBtn');
-  if (btn) {
-    btn.innerHTML = '<i class="fas fa-check-circle"></i> Reflected Today ✓';
-    btn.style.background = 'rgba(46,204,113,0.3)';
-    btn.disabled = true;
-  }
-  refreshStats();
-}
-
-window.loadLivingFaith = loadLivingFaith;
-window.lfBrowse       = lfBrowse;
-window.markLFRead     = markLFRead;
 
 // ============================================================
 // FEATURE 2: EVANGELISM TRAINING
@@ -2101,23 +1946,6 @@ function loadTraining() {
   _trainingMethod = 0;
   _trainingStep = 0;
   renderTrainingMethod();
-  // Swipe support — attach once, guard with flag
-  const container = document.getElementById('trainingSteps');
-  if (container && !container._swipeReady) {
-    container._swipeReady = true;
-    let _sx = 0, _sy = 0;
-    container.addEventListener('touchstart', e => {
-      _sx = e.changedTouches[0].clientX;
-      _sy = e.changedTouches[0].clientY;
-    }, { passive: true });
-    container.addEventListener('touchend', e => {
-      const dx = e.changedTouches[0].clientX - _sx;
-      const dy = e.changedTouches[0].clientY - _sy;
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) {
-        if (dx < 0) nextStep(); else prevStep();
-      }
-    }, { passive: true });
-  }
 }
 
 function selectMethod(idx) {
@@ -2133,9 +1961,9 @@ function renderTrainingMethod() {
   const m = TRAINING_METHODS[_trainingMethod];
   const md = document.getElementById('methodDesc');
   if (md) md.textContent = m.desc;
+  renderTrainingStep();
   const complete = document.getElementById('trainingComplete');
   if (complete) complete.style.display = 'none';
-  renderTrainingStep();
 }
 
 function renderTrainingStep() {
@@ -2145,7 +1973,7 @@ function renderTrainingStep() {
   if (!container) return;
 
   container.innerHTML = `
-    <div class="training-step-card" style="animation:fadeIn 0.28s ease;">
+    <div class="training-step-card">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
         <div class="training-step-number" style="background:rgba(${hexToRgbTraining(s.color)},0.15);color:${s.color};">
           ${s.icon}
@@ -2169,15 +1997,16 @@ function renderTrainingStep() {
     ).join('');
   }
 
-  // Buttons — always make visible, then set state
+  // Buttons
   const prev = document.getElementById('prevStepBtn');
   const next = document.getElementById('nextStepBtn');
-  if (prev) { prev.style.display = 'flex'; prev.disabled = _trainingStep === 0; }
+  if (prev) prev.disabled = _trainingStep === 0;
   if (next) {
-    next.style.display = 'flex';
-    next.innerHTML = _trainingStep === m.steps.length - 1
-      ? 'Finish <i class="fas fa-flag-checkered"></i>'
-      : 'Next <i class="fas fa-arrow-right"></i>';
+    if (_trainingStep === m.steps.length - 1) {
+      next.innerHTML = 'Finish <i class="fas fa-flag-checkered"></i>';
+    } else {
+      next.innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
+    }
   }
 }
 
@@ -2891,7 +2720,291 @@ window.askAI = askAI;
 window.showPrayerAssistant = showPrayerAssistant;
 window.showPrayerCategory = showPrayerCategory;
 window.showAllPrayers = showAllPrayers;
-window.useFreshPrayer = useFreshPrayer;
+// ============================================================
+// LIVING FAITH MODULE
+// ============================================================
+let _lfIndex = -1;
+
+function _getLFEntry() {
+  if (_lfIndex < 0) return (typeof getTodayLivingFaith === 'function') ? getTodayLivingFaith() : (typeof LIVING_FAITH !== 'undefined' ? LIVING_FAITH[0] : null);
+  return (typeof LIVING_FAITH !== 'undefined') ? LIVING_FAITH[_lfIndex % LIVING_FAITH.length] : null;
+}
+
+function loadLivingFaith() {
+  _lfIndex = -1;
+  _renderLF();
+  const screen = document.getElementById('livingfaith-screen');
+  if (screen && !screen._swipeReady) {
+    screen._swipeReady = true;
+    let _sx = 0, _sy = 0;
+    screen.addEventListener('touchstart', e => { _sx = e.changedTouches[0].clientX; _sy = e.changedTouches[0].clientY; }, { passive: true });
+    screen.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - _sx;
+      const dy = e.changedTouches[0].clientY - _sy;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) { if (dx < 0) lfBrowse(1); else lfBrowse(-1); }
+    }, { passive: true });
+  }
+}
+
+function _renderLF() {
+  const f = _getLFEntry();
+  if (!f) return;
+  const el = id => document.getElementById(id);
+  const card = el('lfCard');
+  if (card) { card.style.background = `rgba(${hexToRgb(f.theme)},0.1)`; card.style.borderColor = `rgba(${hexToRgb(f.theme)},0.25)`; card.style.animation = 'none'; void card.offsetWidth; card.style.animation = 'fadeIn 0.3s ease'; }
+  const vBox = el('lfVerseBox');
+  if (vBox) vBox.style.borderLeftColor = f.theme;
+  if (el('lfThought'))  el('lfThought').textContent  = f.thought;
+  if (el('lfVerse'))    el('lfVerse').textContent     = `"${f.verse}"`;
+  if (el('lfRef'))      el('lfRef').textContent       = `— ${f.ref}`;
+  if (el('lfQuestion')) el('lfQuestion').textContent  = f.question;
+  const badge = el('lfWeekBadge');
+  if (badge) {
+    const lf = typeof LIVING_FAITH !== 'undefined' ? LIVING_FAITH : [];
+    const todayEntry = typeof getTodayLivingFaith === 'function' ? getTodayLivingFaith() : null;
+    const totalIdx = _lfIndex < 0 ? lf.indexOf(todayEntry) : _lfIndex % lf.length;
+    badge.textContent = _lfIndex < 0 ? 'THIS WEEK\'S REFLECTION' : `WEEK ${Math.max(totalIdx + 1, 1)} OF ${lf.length}`;
+  }
+  const shareBtn = el('lfShareBtn');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      vibrate(20);
+      const msg = `💭 *Living Faith*\n\n"${f.thought}"\n\n📖 ${f.ref} — "${f.verse}"\n\n🤍 Sit with this: _${f.question}_\n\n📱 GospelSwipe Pro — gospelswipe.app`;
+      if (navigator.share) { navigator.share({ title: 'Living Faith', text: msg }).catch(() => window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank')); }
+      else { window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank'); }
+    };
+  }
+  const completeBtn = el('lfCompleteBtn');
+  if (completeBtn) {
+    const lastRead = localStorage.getItem('lfLastRead');
+    const today = new Date().toDateString();
+    if (lastRead === today) { completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> Reflected Today ✓'; completeBtn.style.background = 'rgba(46,204,113,0.3)'; completeBtn.disabled = true; }
+    else { completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> I\'ve Sat With This'; completeBtn.style.background = ''; completeBtn.disabled = false; }
+  }
+}
+
+function lfBrowse(dir) {
+  vibrate(15);
+  if (_lfIndex < 0) {
+    const lf = typeof LIVING_FAITH !== 'undefined' ? LIVING_FAITH : [];
+    const today = typeof getTodayLivingFaith === 'function' ? getTodayLivingFaith() : lf[0];
+    _lfIndex = lf.indexOf(today);
+    if (_lfIndex < 0) _lfIndex = 0;
+  }
+  const lf = typeof LIVING_FAITH !== 'undefined' ? LIVING_FAITH : [{}];
+  _lfIndex = (_lfIndex + dir + lf.length) % lf.length;
+  _renderLF();
+}
+
+function markLFRead() {
+  const today = new Date().toDateString();
+  localStorage.setItem('lfLastRead', today);
+  AppState.userStats.lfStreak = (AppState.userStats.lfStreak || 0) + 1;
+  showToast('🔥 Keep going. Faith grows in the sitting still.', 'success');
+  vibrate(50);
+  const btn = document.getElementById('lfCompleteBtn');
+  if (btn) { btn.innerHTML = '<i class="fas fa-check-circle"></i> Reflected Today ✓'; btn.style.background = 'rgba(46,204,113,0.3)'; btn.disabled = true; }
+  refreshStats();
+}
+
+// ============================================================
+// THE THREAD — INTERTEXTUAL BIBLE MODULE
+// ============================================================
+let _threadIndex = -1;
+let _threadVerseIndex = 0;
+
+function _getThreadEntry() {
+  const threads = typeof BIBLE_THREADS !== 'undefined' ? BIBLE_THREADS : [];
+  if (!threads.length) return null;
+  if (_threadIndex < 0) return typeof getTodayThread === 'function' ? getTodayThread() : threads[0];
+  return threads[_threadIndex % threads.length];
+}
+
+function loadThread() {
+  _threadIndex = -1;
+  _threadVerseIndex = 0;
+  _renderThread();
+  const screen = document.getElementById('thread-screen');
+  if (screen && !screen._swipeReady) {
+    screen._swipeReady = true;
+    let _tsx = 0, _tsy = 0;
+    screen.addEventListener('touchstart', e => { _tsx = e.changedTouches[0].clientX; _tsy = e.changedTouches[0].clientY; }, { passive: true });
+    screen.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - _tsx;
+      const dy = e.changedTouches[0].clientY - _tsy;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) {
+        if (dx < 0) threadNextVerse(); else threadPrevVerse();
+      }
+    }, { passive: true });
+  }
+}
+
+function _renderThread() {
+  const t = _getThreadEntry();
+  if (!t) return;
+  const el = id => document.getElementById(id);
+
+  // Header
+  if (el('threadTitle'))    el('threadTitle').textContent    = t.title;
+  if (el('threadTagline'))  el('threadTagline').textContent  = t.tagline;
+  if (el('threadSummary'))  el('threadSummary').textContent  = t.summary;
+
+  // Theme colour
+  const header = el('threadHeader');
+  if (header) { header.style.background = `rgba(${hexToRgb(t.color)},0.12)`; header.style.borderColor = `rgba(${hexToRgb(t.color)},0.3)`; }
+  const iconEl = el('threadIcon');
+  if (iconEl) { iconEl.className = t.icon; iconEl.style.color = t.color; }
+
+  // Badge
+  const threads = typeof BIBLE_THREADS !== 'undefined' ? BIBLE_THREADS : [];
+  const todayT  = typeof getTodayThread === 'function' ? getTodayThread() : threads[0];
+  const tIdx    = _threadIndex < 0 ? threads.indexOf(todayT) : _threadIndex % threads.length;
+  const badge   = el('threadBadge');
+  if (badge) badge.textContent = _threadIndex < 0 ? 'THIS WEEK\'S THREAD' : `THEME ${Math.max(tIdx + 1, 1)} OF ${threads.length}`;
+
+  // Verse chain dots
+  _renderThreadDots(t);
+
+  // Current verse
+  _renderThreadVerse(t);
+}
+
+function _renderThreadDots(t) {
+  const dotsEl = document.getElementById('threadDots');
+  if (!dotsEl) return;
+  dotsEl.innerHTML = t.verses.map((_, i) =>
+    `<span class="step-dot${i === _threadVerseIndex ? ' active' : (i < _threadVerseIndex ? ' done' : '')}" onclick="threadGoVerse(${i})" style="cursor:pointer;width:10px;height:10px;"></span>`
+  ).join('');
+}
+
+function _renderThreadVerse(t) {
+  const v = t.verses[_threadVerseIndex];
+  if (!v) return;
+  const el = id => document.getElementById(id);
+  const t_color = t.color;
+
+  // Animate the verse card
+  const card = el('threadVerseCard');
+  if (card) { card.style.animation = 'none'; void card.offsetWidth; card.style.animation = 'fadeIn 0.28s ease'; card.style.borderLeftColor = t_color; }
+
+  if (el('threadVerseRef'))   el('threadVerseRef').textContent   = v.ref;
+  if (el('threadVerseText'))  el('threadVerseText').textContent  = `"${v.text}"`;
+  if (el('threadVerseNote'))  el('threadVerseNote').textContent  = v.note;
+
+  const refEl = el('threadVerseRef');
+  if (refEl) refEl.style.color = t_color;
+
+  // Progress label
+  const prog = el('threadProgress');
+  if (prog) prog.textContent = `${_threadVerseIndex + 1} of ${t.verses.length}`;
+
+  // Buttons
+  const prev = el('threadPrevBtn');
+  const next = el('threadNextBtn');
+  if (prev) { prev.style.display = 'flex'; prev.disabled = _threadVerseIndex === 0; }
+  if (next) {
+    next.style.display = 'flex';
+    next.innerHTML = _threadVerseIndex === t.verses.length - 1
+      ? 'Complete <i class="fas fa-flag-checkered"></i>'
+      : 'Next <i class="fas fa-arrow-right"></i>';
+    next.style.background = _threadVerseIndex === t.verses.length - 1
+      ? `rgba(${hexToRgb(t_color)},0.25)` : '';
+  }
+}
+
+function threadNextVerse() {
+  const t = _getThreadEntry();
+  if (!t) return;
+  vibrate(15);
+  if (_threadVerseIndex < t.verses.length - 1) {
+    _threadVerseIndex++;
+    _renderThreadDots(t);
+    _renderThreadVerse(t);
+  } else {
+    _threadComplete(t);
+  }
+}
+
+function threadPrevVerse() {
+  vibrate(15);
+  if (_threadVerseIndex > 0) {
+    _threadVerseIndex--;
+    const t = _getThreadEntry();
+    if (t) { _renderThreadDots(t); _renderThreadVerse(t); }
+  }
+}
+
+function threadGoVerse(idx) {
+  _threadVerseIndex = idx;
+  const t = _getThreadEntry();
+  if (t) { _renderThreadDots(t); _renderThreadVerse(t); }
+}
+
+function _threadComplete(t) {
+  const done = document.getElementById('threadComplete');
+  const card = document.getElementById('threadVerseCard');
+  if (done) done.style.display = 'block';
+  if (card) card.style.display = 'none';
+  const prev = document.getElementById('threadPrevBtn');
+  const next = document.getElementById('threadNextBtn');
+  if (prev) prev.style.display = 'none';
+  if (next) next.style.display = 'none';
+  localStorage.setItem(`thread_done_${t.id}`, new Date().toDateString());
+  AppState.userStats.threadsRead = (AppState.userStats.threadsRead || 0) + 1;
+  showToast(`🧵 Thread complete! "${t.title}" — a thread worth pulling.`, 'success');
+  vibrate([30, 30, 50]);
+  refreshStats();
+}
+
+function threadShare() {
+  const t = _getThreadEntry();
+  if (!t) return;
+  vibrate(20);
+  const v = t.verses[_threadVerseIndex];
+  const msg =
+    `🧵 *The Thread — ${t.title}*\n\n` +
+    `_"${t.tagline}"_\n\n` +
+    `📖 *${v.ref}*\n"${v.text}"\n\n` +
+    `${v.note}\n\n` +
+    `Trace this thread from Genesis to Revelation on GospelSwipe Pro 👇\n` +
+    `📱 gospelswipe.app`;
+  if (navigator.share) { navigator.share({ title: `The Thread — ${t.title}`, text: msg }).catch(() => window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank')); }
+  else { window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank'); }
+}
+
+function threadBrowse(dir) {
+  vibrate(15);
+  const threads = typeof BIBLE_THREADS !== 'undefined' ? BIBLE_THREADS : [];
+  if (!threads.length) return;
+  if (_threadIndex < 0) {
+    const today = typeof getTodayThread === 'function' ? getTodayThread() : threads[0];
+    _threadIndex = threads.indexOf(today);
+    if (_threadIndex < 0) _threadIndex = 0;
+  }
+  _threadIndex = (_threadIndex + dir + threads.length) % threads.length;
+  _threadVerseIndex = 0;
+  const done = document.getElementById('threadComplete');
+  const card = document.getElementById('threadVerseCard');
+  const prev = document.getElementById('threadPrevBtn');
+  const next = document.getElementById('threadNextBtn');
+  if (done) done.style.display = 'none';
+  if (card) card.style.display = 'block';
+  if (prev) prev.style.display = 'flex';
+  if (next) next.style.display = 'flex';
+  _renderThread();
+}
+
+window.loadLivingFaith  = loadLivingFaith;
+window.lfBrowse         = lfBrowse;
+window.markLFRead       = markLFRead;
+window.loadThread       = loadThread;
+window.threadNextVerse  = threadNextVerse;
+window.threadPrevVerse  = threadPrevVerse;
+window.threadGoVerse    = threadGoVerse;
+window.threadShare      = threadShare;
+window.threadBrowse     = threadBrowse;
+
+
 window.getRandomPrayer = getRandomPrayer;
 window.copyPrayerToJournal = copyPrayerToJournal;
 window.savePrayer = savePrayer;

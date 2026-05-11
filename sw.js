@@ -3,8 +3,8 @@
 // Offline-first · Cache-then-network
 // ==========================================
 
-const CACHE_NAME = 'gospel-swipe-v1.2.2';
-const CONTENT_CACHE = 'gospel-swipe-content-v1.2.2';
+const CACHE_NAME = 'gospel-swipe-v1.2.3';
+const CONTENT_CACHE = 'gospel-swipe-content-v1.2.3';
 
 const PRECACHE_URLS = [
   './',
@@ -13,6 +13,7 @@ const PRECACHE_URLS = [
   './app.js',
   './devotionals.js',
   './livingfaith.js',
+  './thread.js',
   './prayers.js',
   './translations.js',
   './content.json',

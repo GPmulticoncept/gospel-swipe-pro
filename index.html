@@ -142,6 +142,15 @@
         <span class="feature-badge" style="background:rgba(52,152,219,0.2);color:#3498db;">OFFLINE</span>
       </div>
 
+      <div class="feature-card" onclick="showTractGenerator()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.15));"
+        aria-label="Gospel Tract Generator" onkeydown="if(event.key==='Enter')showTractGenerator()">
+        <i class="fas fa-share-nodes" style="color:#2ecc71;" aria-hidden="true"></i>
+        <h3>Gospel Tract</h3>
+        <p>Create shareable images</p>
+        <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;">NEW</span>
+      </div>
+
       <div class="feature-card" onclick="showScreen('livingfaith-screen');loadLivingFaith()" role="listitem" tabindex="0"
         style="background:linear-gradient(135deg,rgba(155,89,182,0.15),rgba(142,68,173,0.15));"
         aria-label="Living Faith" onkeydown="if(event.key==='Enter'){showScreen('livingfaith-screen');loadLivingFaith()}">
@@ -151,13 +160,13 @@
         <span class="feature-badge" style="background:rgba(155,89,182,0.2);color:#9b59b6;">52 WEEKS</span>
       </div>
 
-      <div class="feature-card" onclick="showTractGenerator()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.15));"
-        aria-label="Gospel Tract Generator" onkeydown="if(event.key==='Enter')showTractGenerator()">
-        <i class="fas fa-share-nodes" style="color:#2ecc71;" aria-hidden="true"></i>
-        <h3>Gospel Tract</h3>
-        <p>Create shareable images</p>
-        <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;">NEW</span>
+      <div class="feature-card" onclick="showScreen('thread-screen');loadThread()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(52,152,219,0.15),rgba(41,128,185,0.15));"
+        aria-label="The Thread" onkeydown="if(event.key==='Enter'){showScreen('thread-screen');loadThread()}">
+        <i class="fas fa-link" style="color:#3498db;" aria-hidden="true"></i>
+        <h3>The Thread</h3>
+        <p>Bible themes, Genesis to Revelation</p>
+        <span class="feature-badge" style="background:rgba(52,152,219,0.2);color:#3498db;">60 THEMES</span>
       </div>
 
       <div class="feature-card" onclick="showScreen('stats-screen')" role="listitem" tabindex="0"
@@ -375,71 +384,6 @@
     <button id="nbCompleteBtn" onclick="markNBDayComplete()" class="action-btn primary" style="width:100%;justify-content:center;margin-top:16px;font-size:1rem;padding:15px;">
       <i class="fas fa-check"></i> Mark Day Complete
     </button>
-  </div>
-
-  <!-- ===== LIVING FAITH SCREEN ===== -->
-  <div id="livingfaith-screen" class="screen" role="region" aria-label="Living Faith">
-    <div class="journal-header">
-      <h2><i class="fas fa-fire" style="color:#9b59b6;" aria-hidden="true"></i> Living Faith</h2>
-      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close">
-        <i class="fas fa-times" aria-hidden="true"></i>
-      </button>
-    </div>
-
-    <!-- Week badge -->
-    <div style="text-align:center;margin-bottom:16px;">
-      <span id="lfWeekBadge" style="background:rgba(155,89,182,0.15);border:1px solid rgba(155,89,182,0.3);color:#9b59b6;padding:6px 18px;border-radius:20px;font-size:0.82rem;font-weight:700;letter-spacing:0.4px;">THIS WEEK'S REFLECTION</span>
-    </div>
-
-    <!-- Thought card (swipeable) -->
-    <div id="lfCard" style="border-radius:24px;padding:24px 20px;margin-bottom:16px;background:rgba(155,89,182,0.1);border:1px solid rgba(155,89,182,0.25);">
-
-      <!-- Opening line highlight -->
-      <div style="border-left:4px solid #9b59b6;padding-left:14px;margin-bottom:18px;">
-        <p id="lfThought" style="font-size:1.05rem;line-height:1.8;font-weight:500;"></p>
-      </div>
-
-      <!-- Share this thought -->
-      <button id="lfShareBtn" class="action-btn" style="width:100%;justify-content:center;background:rgba(155,89,182,0.12);border-color:rgba(155,89,182,0.3);color:#9b59b6;">
-        <i class="fas fa-share-alt"></i> Share This Thought
-      </button>
-    </div>
-
-    <!-- Anchor verse -->
-    <div id="lfVerseBox" style="background:rgba(0,0,0,0.3);border-left:4px solid #9b59b6;border-radius:0 18px 18px 0;padding:16px 18px;margin-bottom:12px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <i class="fas fa-book" style="color:#9b59b6;font-size:0.85rem;"></i>
-        <span style="font-size:0.78rem;font-weight:700;color:#9b59b6;letter-spacing:0.4px;">ANCHOR VERSE</span>
-      </div>
-      <p id="lfVerse" style="font-size:0.98rem;font-style:italic;line-height:1.75;margin-bottom:8px;"></p>
-      <p id="lfRef" style="font-weight:700;font-size:0.85rem;opacity:0.75;"></p>
-    </div>
-
-    <!-- Quiet question -->
-    <div style="background:rgba(155,89,182,0.08);border:1px solid rgba(155,89,182,0.2);border-radius:20px;padding:18px;margin-bottom:20px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-        <i class="fas fa-circle-question" style="color:#9b59b6;"></i>
-        <span style="font-weight:700;font-size:0.9rem;color:#9b59b6;">Sit With This</span>
-      </div>
-      <p id="lfQuestion" style="font-size:0.92rem;line-height:1.75;opacity:0.9;font-style:italic;"></p>
-    </div>
-
-    <!-- Browse all 52 -->
-    <div style="display:flex;gap:10px;margin-bottom:16px;">
-      <button id="lfPrevBtn" onclick="lfBrowse(-1)" class="action-btn" style="flex:1;justify-content:center;" aria-label="Previous reflection">
-        <i class="fas fa-arrow-left"></i> Previous
-      </button>
-      <button id="lfNextBtn" onclick="lfBrowse(1)" class="action-btn" style="flex:1;justify-content:center;" aria-label="Next reflection">
-        Next <i class="fas fa-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Mark reflected -->
-    <button id="lfCompleteBtn" onclick="markLFRead()" class="action-btn primary" style="width:100%;justify-content:center;font-size:1rem;padding:15px;">
-      <i class="fas fa-check-circle"></i> I've Sat With This
-    </button>
-
-    <p style="text-align:center;font-size:0.75rem;opacity:0.35;margin-top:14px;">New reflection every week &bull; 52 weeks &bull; All offline</p>
   </div>
 
   <!-- ===== INSTALL POPUP OVERLAY ===== -->
@@ -740,8 +684,135 @@
     </div>
 
     <div style="text-align:center;font-size:0.75rem;opacity:0.4;padding:16px 0;">
-      GospelSwipe Pro v1.2.0 &bull; Made in Nigeria 🇳🇬 &bull; GP Tech Studio
+      GospelSwipe Pro v1.2.3 &bull; Made in Nigeria 🇳🇬 &bull; GP Tech Studio
     </div>
+  </div>
+
+  <!-- ===========================
+       LIVING FAITH SCREEN
+  =========================== -->
+  <div id="livingfaith-screen" class="screen" role="region" aria-label="Living Faith">
+    <div class="journal-header">
+      <h2><i class="fas fa-fire" style="color:#9b59b6;" aria-hidden="true"></i> Living Faith</h2>
+      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div style="text-align:center;margin-bottom:16px;">
+      <span id="lfWeekBadge" style="background:rgba(155,89,182,0.15);border:1px solid rgba(155,89,182,0.3);color:#9b59b6;padding:6px 18px;border-radius:20px;font-size:0.82rem;font-weight:700;letter-spacing:0.4px;">THIS WEEK'S REFLECTION</span>
+    </div>
+
+    <div id="lfCard" style="border-radius:24px;padding:24px 20px;margin-bottom:16px;background:rgba(155,89,182,0.1);border:1px solid rgba(155,89,182,0.25);">
+      <div style="border-left:4px solid #9b59b6;padding-left:14px;margin-bottom:18px;">
+        <p id="lfThought" style="font-size:1.05rem;line-height:1.8;font-weight:500;"></p>
+      </div>
+      <button id="lfShareBtn" class="action-btn" style="width:100%;justify-content:center;background:rgba(155,89,182,0.12);border-color:rgba(155,89,182,0.3);color:#9b59b6;">
+        <i class="fas fa-share-alt"></i> Share This Thought
+      </button>
+    </div>
+
+    <div id="lfVerseBox" style="background:rgba(0,0,0,0.3);border-left:4px solid #9b59b6;border-radius:0 18px 18px 0;padding:16px 18px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <i class="fas fa-book" style="color:#9b59b6;font-size:0.85rem;"></i>
+        <span style="font-size:0.78rem;font-weight:700;color:#9b59b6;letter-spacing:0.4px;">ANCHOR VERSE</span>
+      </div>
+      <p id="lfVerse" style="font-size:0.98rem;font-style:italic;line-height:1.75;margin-bottom:8px;"></p>
+      <p id="lfRef" style="font-weight:700;font-size:0.85rem;opacity:0.75;"></p>
+    </div>
+
+    <div style="background:rgba(155,89,182,0.08);border:1px solid rgba(155,89,182,0.2);border-radius:20px;padding:18px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <i class="fas fa-circle-question" style="color:#9b59b6;"></i>
+        <span style="font-weight:700;font-size:0.9rem;color:#9b59b6;">Sit With This</span>
+      </div>
+      <p id="lfQuestion" style="font-size:0.92rem;line-height:1.75;opacity:0.9;font-style:italic;"></p>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:12px;">
+      <button onclick="lfBrowse(-1)" class="action-btn" style="flex:1;justify-content:center;" aria-label="Previous reflection">
+        <i class="fas fa-arrow-left"></i> Previous
+      </button>
+      <button onclick="lfBrowse(1)" class="action-btn" style="flex:1;justify-content:center;" aria-label="Next reflection">
+        Next <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+
+    <button id="lfCompleteBtn" onclick="markLFRead()" class="action-btn primary" style="width:100%;justify-content:center;font-size:1rem;padding:15px;">
+      <i class="fas fa-check-circle"></i> I've Sat With This
+    </button>
+    <p style="text-align:center;font-size:0.75rem;opacity:0.35;margin-top:14px;">New reflection every week &bull; 52 weeks &bull; All offline</p>
+  </div>
+
+  <!-- ===========================
+       THE THREAD SCREEN
+  =========================== -->
+  <div id="thread-screen" class="screen" role="region" aria-label="The Thread">
+    <div class="journal-header">
+      <h2><i class="fas fa-link" style="color:#3498db;" aria-hidden="true"></i> The Thread</h2>
+      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Theme badge -->
+    <div style="text-align:center;margin-bottom:14px;">
+      <span id="threadBadge" style="background:rgba(52,152,219,0.15);border:1px solid rgba(52,152,219,0.3);color:#3498db;padding:6px 18px;border-radius:20px;font-size:0.82rem;font-weight:700;letter-spacing:0.4px;">THIS WEEK'S THREAD</span>
+    </div>
+
+    <!-- Theme header card -->
+    <div id="threadHeader" style="border-radius:24px;padding:20px;margin-bottom:14px;background:rgba(52,152,219,0.1);border:1px solid rgba(52,152,219,0.25);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <i id="threadIcon" class="fas fa-link" style="color:#3498db;font-size:1.6rem;" aria-hidden="true"></i>
+        <div>
+          <h2 id="threadTitle" style="font-size:1.35rem;font-weight:800;line-height:1.2;margin:0;"></h2>
+          <p id="threadTagline" style="font-size:0.82rem;opacity:0.65;margin:4px 0 0;font-style:italic;"></p>
+        </div>
+      </div>
+      <p id="threadSummary" style="font-size:0.88rem;line-height:1.75;opacity:0.85;"></p>
+      <button onclick="threadShare()" class="action-btn" style="width:100%;justify-content:center;margin-top:12px;background:rgba(52,152,219,0.12);border-color:rgba(52,152,219,0.3);color:#3498db;">
+        <i class="fas fa-share-alt"></i> Share This Thread
+      </button>
+    </div>
+
+    <!-- Progress dots -->
+    <div id="threadDots" style="display:flex;justify-content:center;gap:6px;margin-bottom:14px;flex-wrap:wrap;" aria-label="Verse progress"></div>
+    <div style="text-align:center;font-size:0.75rem;opacity:0.45;margin-bottom:10px;">
+      Verse <span id="threadProgress">1 of 6</span> &bull; Swipe or tap to navigate
+    </div>
+
+    <!-- Verse card -->
+    <div id="threadVerseCard" style="border-left:4px solid #3498db;border-radius:0 20px 20px 0;background:rgba(0,0,0,0.25);padding:20px 18px;margin-bottom:14px;">
+      <p id="threadVerseRef" style="font-weight:800;font-size:0.85rem;color:#3498db;margin-bottom:10px;letter-spacing:0.3px;"></p>
+      <p id="threadVerseText" style="font-size:1rem;font-style:italic;line-height:1.8;margin-bottom:14px;"></p>
+      <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:12px 14px;">
+        <p id="threadVerseNote" style="font-size:0.85rem;line-height:1.7;opacity:0.8;"></p>
+      </div>
+    </div>
+
+    <!-- Complete banner (hidden until done) -->
+    <div id="threadComplete" style="display:none;background:rgba(46,204,113,0.12);border:1px solid rgba(46,204,113,0.3);border-radius:20px;padding:20px;text-align:center;margin-bottom:14px;">
+      <i class="fas fa-flag-checkered" style="font-size:2rem;color:#2ecc71;display:block;margin-bottom:10px;"></i>
+      <p style="font-weight:700;font-size:1rem;color:#2ecc71;margin-bottom:6px;">Thread Complete!</p>
+      <p style="font-size:0.85rem;opacity:0.7;">You traced this theme from Genesis to Revelation.</p>
+    </div>
+
+    <!-- Nav buttons -->
+    <div style="display:flex;gap:10px;margin-bottom:12px;">
+      <button id="threadPrevBtn" onclick="threadPrevVerse()" class="action-btn" style="flex:1;justify-content:center;" aria-label="Previous verse">
+        <i class="fas fa-arrow-left"></i> Previous
+      </button>
+      <button id="threadNextBtn" onclick="threadNextVerse()" class="action-btn" style="flex:1;justify-content:center;" aria-label="Next verse">
+        Next <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+
+    <!-- Browse all 60 themes -->
+    <div style="display:flex;gap:10px;margin-bottom:6px;">
+      <button onclick="threadBrowse(-1)" class="action-btn" style="flex:1;justify-content:center;font-size:0.82rem;padding:10px;" aria-label="Previous theme">
+        <i class="fas fa-chevron-left"></i> Prev Theme
+      </button>
+      <button onclick="threadBrowse(1)" class="action-btn" style="flex:1;justify-content:center;font-size:0.82rem;padding:10px;" aria-label="Next theme">
+        Next Theme <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+    <p style="text-align:center;font-size:0.75rem;opacity:0.35;margin-top:10px;">60 biblical themes &bull; Genesis to Revelation &bull; All offline</p>
   </div>
 
   <!-- ===========================
@@ -870,6 +941,7 @@
 <script src="translations.js"></script>
 <script src="devotionals.js"></script>
 <script src="livingfaith.js"></script>
+<script src="thread.js"></script>
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
