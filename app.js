@@ -2160,13 +2160,40 @@ const _nbCompletedDays = new Set(
 );
 
 function loadNewBeliever() {
-  _nbCurrentDay = 0;
+  // Restore to last active day, not always day 0
+  const saved = parseInt(localStorage.getItem('nbLastDay') || '0', 10);
+  _nbCurrentDay = (saved >= 0 && saved < NB_DAYS.length) ? saved : 0;
   updateNBDayButtons();
-  renderNBDay(0);
+  renderNBDay(_nbCurrentDay);
+
+  // Swipe on the whole screen
+  const screen = document.getElementById('newbeliever-screen');
+  if (screen && !screen._swipeReady) {
+    screen._swipeReady = true;
+    let _nsx = 0, _nsy = 0;
+    screen.addEventListener('touchstart', e => {
+      _nsx = e.changedTouches[0].clientX;
+      _nsy = e.changedTouches[0].clientY;
+    }, { passive: true });
+    screen.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - _nsx;
+      const dy = e.changedTouches[0].clientY - _nsy;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) {
+        if (dx < 0) {
+          // Swipe left → next day
+          if (_nbCurrentDay < NB_DAYS.length - 1) { selectNBDay(_nbCurrentDay + 1); }
+        } else {
+          // Swipe right → previous day
+          if (_nbCurrentDay > 0) { selectNBDay(_nbCurrentDay - 1); }
+        }
+      }
+    }, { passive: true });
+  }
 }
 
 function selectNBDay(idx) {
   _nbCurrentDay = idx;
+  localStorage.setItem('nbLastDay', idx);
   updateNBDayButtons();
   renderNBDay(idx);
 }
@@ -2223,6 +2250,15 @@ function renderNBDay(idx) {
     </div>
   `;
 
+  // Re-trigger fade animation
+  container.style.animation = 'none';
+  void container.offsetWidth;
+  container.style.animation = 'fadeIn 0.3s ease';
+
+  // Scroll screen back to top so user sees the new day from the start
+  const screen = document.getElementById('newbeliever-screen');
+  if (screen) screen.scrollTop = 0;
+
   // Update complete button
   const btn = document.getElementById('nbCompleteBtn');
   if (btn) {
@@ -2259,6 +2295,7 @@ function markNBDayComplete() {
   if (_nbCurrentDay < 6) {
     setTimeout(() => {
       _nbCurrentDay++;
+      localStorage.setItem('nbLastDay', _nbCurrentDay);
       updateNBDayButtons();
       renderNBDay(_nbCurrentDay);
       const nextBtn = document.getElementById(`nbd-${_nbCurrentDay}`);
