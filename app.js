@@ -2465,177 +2465,110 @@ function playDailyDevotional() {
 // ============================================================
 // FEATURE 5: GOSPEL TRACT GENERATOR
 // ============================================================
-const TRACT_VERSES = [
-  { verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.", ref: "John 3:16", bg: "#1a2c3d" },
-  { verse: "For all have sinned and fall short of the glory of God, and all are justified freely by his grace through the redemption that came by Christ Jesus.", ref: "Romans 3:23-24", bg: "#1a1a2e" },
-  { verse: "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.", ref: "Romans 5:8", bg: "#0d2137" },
-  { verse: "For it is by grace you have been saved, through faith — and this is not from yourselves, it is the gift of God.", ref: "Ephesians 2:8", bg: "#1c2a1c" },
-  { verse: "I am the way and the truth and the life. No one comes to the Father except through me.", ref: "John 14:6", bg: "#1e1a2e" },
-  { verse: "If you declare with your mouth, 'Jesus is Lord,' and believe in your heart that God raised him from the dead, you will be saved.", ref: "Romans 10:9", bg: "#1a2c2c" },
-  { verse: "Come to me, all you who are weary and burdened, and I will give you rest.", ref: "Matthew 11:28", bg: "#1a1e2c" },
-  { verse: "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!", ref: "2 Corinthians 5:17", bg: "#1c2c1a" },
-];
+// ============================================================
+// GOSPEL TRACT MODULE — 200 full written tracts
+// ============================================================
+let _tractIdx      = 0;
+let _tractCat      = 'all';
+let _tractSearch   = '';
 
-let _tractVerseIdx = 0;
+function _getTracts() {
+  const all = typeof GOSPEL_TRACTS !== 'undefined' ? GOSPEL_TRACTS : [];
+  if (_tractCat === 'all' && !_tractSearch) return all;
+  return all.filter(t =>
+    (_tractCat === 'all' || t.category === _tractCat) &&
+    (!_tractSearch || t.title.toLowerCase().includes(_tractSearch.toLowerCase()))
+  );
+}
 
 function showTractGenerator() {
-  _tractVerseIdx = 0;
-  renderTractModal();
+  _tractIdx  = 0;
+  _tractCat  = 'all';
+  _tractSearch = '';
+  showScreen('tracts-screen');
+  _renderTractList();
 }
 
-function renderTractModal() {
-  const v = TRACT_VERSES[_tractVerseIdx];
-  const lang = AppState.language || 'en';
-
-  showModal(`
-    <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
-    <div style="text-align:center;margin-bottom:16px;">
-      <i class="fas fa-share-nodes" style="font-size:2rem;color:#2ecc71;margin-bottom:8px;display:block;"></i>
-      <h3 style="margin-bottom:4px;">Gospel Tract Generator</h3>
-      <p style="font-size:0.8rem;opacity:0.6;">Create a shareable gospel image — one tap to WhatsApp</p>
-    </div>
-
-    <!-- Live preview canvas -->
-    <div style="border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
-      <canvas id="tractCanvas" width="800" height="450" style="width:100%;display:block;"></canvas>
-    </div>
-
-    <!-- Verse picker -->
-    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;">
-      ${TRACT_VERSES.map((t,i) => `
-        <button onclick="selectTractVerse(${i})"
-          style="flex-shrink:0;padding:6px 14px;border-radius:16px;border:1px solid ${i===_tractVerseIdx?'#2ecc71':'rgba(255,255,255,0.15)'};background:${i===_tractVerseIdx?'rgba(46,204,113,0.2)':'rgba(255,255,255,0.05)'};color:${i===_tractVerseIdx?'#2ecc71':'rgba(255,255,255,0.6)'};font-size:0.75rem;cursor:pointer;white-space:nowrap;font-family:inherit;">
-          ${t.ref.split(' ')[0]} ${t.ref.split(' ')[1] || ''}
-        </button>
-      `).join('')}
-    </div>
-
-    <!-- Action buttons -->
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button onclick="downloadTract()" class="action-btn primary"
-        style="justify-content:center;padding:14px;font-size:0.95rem;background:linear-gradient(135deg,#2ecc71,#27ae60);border-color:transparent;">
-        <i class="fas fa-download"></i> &nbsp;Download Image
-      </button>
-      <button onclick="shareTractWhatsApp()" class="action-btn"
-        style="justify-content:center;padding:14px;background:rgba(37,211,102,0.12);border-color:rgba(37,211,102,0.3);color:#25d366;font-size:0.95rem;">
-        <i class="fab fa-whatsapp"></i> &nbsp;Share to WhatsApp
-      </button>
-    </div>
-  `);
-
-  // Draw immediately
-  requestAnimationFrame(() => drawTract(_tractVerseIdx));
-}
-
-function drawTract(idx) {
-  const canvas = document.getElementById('tractCanvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = 800, H = 450;
-  const v = TRACT_VERSES[idx];
-
-  // Background gradient
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, v.bg);
-  bg.addColorStop(1, '#0a0f14');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-
-  // Dot grid
-  ctx.fillStyle = 'rgba(255,255,255,0.04)';
-  for (let x = 20; x < W; x += 28)
-    for (let y = 20; y < H; y += 28) {
-      ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI*2); ctx.fill();
-    }
-
-  // Top accent line
-  const accent = ctx.createLinearGradient(0, 0, W, 0);
-  accent.addColorStop(0, '#3498db');
-  accent.addColorStop(1, '#2ecc71');
-  ctx.fillStyle = accent;
-  ctx.fillRect(0, 0, W, 4);
-
-  // Cross icon top-left
-  ctx.fillStyle = 'rgba(52,152,219,0.6)';
-  ctx.fillRect(48, 26, 8, 28);
-  ctx.fillStyle = 'rgba(46,204,113,0.6)';
-  ctx.fillRect(38, 34, 28, 8);
-
-  // App name top right
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.font = '500 13px -apple-system,sans-serif';
-  ctx.textAlign = 'right';
-  ctx.fillText('GospelSwipe Pro • gospelswipe.app', W - 30, 44);
-
-  // Verse text — word wrapped
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'italic 700 22px Georgia,serif';
-  ctx.textAlign = 'center';
-  const maxW = W - 100;
-  const words = `"${v.verse}"`.split(' ');
-  let line = '';
-  let lineY = 130;
-  const lines = [];
-  for (const word of words) {
-    const test = line + (line ? ' ' : '') + word;
-    if (ctx.measureText(test).width > maxW && line) {
-      lines.push(line); line = word;
-    } else { line = test; }
+function _renderTractList() {
+  const tracts  = _getTracts();
+  const cats    = ['all','conviction','salvation','backslider','peace','identity','struggle','urgency'];
+  const catLabels = {all:'All',conviction:'Conviction',salvation:'Salvation',backslider:'Backslider',peace:'Peace',identity:'Identity',struggle:'Struggle',urgency:'Urgency'};
+  const listEl  = document.getElementById('tractList');
+  const catsEl  = document.getElementById('tractCats');
+  const countEl = document.getElementById('tractCount');
+  if (countEl) countEl.textContent = `${tracts.length} tracts`;
+  if (catsEl) {
+    catsEl.innerHTML = cats.map(c => `
+      <button onclick="filterTracts('${c}')"
+        style="flex-shrink:0;padding:5px 14px;border-radius:16px;border:1px solid ${c===_tractCat?'#3498db':'rgba(255,255,255,0.15)'};background:${c===_tractCat?'rgba(52,152,219,0.2)':'rgba(255,255,255,0.05)'};color:${c===_tractCat?'#3498db':'rgba(255,255,255,0.6)'};font-size:0.75rem;cursor:pointer;white-space:nowrap;font-family:inherit;">
+        ${catLabels[c]}
+      </button>`).join('');
   }
-  if (line) lines.push(line);
-  // centre vertically in middle zone
-  const totalH = lines.length * 34;
-  lineY = (H - 80) / 2 - totalH / 2 + 40;
-  lines.forEach(l => { ctx.fillText(l, W/2, lineY); lineY += 34; });
-
-  // Reference
-  const refGrad = ctx.createLinearGradient(W/2-100, 0, W/2+100, 0);
-  refGrad.addColorStop(0, '#3498db');
-  refGrad.addColorStop(1, '#2ecc71');
-  ctx.fillStyle = refGrad;
-  ctx.font = 'bold 18px -apple-system,sans-serif';
-  ctx.fillText(`— ${v.ref}`, W/2, lineY + 10);
-
-  // Bottom CTA bar
-  ctx.fillStyle = 'rgba(0,0,0,0.4)';
-  ctx.fillRect(0, H - 54, W, 54);
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.font = '500 14px -apple-system,sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('📱 Get the free offline gospel app — gospelswipe.app', W/2, H - 24);
+  if (listEl) {
+    listEl.innerHTML = tracts.length ? tracts.map((t,i) => `
+      <div onclick="openTract(${t.id})" style="background:rgba(${hexToRgb(t.color)},0.08);border:1px solid rgba(${hexToRgb(t.color)},0.2);border-radius:18px;padding:16px;margin-bottom:10px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:${t.color};flex-shrink:0;"></span>
+          <span style="font-size:0.7rem;font-weight:700;color:${t.color};letter-spacing:0.4px;text-transform:uppercase;">${catLabels[t.category]||t.category}</span>
+        </div>
+        <p style="font-weight:800;font-size:1rem;margin-bottom:4px;">${t.title}</p>
+        <p style="font-size:0.82rem;opacity:0.6;font-style:italic;">${t.hook}</p>
+      </div>`).join('') : '<p style="text-align:center;opacity:0.4;margin-top:30px;">No tracts found</p>';
+  }
 }
 
-function selectTractVerse(idx) {
-  _tractVerseIdx = idx;
-  // Re-render modal so buttons update
-  renderTractModal();
+function filterTracts(cat) {
+  _tractCat = cat;
+  _renderTractList();
+  const screen = document.getElementById('tracts-screen');
+  if (screen) screen.scrollTop = 0;
 }
 
-function downloadTract() {
-  const canvas = document.getElementById('tractCanvas');
-  if (!canvas) return;
-  drawTract(_tractVerseIdx);
-  canvas.toBlob(blob => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `GospelTract_${TRACT_VERSES[_tractVerseIdx].ref.replace(/[^a-zA-Z0-9]/g,'_')}.png`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('📥 Tract downloaded! Share it to spread the gospel.', 'success');
-    AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
-    refreshStats();
-  }, 'image/png');
+function openTract(id) {
+  const all = typeof GOSPEL_TRACTS !== 'undefined' ? GOSPEL_TRACTS : [];
+  const t = all.find(x => x.id === id);
+  if (!t) return;
+  vibrate(15);
+  const el = id => document.getElementById(id);
+  const s = document.getElementById('tract-detail-screen');
+  if (!s) return;
+  if (el('tdColor'))      el('tdColor').style.background = `rgba(${hexToRgb(t.color)},0.1)`;
+  if (el('tdColorBar'))   el('tdColorBar').style.background = t.color;
+  if (el('tdCat'))      { el('tdCat').textContent = t.category.toUpperCase(); el('tdCat').style.color = t.color; }
+  if (el('tdTitle'))      el('tdTitle').textContent = t.title;
+  if (el('tdHook'))       el('tdHook').textContent = t.hook;
+  if (el('tdBody'))       el('tdBody').innerHTML = t.body.replace(/\n\n/g,'</p><p style="margin-bottom:14px;">');
+  if (el('tdVerses'))     el('tdVerses').textContent = t.verses.join(' · ');
+  if (el('tdRepentance')) el('tdRepentance').textContent = t.repentance;
+  if (el('tdPrayer'))     el('tdPrayer').textContent = t.prayer;
+  // Share button
+  const shareBtn = el('tdShareBtn');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      vibrate(20);
+      const msg = `✝️ *${t.title}*\n\n_"${t.hook}"_\n\n${t.body.substring(0,300)}...\n\n📖 *Key verses:* ${t.verses.join(', ')}\n\n🙏 *Prayer:*\n${t.prayer}\n\n📱 Read 200 gospel tracts — free & offline:\n*gospelswipe.app*`;
+      if (navigator.share) {
+        navigator.share({ title: t.title, text: msg }).catch(() => window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank'));
+      } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+      }
+      AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
+      refreshStats();
+      showToast('📤 Sharing gospel tract...', 'success');
+    };
+  }
+  showScreen('tract-detail-screen');
 }
 
-function shareTractWhatsApp() {
-  const v = TRACT_VERSES[_tractVerseIdx];
-  const msg = `✝️ *${v.ref}*\n\n"${v.verse}"\n\n📱 Read the full gospel — free & offline:\n*gospelswipe.app*`;
-  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
-  AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
-  refreshStats();
-  showToast('📤 Opening WhatsApp...', 'success');
+function tractSearch(val) {
+  _tractSearch = val;
+  _renderTractList();
 }
+
+window.showTractGenerator = showTractGenerator;
+window.filterTracts       = filterTracts;
+window.openTract          = openTract;
+window.tractSearch        = tractSearch;
 
 window.showAudioModal       = showAudioModal;
 window.playAllSlides        = playAllSlides;

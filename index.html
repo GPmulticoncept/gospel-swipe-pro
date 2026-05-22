@@ -144,11 +144,11 @@
 
       <div class="feature-card" onclick="showTractGenerator()" role="listitem" tabindex="0"
         style="background:linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.15));"
-        aria-label="Gospel Tract Generator" onkeydown="if(event.key==='Enter')showTractGenerator()">
+        aria-label="Gospel Tracts" onkeydown="if(event.key==='Enter')showTractGenerator()">
         <i class="fas fa-share-nodes" style="color:#2ecc71;" aria-hidden="true"></i>
-        <h3>Gospel Tract</h3>
-        <p>Create shareable images</p>
-        <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;">NEW</span>
+        <h3>Gospel Tracts</h3>
+        <p>200 powerful written tracts</p>
+        <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;">200 TRACTS</span>
       </div>
 
       <div class="feature-card" onclick="showScreen('livingfaith-screen');loadLivingFaith()" role="listitem" tabindex="0"
@@ -689,6 +689,90 @@
   </div>
 
   <!-- ===========================
+       TRACTS LIST SCREEN
+  =========================== -->
+  <div id="tracts-screen" class="screen" role="region" aria-label="Gospel Tracts">
+    <div class="journal-header">
+      <h2><i class="fas fa-share-nodes" style="color:#2ecc71;" aria-hidden="true"></i> Gospel Tracts</h2>
+      <button onclick="showScreen('home-screen')" class="close-btn" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.04);border-radius:16px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      <i class="fas fa-search" style="opacity:0.4;font-size:0.85rem;"></i>
+      <input type="text" placeholder="Search tracts..." oninput="tractSearch(this.value)"
+        style="background:none;border:none;outline:none;width:100%;color:inherit;font-family:inherit;font-size:0.9rem;" />
+    </div>
+
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px;" id="tractCats"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span id="tractCount" style="font-size:0.78rem;opacity:0.5;"></span>
+      <span style="font-size:0.75rem;opacity:0.4;">Tap any tract to read</span>
+    </div>
+
+    <div id="tractList"></div>
+    <p style="text-align:center;font-size:0.75rem;opacity:0.3;margin-top:14px;">200 tracts &bull; All categories &bull; All offline</p>
+  </div>
+
+  <!-- ===========================
+       TRACT DETAIL SCREEN
+  =========================== -->
+  <div id="tract-detail-screen" class="screen" role="region" aria-label="Gospel Tract">
+    <div class="journal-header">
+      <button onclick="showScreen('tracts-screen');_renderTractList?_renderTractList():null" class="close-btn" aria-label="Back" style="font-size:0.85rem;padding:8px 14px;border-radius:12px;background:rgba(255,255,255,0.06);">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
+      <button id="tdShareBtn" class="action-btn" style="padding:8px 16px;font-size:0.82rem;background:rgba(37,211,102,0.12);border-color:rgba(37,211,102,0.3);color:#25d366;">
+        <i class="fab fa-whatsapp"></i> Share
+      </button>
+    </div>
+
+    <!-- Header card -->
+    <div id="tdColor" style="border-radius:24px;padding:20px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.08);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div id="tdColorBar" style="width:4px;height:20px;border-radius:2px;"></div>
+        <span id="tdCat" style="font-size:0.72rem;font-weight:700;letter-spacing:0.5px;"></span>
+      </div>
+      <h2 id="tdTitle" style="font-size:1.4rem;font-weight:900;line-height:1.2;margin-bottom:8px;"></h2>
+      <p id="tdHook" style="font-size:0.92rem;font-style:italic;opacity:0.7;"></p>
+    </div>
+
+    <!-- Body -->
+    <div style="background:rgba(0,0,0,0.2);border-radius:20px;padding:20px;margin-bottom:14px;line-height:1.8;">
+      <p id="tdBody" style="font-size:0.9rem;margin-bottom:14px;"></p>
+    </div>
+
+    <!-- Key verses -->
+    <div style="background:rgba(255,255,255,0.04);border-radius:16px;padding:14px 16px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <i class="fas fa-book" style="color:#3498db;font-size:0.85rem;"></i>
+        <span style="font-size:0.78rem;font-weight:700;color:#3498db;letter-spacing:0.4px;">KEY VERSES</span>
+      </div>
+      <p id="tdVerses" style="font-size:0.85rem;font-weight:600;"></p>
+    </div>
+
+    <!-- Repentance call -->
+    <div style="background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);border-radius:18px;padding:16px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <i class="fas fa-heart" style="color:#e74c3c;"></i>
+        <span style="font-weight:700;font-size:0.88rem;color:#e74c3c;">The Call</span>
+      </div>
+      <p id="tdRepentance" style="font-size:0.88rem;line-height:1.75;"></p>
+    </div>
+
+    <!-- Prayer -->
+    <div style="background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.2);border-radius:18px;padding:16px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <i class="fas fa-hands-praying" style="color:#3498db;"></i>
+        <span style="font-weight:700;font-size:0.88rem;color:#3498db;">Prayer</span>
+      </div>
+      <p id="tdPrayer" style="font-size:0.88rem;line-height:1.8;font-style:italic;"></p>
+    </div>
+
+    <p style="text-align:center;font-size:0.75rem;opacity:0.3;margin-top:4px;">GospelSwipe Pro &bull; gospelswipe.app</p>
+  </div>
+
+  <!-- ===========================
        LIVING FAITH SCREEN
   =========================== -->
   <div id="livingfaith-screen" class="screen" role="region" aria-label="Living Faith">
@@ -942,6 +1026,8 @@
 <script src="devotionals.js"></script>
 <script src="livingfaith.js"></script>
 <script src="thread.js"></script>
+<script src="tracts.js"></script>
+<script src="tracts_ext.js"></script>
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
