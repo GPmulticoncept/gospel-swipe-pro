@@ -164,25 +164,32 @@ function applyTranslations() {
 
 // ========== Load App Data ==========
 async function loadAppData() {
-  // Content
-  const cached = await getContent();
-  AppState.contentData = cached || FALLBACK_CONTENT;
+  // Content — fully crash-proof: IndexedDB failure must never freeze the app
+  try {
+    const cached = await getContent();
+    AppState.contentData = cached || FALLBACK_CONTENT;
+  } catch (e) {
+    console.warn('IndexedDB getContent failed, using fallback:', e);
+    AppState.contentData = FALLBACK_CONTENT;
+  }
 
-  // Try fetching fresh content if online
-  if (AppState.isOnline) {
+  // Try fetching fresh content if online — silent fail
+  if (navigator.onLine) {
     try {
-      const res = await fetch('content.json');
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 5000); // 5s timeout
+      const res = await fetch('content.json', { signal: ctrl.signal });
+      clearTimeout(timer);
       if (res.ok) {
         const fresh = await res.json();
         AppState.contentData = fresh;
-        saveContent(fresh);
+        saveContent(fresh).catch(() => {});
       }
-    } catch { /* use cached */ }
+    } catch { /* offline or no content.json — use fallback silently */ }
   }
 
-  // Translations are bundled in translations.js — no fetch needed
-  // Still try to load from DB for any custom overrides
-  applyTranslations();
+  // Translations bundled in translations.js
+  try { applyTranslations(); } catch (e) { console.warn('applyTranslations failed:', e); }
 }
 
 // ========== Offline Status ==========
@@ -2569,16 +2576,13 @@ window.showTractGenerator = showTractGenerator;
 window.filterTracts       = filterTracts;
 window.openTract          = openTract;
 window.tractSearch        = tractSearch;
+window._renderTractList   = _renderTractList;
 
 window.showAudioModal       = showAudioModal;
 window.playAllSlides        = playAllSlides;
 window.playCurrentSlide     = playCurrentSlide;
 window.playDailyDevotional  = playDailyDevotional;
 window.stopAudio            = stopAudio;
-window.showTractGenerator   = showTractGenerator;
-window.selectTractVerse     = selectTractVerse;
-window.downloadTract        = downloadTract;
-window.shareTractWhatsApp   = shareTractWhatsApp;
 window.loadDevotional       = loadDevotional;
 window.markDevoComplete     = markDevoComplete;
 window.loadTraining         = loadTraining;
@@ -2602,62 +2606,70 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (progressEl) progressEl.textContent = Math.round(pct) + '%';
   }, 80);
 
-  // Load saved state
-  AppState.darkMode = localStorage.getItem('darkMode') === 'true';
-  AppState.language = localStorage.getItem('language') || navigator.language?.split('-')[0] || 'en';
-  // Validate language
-  const supportedLangs = ['en','fr','sw','ar','yo','ig','ha','pcm'];
-  if (!supportedLangs.includes(AppState.language)) AppState.language = 'en';
+  const finishLoading = () => {
+    clearInterval(ticker);
+    if (progressEl) progressEl.textContent = '100%';
+    setTimeout(() => {
+      if (loading) { loading.style.opacity = '0'; loading.style.pointerEvents = 'none'; }
+      setTimeout(() => {
+        if (loading) loading.style.display = 'none';
+        if (appContainer) appContainer.classList.add('active');
+        try { initializeSlides(); } catch(e) { console.warn('initializeSlides:', e); }
+        try { setupEventListeners(); } catch(e) { console.warn('setupEventListeners:', e); }
+        try { updateOnlineStatus(); } catch(e) {}
+        try { checkInstallPrompt(); } catch(e) {}
+        try { updateUserStats(); } catch(e) {}
+        try { checkStreak(); } catch(e) {}
+        try { updateStatsDisplay(); } catch(e) {}
+        try { showToast(t('welcomeMessage') || 'Welcome to GospelSwipe Pro! 🙏', 'success'); } catch(e) {}
+        // Handle manifest shortcut actions
+        try {
+          const params = new URLSearchParams(location.search);
+          const action = params.get('action');
+          if (action === 'present') setTimeout(() => startPresentation(), 600);
+          else if (action === 'prayer') setTimeout(() => showScreen('prayer-screen'), 600);
+          else if (action === 'journal') setTimeout(() => showEvangelismJournal(), 600);
+        } catch(e) {}
+      }, 450);
+    }, 1200);
+  };
 
-  AppState.vomMode = localStorage.getItem('vomMode') === 'true';
-  AppState.userStats = safeParse(localStorage.getItem('userStats'), {
-    presentations: 0, slidesViewed: [], prayers: 0, aiQuestions: 0, shares: 0,
-    installDate: new Date().toISOString(), level: 'Beginner'
-  });
-  AppState.prayers = safeParse(localStorage.getItem('prayers'), []);
-  AppState.streak = safeParse(localStorage.getItem('streak'), { lastDate: '', count: 0 });
-  AppState.achievements = safeParse(localStorage.getItem('achievements'), []);
+  try {
+    // Load saved state
+    AppState.darkMode = localStorage.getItem('darkMode') === 'true';
+    AppState.language = localStorage.getItem('language') || navigator.language?.split('-')[0] || 'en';
+    const supportedLangs = ['en','fr','sw','ar','yo','ig','ha','pcm'];
+    if (!supportedLangs.includes(AppState.language)) AppState.language = 'en';
+    AppState.vomMode      = localStorage.getItem('vomMode') === 'true';
+    AppState.userStats    = safeParse(localStorage.getItem('userStats'), {
+      presentations: 0, slidesViewed: [], prayers: 0, aiQuestions: 0, shares: 0,
+      installDate: new Date().toISOString(), level: 'Beginner'
+    });
+    AppState.prayers      = safeParse(localStorage.getItem('prayers'), []);
+    AppState.streak       = safeParse(localStorage.getItem('streak'), { lastDate: '', count: 0 });
+    AppState.achievements = safeParse(localStorage.getItem('achievements'), []);
 
-  // Apply initial state
-  if (AppState.darkMode) document.body.classList.add('dark-mode');
-  const dmToggle = document.getElementById('darkModeToggle');
-  if (dmToggle) dmToggle.checked = AppState.darkMode;
-  const langSelect = document.getElementById('languageSelect');
-  if (langSelect) langSelect.value = AppState.language;
+    // Apply initial state
+    if (AppState.darkMode) document.body.classList.add('dark-mode');
+    const dmToggle = document.getElementById('darkModeToggle');
+    if (dmToggle) dmToggle.checked = AppState.darkMode;
+    const langSelect = document.getElementById('languageSelect');
+    if (langSelect) langSelect.value = AppState.language;
 
-  // VOM disguise — restore state from last session
-  if (AppState.vomMode) {
-    setAppIcon(VOM_ICON, 'Calculator');
+    if (AppState.vomMode) {
+      try { setAppIcon(VOM_ICON, 'Calculator'); } catch(e) {}
+    }
+
+    // Load data — never throws
+    await loadAppData();
+
+  } catch (e) {
+    // Even if everything above fails, still show the app
+    console.error('Init error (non-fatal):', e);
+    AppState.contentData = AppState.contentData || FALLBACK_CONTENT;
   }
 
-  // Load data
-  await loadAppData();
-
-  // Finish loading
-  clearInterval(ticker);
-  if (progressEl) progressEl.textContent = '100%';
-
-  setTimeout(() => {
-    if (loading) { loading.style.opacity = '0'; loading.style.pointerEvents = 'none'; }
-    setTimeout(() => {
-      if (loading) loading.style.display = 'none';
-      if (appContainer) appContainer.classList.add('active');
-      initializeSlides();
-      setupEventListeners();
-      updateOnlineStatus();
-      checkInstallPrompt();
-      updateUserStats();
-      checkStreak();
-      updateStatsDisplay();
-      showToast(t('welcomeMessage') || 'Welcome to GospelSwipe Pro!', 'success');
-      // Handle manifest shortcut actions
-      const params = new URLSearchParams(location.search);
-      const action = params.get('action');
-      if (action === 'present') setTimeout(() => startPresentation(), 600);
-      else if (action === 'prayer') setTimeout(() => showScreen('prayer-screen'), 600);
-      else if (action === 'journal') setTimeout(() => showEvangelismJournal(), 600);
-    }, 450);
-  }, 1200);
+  finishLoading();
 });
 
 // ========== Expose Globals ==========
