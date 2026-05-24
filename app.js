@@ -2505,22 +2505,42 @@ function _renderTractList() {
   const countEl = document.getElementById('tractCount');
   if (countEl) countEl.textContent = `${tracts.length} tracts`;
   if (catsEl) {
-    catsEl.innerHTML = cats.map(c => `
-      <button onclick="filterTracts('${c}')"
-        style="flex-shrink:0;padding:5px 14px;border-radius:16px;border:1px solid ${c===_tractCat?'#3498db':'rgba(255,255,255,0.15)'};background:${c===_tractCat?'rgba(52,152,219,0.2)':'rgba(255,255,255,0.05)'};color:${c===_tractCat?'#3498db':'rgba(255,255,255,0.6)'};font-size:0.75rem;cursor:pointer;white-space:nowrap;font-family:inherit;">
+    catsEl.innerHTML = cats.map(c => {
+      const active = c === _tractCat;
+      const colors = {
+        all:'#aaaaaa', conviction:'#e74c3c', salvation:'#3498db',
+        backslider:'#f39c12', peace:'#2ecc71', identity:'#9b59b6',
+        struggle:'#e67e22', urgency:'#c0392b'
+      };
+      const col = colors[c] || '#aaaaaa';
+      return `<button onclick="filterTracts('${c}')"
+        style="flex-shrink:0;padding:7px 16px;border-radius:20px;
+               border:1.5px solid ${active ? col : 'rgba(255,255,255,0.25)'};
+               background:${active ? `rgba(${hexToRgb(col)},0.22)` : 'rgba(255,255,255,0.07)'};
+               color:${active ? col : '#cccccc'};
+               font-size:0.78rem;font-weight:${active?'700':'500'};
+               cursor:pointer;white-space:nowrap;font-family:inherit;
+               letter-spacing:0.3px;">
         ${catLabels[c]}
-      </button>`).join('');
+      </button>`;
+    }).join('');
   }
   if (listEl) {
-    listEl.innerHTML = tracts.length ? tracts.map((t,i) => `
-      <div onclick="openTract(${t.id})" style="background:rgba(${hexToRgb(t.color)},0.08);border:1px solid rgba(${hexToRgb(t.color)},0.2);border-radius:18px;padding:16px;margin-bottom:10px;cursor:pointer;">
+    const catLabelsMap = {all:'All',conviction:'Conviction',salvation:'Salvation',backslider:'Backslider',peace:'Peace',identity:'Identity',struggle:'Struggle',urgency:'Urgency'};
+    listEl.innerHTML = tracts.length ? tracts.map(t => {
+      const rgb = (typeof hexToRgb === 'function' && t.color) ? hexToRgb(t.color) : '150,150,150';
+      return `
+      <div onclick="openTract(${t.id})"
+        style="background:rgba(${rgb},0.09);border:1px solid rgba(${rgb},0.28);
+               border-radius:18px;padding:16px;margin-bottom:10px;cursor:pointer;
+               border-left:4px solid ${t.color};">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <span style="width:8px;height:8px;border-radius:50%;background:${t.color};flex-shrink:0;"></span>
-          <span style="font-size:0.7rem;font-weight:700;color:${t.color};letter-spacing:0.4px;text-transform:uppercase;">${catLabels[t.category]||t.category}</span>
+          <span style="font-size:0.7rem;font-weight:700;color:${t.color};letter-spacing:0.5px;text-transform:uppercase;">${catLabelsMap[t.category]||t.category}</span>
         </div>
-        <p style="font-weight:800;font-size:1rem;margin-bottom:4px;">${t.title}</p>
-        <p style="font-size:0.82rem;opacity:0.6;font-style:italic;">${t.hook}</p>
-      </div>`).join('') : '<p style="text-align:center;opacity:0.4;margin-top:30px;">No tracts found</p>';
+        <p style="font-weight:800;font-size:1rem;margin-bottom:4px;color:#ffffff;">${escapeHtml(t.title)}</p>
+        <p style="font-size:0.82rem;color:rgba(255,255,255,0.55);font-style:italic;line-height:1.4;">${escapeHtml(t.hook)}</p>
+      </div>`;
+    }).join('') : '<p style="text-align:center;color:rgba(255,255,255,0.4);margin-top:30px;">No tracts found</p>';
   }
 }
 
@@ -2536,35 +2556,65 @@ function openTract(id) {
   const t = all.find(x => x.id === id);
   if (!t) return;
   vibrate(15);
-  const el = id => document.getElementById(id);
+
+  const rgb = (typeof hexToRgb === 'function' && t.color) ? hexToRgb(t.color) : '150,150,150';
+  const gel = i => document.getElementById(i);
+
   const s = document.getElementById('tract-detail-screen');
   if (!s) return;
-  if (el('tdColor'))      el('tdColor').style.background = `rgba(${hexToRgb(t.color)},0.1)`;
-  if (el('tdColorBar'))   el('tdColorBar').style.background = t.color;
-  if (el('tdCat'))      { el('tdCat').textContent = t.category.toUpperCase(); el('tdCat').style.color = t.color; }
-  if (el('tdTitle'))      el('tdTitle').textContent = t.title;
-  if (el('tdHook'))       el('tdHook').textContent = t.hook;
-  if (el('tdBody'))       el('tdBody').innerHTML = t.body.replace(/\n\n/g,'</p><p style="margin-bottom:14px;">');
-  if (el('tdVerses'))     el('tdVerses').textContent = t.verses.join(' · ');
-  if (el('tdRepentance')) el('tdRepentance').textContent = t.repentance;
-  if (el('tdPrayer'))     el('tdPrayer').textContent = t.prayer;
+
+  // Header colours
+  const colorCard = gel('tdColor');
+  if (colorCard) {
+    colorCard.style.background = `rgba(${rgb},0.1)`;
+    colorCard.style.borderColor = `rgba(${rgb},0.25)`;
+  }
+  if (gel('tdColorBar')) gel('tdColorBar').style.background = t.color;
+  if (gel('tdCat')) {
+    gel('tdCat').textContent = (t.category || '').toUpperCase();
+    gel('tdCat').style.color = t.color;
+  }
+  if (gel('tdTitle'))  gel('tdTitle').textContent  = t.title || '';
+  if (gel('tdHook'))   gel('tdHook').textContent   = t.hook  || '';
+
+  // Body — safely convert double newlines to paragraphs
+  if (gel('tdBody')) {
+    const paras = (t.body || '').split(/\n\n+/);
+    gel('tdBody').innerHTML = paras.map(p =>
+      `<p style="margin-bottom:14px;font-size:0.9rem;line-height:1.8;color:rgba(255,255,255,0.88);">${escapeHtml(p.trim())}</p>`
+    ).join('');
+  }
+
+  if (gel('tdVerses'))     gel('tdVerses').textContent     = (t.verses || []).join(' · ');
+  if (gel('tdRepentance')) gel('tdRepentance').textContent = t.repentance || '';
+  if (gel('tdPrayer'))     gel('tdPrayer').textContent     = t.prayer || '';
+
   // Share button
-  const shareBtn = el('tdShareBtn');
+  const shareBtn = gel('tdShareBtn');
   if (shareBtn) {
     shareBtn.onclick = () => {
       vibrate(20);
-      const msg = `✝️ *${t.title}*\n\n_"${t.hook}"_\n\n${t.body.substring(0,300)}...\n\n📖 *Key verses:* ${t.verses.join(', ')}\n\n🙏 *Prayer:*\n${t.prayer}\n\n📱 Read 200 gospel tracts — free & offline:\n*gospelswipe.app*`;
+      const preview = (t.body || '').substring(0, 280).replace(/\n\n/g, ' ');
+      const msg =
+        `✝️ *${t.title}*\n\n_"${t.hook}"_\n\n${preview}...\n\n` +
+        `📖 *${(t.verses || []).join(' · ')}*\n\n` +
+        `🙏 *Prayer:* ${(t.prayer || '').substring(0, 150)}...\n\n` +
+        `📱 Read 200 gospel tracts free & offline:\n*gospelswipe.app*`;
       if (navigator.share) {
-        navigator.share({ title: t.title, text: msg }).catch(() => window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank'));
+        navigator.share({ title: t.title, text: msg }).catch(() =>
+          window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank'));
       } else {
         window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
       }
       AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
       refreshStats();
-      showToast('📤 Sharing gospel tract...', 'success');
+      showToast('📤 Sharing tract...', 'success');
     };
   }
+
   showScreen('tract-detail-screen');
+  // Scroll detail screen to top
+  setTimeout(() => { if (s) s.scrollTop = 0; }, 50);
 }
 
 function tractSearch(val) {
@@ -2595,76 +2645,74 @@ window.markNBDayComplete    = markNBDayComplete;
 
 // ========== Initialization ==========
 document.addEventListener('DOMContentLoaded', async () => {
-  const loading = document.getElementById('loading');
-  const appContainer = document.getElementById('appContainer');
-  const progressEl = document.getElementById('loadingProgress');
+  const loading     = document.getElementById('loading');
+  const appContainer= document.getElementById('appContainer');
+  const progressEl  = document.getElementById('loadingProgress');
 
-  // Progress animation
+  // Fast progress — fill to 90% in ~600ms
   let pct = 0;
   const ticker = setInterval(() => {
-    pct = Math.min(pct + Math.random() * 8 + 2, 90);
+    pct = Math.min(pct + Math.random() * 18 + 8, 90);
     if (progressEl) progressEl.textContent = Math.round(pct) + '%';
-  }, 80);
+  }, 60);
 
   const finishLoading = () => {
     clearInterval(ticker);
     if (progressEl) progressEl.textContent = '100%';
+    // Show app after just 300ms — feels instant
     setTimeout(() => {
-      if (loading) { loading.style.opacity = '0'; loading.style.pointerEvents = 'none'; }
+      if (loading) { loading.style.transition = 'opacity 0.3s'; loading.style.opacity = '0'; loading.style.pointerEvents = 'none'; }
       setTimeout(() => {
         if (loading) loading.style.display = 'none';
         if (appContainer) appContainer.classList.add('active');
-        try { initializeSlides(); } catch(e) { console.warn('initializeSlides:', e); }
-        try { setupEventListeners(); } catch(e) { console.warn('setupEventListeners:', e); }
-        try { updateOnlineStatus(); } catch(e) {}
-        try { checkInstallPrompt(); } catch(e) {}
-        try { updateUserStats(); } catch(e) {}
-        try { checkStreak(); } catch(e) {}
-        try { updateStatsDisplay(); } catch(e) {}
-        try { showToast(t('welcomeMessage') || 'Welcome to GospelSwipe Pro! 🙏', 'success'); } catch(e) {}
-        // Handle manifest shortcut actions
+        try { initializeSlides(); }     catch(e) { console.warn(e); }
+        try { setupEventListeners(); }  catch(e) { console.warn(e); }
+        try { updateOnlineStatus(); }   catch(e) {}
+        try { checkInstallPrompt(); }   catch(e) {}
+        try { updateUserStats(); }      catch(e) {}
+        try { checkStreak(); }          catch(e) {}
+        try { updateStatsDisplay(); }   catch(e) {}
+        try { showToast(t('welcomeMessage') || '🙏 Welcome to GospelSwipe Pro!', 'success'); } catch(e) {}
         try {
           const params = new URLSearchParams(location.search);
           const action = params.get('action');
-          if (action === 'present') setTimeout(() => startPresentation(), 600);
-          else if (action === 'prayer') setTimeout(() => showScreen('prayer-screen'), 600);
-          else if (action === 'journal') setTimeout(() => showEvangelismJournal(), 600);
+          if (action === 'present') setTimeout(() => startPresentation(), 400);
+          else if (action === 'prayer') setTimeout(() => showScreen('prayer-screen'), 400);
+          else if (action === 'journal') setTimeout(() => showEvangelismJournal(), 400);
         } catch(e) {}
-      }, 450);
-    }, 1200);
+      }, 250);
+    }, 300);
   };
 
   try {
-    // Load saved state
-    AppState.darkMode = localStorage.getItem('darkMode') === 'true';
-    AppState.language = localStorage.getItem('language') || navigator.language?.split('-')[0] || 'en';
-    const supportedLangs = ['en','fr','sw','ar','yo','ig','ha','pcm'];
-    if (!supportedLangs.includes(AppState.language)) AppState.language = 'en';
+    // Restore saved state synchronously — no await needed
+    AppState.darkMode  = localStorage.getItem('darkMode') === 'true';
+    AppState.language  = localStorage.getItem('language') || navigator.language?.split('-')[0] || 'en';
+    const supported    = ['en','fr','sw','ar','yo','ig','ha','pcm'];
+    if (!supported.includes(AppState.language)) AppState.language = 'en';
     AppState.vomMode      = localStorage.getItem('vomMode') === 'true';
     AppState.userStats    = safeParse(localStorage.getItem('userStats'), {
-      presentations: 0, slidesViewed: [], prayers: 0, aiQuestions: 0, shares: 0,
-      installDate: new Date().toISOString(), level: 'Beginner'
+      presentations:0, slidesViewed:[], prayers:0, aiQuestions:0, shares:0,
+      installDate: new Date().toISOString(), level:'Beginner'
     });
     AppState.prayers      = safeParse(localStorage.getItem('prayers'), []);
-    AppState.streak       = safeParse(localStorage.getItem('streak'), { lastDate: '', count: 0 });
+    AppState.streak       = safeParse(localStorage.getItem('streak'), { lastDate:'', count:0 });
     AppState.achievements = safeParse(localStorage.getItem('achievements'), []);
 
-    // Apply initial state
     if (AppState.darkMode) document.body.classList.add('dark-mode');
-    const dmToggle = document.getElementById('darkModeToggle');
-    if (dmToggle) dmToggle.checked = AppState.darkMode;
-    const langSelect = document.getElementById('languageSelect');
-    if (langSelect) langSelect.value = AppState.language;
+    const dmToggle  = document.getElementById('darkModeToggle');
+    if (dmToggle)  dmToggle.checked = AppState.darkMode;
+    const langSel   = document.getElementById('languageSelect');
+    if (langSel)   langSel.value = AppState.language;
+    if (AppState.vomMode) { try { setAppIcon(VOM_ICON, 'Calculator'); } catch(e) {} }
 
-    if (AppState.vomMode) {
-      try { setAppIcon(VOM_ICON, 'Calculator'); } catch(e) {}
-    }
+    // Load content with a 3s hard timeout — never block longer than that
+    await Promise.race([
+      loadAppData(),
+      new Promise(res => setTimeout(res, 3000))
+    ]);
 
-    // Load data — never throws
-    await loadAppData();
-
-  } catch (e) {
-    // Even if everything above fails, still show the app
+  } catch(e) {
     console.error('Init error (non-fatal):', e);
     AppState.contentData = AppState.contentData || FALLBACK_CONTENT;
   }
