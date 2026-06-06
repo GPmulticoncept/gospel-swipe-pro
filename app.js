@@ -2498,54 +2498,62 @@ function showTractGenerator() {
 
 function _renderTractList() {
   const tracts  = _getTracts();
-  const cats    = ['all','conviction','salvation','backslider','peace','identity','struggle','urgency'];
-  const catLabels = {all:'All',conviction:'Conviction',salvation:'Salvation',backslider:'Backslider',peace:'Peace',identity:'Identity',struggle:'Struggle',urgency:'Urgency'};
   const listEl  = document.getElementById('tractList');
-  const catsEl  = document.getElementById('tractCats');
   const countEl = document.getElementById('tractCount');
-  if (countEl) countEl.textContent = `${tracts.length} tracts`;
-  if (catsEl) {
-    catsEl.innerHTML = cats.map(c => {
-      const active = c === _tractCat;
-      const colors = {
-        all:'#aaaaaa', conviction:'#e74c3c', salvation:'#3498db',
-        backslider:'#f39c12', peace:'#2ecc71', identity:'#9b59b6',
-        struggle:'#e67e22', urgency:'#c0392b'
-      };
-      const col = colors[c] || '#aaaaaa';
-      return `<button onclick="filterTracts('${c}')"
-        style="flex-shrink:0;padding:7px 16px;border-radius:20px;
-               border:1.5px solid ${active ? col : 'rgba(255,255,255,0.25)'};
-               background:${active ? `rgba(${hexToRgb(col)},0.22)` : 'rgba(255,255,255,0.07)'};
-               color:${active ? col : '#cccccc'};
-               font-size:0.78rem;font-weight:${active?'700':'500'};
-               cursor:pointer;white-space:nowrap;font-family:inherit;
-               letter-spacing:0.3px;">
-        ${catLabels[c]}
-      </button>`;
-    }).join('');
+  if (countEl) countEl.textContent = `${tracts.length} tract${tracts.length !== 1 ? 's' : ''}`;
+
+  const catLabels = {conviction:'Conviction',salvation:'Salvation',backslider:'Backslider',
+    peace:'Peace',identity:'Identity',struggle:'Struggle',urgency:'Urgency'};
+
+  if (!listEl) return;
+  if (!tracts.length) {
+    listEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.4);margin-top:40px;font-size:0.9rem;">No tracts found</p>';
+    return;
   }
-  if (listEl) {
-    const catLabelsMap = {all:'All',conviction:'Conviction',salvation:'Salvation',backslider:'Backslider',peace:'Peace',identity:'Identity',struggle:'Struggle',urgency:'Urgency'};
-    listEl.innerHTML = tracts.length ? tracts.map(t => {
-      const rgb = (typeof hexToRgb === 'function' && t.color) ? hexToRgb(t.color) : '150,150,150';
-      return `
-      <div onclick="openTract(${t.id})"
-        style="background:rgba(${rgb},0.09);border:1px solid rgba(${rgb},0.28);
-               border-radius:18px;padding:16px;margin-bottom:10px;cursor:pointer;
-               border-left:4px solid ${t.color};">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <span style="font-size:0.7rem;font-weight:700;color:${t.color};letter-spacing:0.5px;text-transform:uppercase;">${catLabelsMap[t.category]||t.category}</span>
-        </div>
-        <p style="font-weight:800;font-size:1rem;margin-bottom:4px;color:#ffffff;">${escapeHtml(t.title)}</p>
-        <p style="font-size:0.82rem;color:rgba(255,255,255,0.55);font-style:italic;line-height:1.4;">${escapeHtml(t.hook)}</p>
-      </div>`;
-    }).join('') : '<p style="text-align:center;color:rgba(255,255,255,0.4);margin-top:30px;">No tracts found</p>';
-  }
+  listEl.innerHTML = tracts.map(t => {
+    const rgb = (typeof hexToRgb === 'function' && t.color) ? hexToRgb(t.color) : '180,180,180';
+    return `
+    <div onclick="openTract(${t.id})"
+      style="background:rgba(${rgb},0.09);border:1px solid rgba(${rgb},0.22);
+             border-left:4px solid ${t.color};border-radius:18px;
+             padding:16px;margin-bottom:10px;cursor:pointer;
+             -webkit-tap-highlight-color:transparent;">
+      <span style="font-size:0.7rem;font-weight:800;color:${t.color};
+                   letter-spacing:0.6px;text-transform:uppercase;">
+        ${catLabels[t.category] || t.category}
+      </span>
+      <p style="font-weight:800;font-size:1rem;margin:6px 0 4px;color:#ffffff;">
+        ${escapeHtml(t.title)}
+      </p>
+      <p style="font-size:0.82rem;color:rgba(255,255,255,0.55);
+                font-style:italic;line-height:1.45;margin:0;">
+        ${escapeHtml(t.hook)}
+      </p>
+    </div>`;
+  }).join('');
 }
 
 function filterTracts(cat) {
   _tractCat = cat;
+  // Update active state on hardcoded HTML buttons
+  document.querySelectorAll('#tractCats button[data-cat]').forEach(btn => {
+    const isActive = btn.dataset.cat === cat;
+    const colors = {
+      all:'rgba(255,255,255,0.35)',conviction:'#e74c3c',salvation:'#3498db',
+      backslider:'#f39c12',peace:'#2ecc71',identity:'#9b59b6',
+      struggle:'#e67e22',urgency:'#c0392b'
+    };
+    const bgColors = {
+      all:'rgba(255,255,255,0.18)',conviction:'rgba(231,76,60,0.25)',salvation:'rgba(52,152,219,0.25)',
+      backslider:'rgba(243,156,18,0.25)',peace:'rgba(46,204,113,0.25)',identity:'rgba(155,89,182,0.25)',
+      struggle:'rgba(230,126,34,0.25)',urgency:'rgba(192,57,43,0.25)'
+    };
+    const col = colors[btn.dataset.cat] || 'rgba(255,255,255,0.35)';
+    btn.style.borderColor  = isActive ? col : col.replace('0.35','0.25').replace('0.25','0.2');
+    btn.style.background   = isActive ? bgColors[btn.dataset.cat] : 'rgba(255,255,255,0.05)';
+    btn.style.fontWeight   = isActive ? '800' : '600';
+    btn.style.opacity      = isActive ? '1' : '0.7';
+  });
   _renderTractList();
   const screen = document.getElementById('tracts-screen');
   if (screen) screen.scrollTop = 0;
