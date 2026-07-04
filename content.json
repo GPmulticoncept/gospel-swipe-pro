@@ -1,32 +1,314 @@
 {
-  "slides": [ ... same as before ... ],
+  "slides": [
+    {
+      "id": 1,
+      "title": "God's Love",
+      "verse": "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
+      "reference": "John 3:16",
+      "topic": "god-love",
+      "color": "#3498db"
+    },
+    {
+      "id": 2,
+      "title": "The Sin Problem",
+      "verse": "For all have sinned and fall short of the glory of God, and all are justified freely by his grace through the redemption that came by Christ Jesus.",
+      "reference": "Romans 3:23-24",
+      "topic": "sin-problem",
+      "color": "#e74c3c"
+    },
+    {
+      "id": 3,
+      "title": "Jesus, The Solution",
+      "verse": "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.",
+      "reference": "Romans 5:8",
+      "topic": "jesus-solution",
+      "color": "#9b59b6"
+    },
+    {
+      "id": 4,
+      "title": "Faith Response",
+      "verse": "For it is by grace you have been saved, through faith — and this is not from yourselves, it is the gift of God — not by works, so that no one can boast.",
+      "reference": "Ephesians 2:8-9",
+      "topic": "faith-response",
+      "color": "#27ae60"
+    },
+    {
+      "id": 5,
+      "title": "New Life in Christ",
+      "verse": "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!",
+      "reference": "2 Corinthians 5:17",
+      "topic": "new-life",
+      "color": "#f39c12"
+    },
+    {
+      "id": 6,
+      "title": "The Trinity",
+      "verse": "Go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit.",
+      "reference": "Matthew 28:19",
+      "topic": "trinity",
+      "color": "#1abc9c"
+    },
+    {
+      "id": 7,
+      "title": "God's Word",
+      "verse": "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness.",
+      "reference": "2 Timothy 3:16",
+      "topic": "scripture",
+      "color": "#e67e22"
+    },
+    {
+      "id": 8,
+      "title": "Suffering & Hope",
+      "verse": "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.",
+      "reference": "Romans 8:28",
+      "topic": "suffering",
+      "color": "#c0392b"
+    },
+    {
+      "id": 9,
+      "title": "The Only Way",
+      "verse": "Jesus answered, 'I am the way and the truth and the life. No one comes to the Father except through me.'",
+      "reference": "John 14:6",
+      "topic": "only-way",
+      "color": "#8e44ad"
+    },
+    {
+      "id": 10,
+      "title": "Prayer of Salvation",
+      "verse": "If you declare with your mouth, 'Jesus is Lord,' and believe in your heart that God raised him from the dead, you will be saved.",
+      "reference": "Romans 10:9",
+      "topic": "salvation-prayer",
+      "color": "#2980b9"
+    },
+    {
+      "id": 11,
+      "title": "The Holy Spirit",
+      "verse": "But you will receive power when the Holy Spirit comes on you; and you will be my witnesses in Jerusalem, and in all Judea and Samaria, and to the ends of the earth.",
+      "reference": "Acts 1:8",
+      "topic": "holy-spirit",
+      "color": "#16a085"
+    },
+    {
+      "id": 12,
+      "title": "Great Commission",
+      "verse": "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit.",
+      "reference": "Matthew 28:19-20",
+      "topic": "great-commission",
+      "color": "#d35400"
+    },
+    {
+      "id": 13,
+      "title": "Love Your Neighbor",
+      "verse": "'Love the Lord your God with all your heart... Love your neighbor as yourself.' All the Law and the Prophets hang on these two commandments.",
+      "reference": "Matthew 22:37-40",
+      "topic": "love-neighbor",
+      "color": "#27ae60"
+    },
+    {
+      "id": 14,
+      "title": "Forgiveness",
+      "verse": "Be kind and compassionate to one another, forgiving each other, just as in Christ God forgave you.",
+      "reference": "Ephesians 4:32",
+      "topic": "forgiveness",
+      "color": "#2c3e50"
+    },
+    {
+      "id": 15,
+      "title": "Eternal Hope",
+      "verse": "For I am convinced that neither death nor life, neither angels nor demons... nor anything else in all creation, will be able to separate us from the love of God.",
+      "reference": "Romans 8:38-39",
+      "topic": "eternal-hope",
+      "color": "#6c3483"
+    }
+  ],
   "aiAnswers": {
     "god-love": {
-      "en": "God's love is unconditional and sacrificial. John 3:16 shows that God loved the world so much that He gave His only Son.",
-      "fr": "L'amour de Dieu est inconditionnel et sacrificiel. Jean 3:16 montre que Dieu a tant aimé le monde qu'il a donné son Fils unique.",
-      "sw": "Upendo wa Mungu hauna masharti na ni wa kujitolea. Yohana 3:16 inaonyesha kwamba Mungu aliupenda ulimwengu kiasi cha kumtoa Mwanawe pekee.",
-      "ar": "محبة الله غير مشروطة وذبيحية. يوحنا ٣: ١٦ تظهر أن الله أحب العالم كثيراً حتى بذل ابنه الوحيد.",
-      "yo": "Ife Olorun ko ni opin ati ẹbọ. Johannu 3:16 fihan pe Olorun feran aye tobẹẹ ti o fi fi Ọmọ rẹ kanṣoṣo fun.",
-      "ig": "Ịhụnanya Chineke enweghị atụ na ịchụ àjà. Jọn 3:16 na-egosi na Chineke hụrụ ụwa n'anya nke ukwuu nye otu Ọkpara ya.",
-      "ha": "Ƙaunar Allah ba ta da iyaka kuma tana da sadaukarwa. Yahaya 3:16 ya nuna cewa Allah ya ƙaunaci duniya har ya ba da Ɗansa kaɗai.",
-      "pcm": "God love no get end and na sacrifice. John 3:16 show say God love di world well well give im only Son."
+      "en": "God's love is unconditional and sacrificial. John 3:16 shows that God loved the world so much He gave His only Son.",
+      "fr": "L'amour de Dieu est inconditionnel. Jean 3:16 montre que Dieu a tant aimé le monde qu'il a donné son Fils unique.",
+      "yo": "Ife Olorun ko ni opin. Johannu 3:16 fihan pe Olorun feran aye to to fi Ọmọ rẹ kanṣoṣo fun.",
+      "ig": "Ịhụnanya Chineke enweghị atụ. Jọn 3:16 na-egosi na Chineke hụrụ ụwa n'anya nke ukwuu.",
+      "ha": "Ƙaunar Allah ba ta da iyaka. Yahaya 3:16 ya nuna cewa Allah ya ƙaunaci duniya har ya ba da Ɗansa.",
+      "pcm": "God love no get end. John 3:16 show say God love di world well well.",
+      "sw": "Upendo wa Mungu hauna masharti. Yohana 3:16 inaonyesha kwamba Mungu aliupenda ulimwengu.",
+      "ar": "محبة الله غير مشروطة. يوحنا ٣:١٦ تظهر أن الله أحب العالم حتى بذل ابنه الوحيد."
     },
-    "sin-problem": { "en": "Sin is anything that falls short of God's perfect standard. Romans 3:23 reminds us that all have sinned.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "jesus-solution": { "en": "Jesus is God's solution to our sin problem. While we were still sinners, Christ died for us (Romans 5:8).", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "faith-response": { "en": "Faith is trusting in Jesus alone for salvation. Ephesians 2:8-9 clarifies that salvation is by grace through faith.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "new-life": { "en": "When we accept Jesus, we become new creations. 2 Corinthians 5:17 promises that the old has gone and the new is here.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "trinity": { "en": "The Trinity is the Christian doctrine that God exists as three distinct Persons—Father, Son, and Holy Spirit.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "scripture": { "en": "The Bible is God's inspired, authoritative Word—completely true and reliable. 2 Timothy 3:16 teaches that all Scripture is God-breathed.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "suffering": { "en": "God doesn't promise a life without suffering, but He promises to be with us in it and work it for good. Romans 8:28 assures us.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "only-way": { "en": "Jesus is the exclusive way to God because He alone is both fully God and fully human—the only mediator between God and humanity.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "salvation-prayer": { "en": "The prayer of salvation is a simple confession of faith in Jesus. Romans 10:9 outlines it.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "holy-spirit": { "en": "The Holy Spirit is God's presence in believers, empowering us for holy living and witness. Acts 1:8 promises power.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "great-commission": { "en": "The Great Commission is Jesus' final command to make disciples of all nations.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "love-neighbor": { "en": "Loving your neighbor means actively showing God's love to others through practical acts of service, kindness, and forgiveness.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "forgiveness": { "en": "Forgiveness is releasing resentment toward someone who has wronged you, just as God forgave you in Christ.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." },
-    "eternal-hope": { "en": "Eternal hope is the confident expectation of God's promises for the future, including resurrection, eternal life with God.", "fr": "...", "sw": "...", "ar": "...", "yo": "...", "ig": "...", "ha": "...", "pcm": "..." }
+    "sin-problem": {
+      "en": "Sin is anything that falls short of God's perfect standard. Romans 3:23 reminds us that all have sinned and need a Savior.",
+      "fr": "Le péché est tout ce qui est en dessous de la norme parfaite de Dieu. Romains 3:23 nous rappelle que tous ont péché.",
+      "yo": "Ẹṣẹ jẹ ohun ti o kere si iwuwasi pipe Ọlọrun. Romani 3:23 fi hàn pe gbogbo eniyan ti ṣẹ.",
+      "ig": "Mmehie bụ ihe ọ bụla na-adịghị iru ọkọlọtọ Chineke zuru oke. Rom 3:23 na-egosi na onye ọ bụla mere mmehie.",
+      "ha": "Zunubi shine komai da ya gaza ma'aunin Allah na cikakke. Romani 3:23 ya tuna mana cewa duka sun yi zunubi.",
+      "pcm": "Sin na everitin wey no reach God standard. Romans 3:23 remind us say everybody don sin.",
+      "sw": "Dhambi ni chochote kinachopungukia kiwango kamili cha Mungu. Warumi 3:23 inakumbusha kwamba wote wametenda dhambi.",
+      "ar": "الخطية هي كل ما يقصر عن معيار الله الكامل. رومية ٣:٢٣ تذكرنا أن الجميع أخطأوا."
+    },
+    "jesus-solution": {
+      "en": "Jesus is God's solution to our sin problem. While we were still sinners, Christ died for us (Romans 5:8).",
+      "fr": "Jésus est la solution de Dieu à notre problème de péché. Alors que nous étions encore pécheurs, Christ est mort pour nous.",
+      "yo": "Jesu ni ojutu Ọlọrun si isoro ẹṣẹ wa. Kristi ku fun wa lakoko ti awa n jẹ awọn ẹlẹṣẹ.",
+      "ig": "Jizọs bụ ihe ọgwụ Chineke maka nsogbu mmehie anyị. Kraịst nwụọ n'ihi anyị mgbe anyị ka bụ ndị mmehie.",
+      "ha": "Yesu shine mafita ta Allah don matsalar zunubin mu. Kristi ya mutu dominmu muna cikin zunubai.",
+      "pcm": "Jesus na God solution to our sin wahala. Christ die for us when we still dey sin.",
+      "sw": "Yesu ni suluhisho la Mungu kwa tatizo letu la dhambi. Kristo alikufa kwa ajili yetu tulipokuwa bado wadhambi.",
+      "ar": "يسوع هو حل الله لمشكلة خطيتنا. مات المسيح لأجلنا ونحن بعد خطاة."
+    },
+    "faith-response": {
+      "en": "Faith is trusting in Jesus alone for salvation. Ephesians 2:8-9 clarifies that salvation is by grace through faith, not by works.",
+      "fr": "La foi, c'est faire confiance à Jésus seul pour le salut. Éphésiens 2:8-9 précise que le salut est par grâce au moyen de la foi.",
+      "yo": "Igbagbọ ni igbẹkẹle Jesu nikan fun igbala. Efesu 2:8-9 sọ pe igbala wa nipasẹ ore-ọfẹ nipasẹ igbagbọ.",
+      "ig": "Okwukwe bụ ịtụkwasị obi na Jizọs naanị maka ọzọ nzọpụta. Efe 2:8-9 na-ekwuo na ọzọ nzọpụta sitere n'ùgwù site n'okwukwe.",
+      "ha": "Bangaskiya ita ce dogaro ga Yesu kadai don ceto. Afisawa 2:8-9 ya bayyana cewa ceto yana ta alheri ta hanyar bangaskiya.",
+      "pcm": "Faith na trust Yesu only for salvation. Ephesians 2:8-9 clear say salvation na by grace through faith, not by work.",
+      "sw": "Imani ni kumwamini Yesu peke yake kwa wokovu. Waefeso 2:8-9 inabainisha kwamba wokovu ni kwa neema kupitia imani.",
+      "ar": "الإيمان هو الثقة في يسوع وحده للخلاص. أفسس ٢:٨-٩ يوضح أن الخلاص بالنعمة بالإيمان لا بالأعمال."
+    },
+    "new-life": {
+      "en": "When we accept Jesus, we become new creations. 2 Corinthians 5:17 promises that the old has gone and the new is here.",
+      "fr": "Quand nous acceptons Jésus, nous devenons de nouvelles créatures. 2 Corinthiens 5:17 promet que l'ancien est passé.",
+      "yo": "Nigba ti a gba Jesu, a di ẹda titun. 2 Korinti 5:17 ṣe ileri pe ohun atijọ ti lọ.",
+      "ig": "Mgbe anyị na-anabata Jizọs, anyị na-aghọ ọhụrụ. 2 Kọr 5:17 na-ekwe nkwa na ihe ochie agafeela.",
+      "ha": "Sa'ad da muka karbi Yesu, muna zama sabbin halittu. 2 Korintiyawa 5:17 yana alkawari cewa tsohon ya wuce.",
+      "pcm": "When we accept Jesus, we become new creature. 2 Corinthians 5:17 promise say the old don go.",
+      "sw": "Tunapomkubali Yesu, tunakuwa viumbe vipya. 2 Wakorintho 5:17 inadhihirisha kwamba ya zamani imepita.",
+      "ar": "عندما نقبل يسوع، نصبح خليقة جديدة. ٢كورنثوس ٥:١٧ يعد بأن القديم قد مضى وها الجديد قد جاء."
+    },
+    "trinity": {
+      "en": "The Trinity is the Christian doctrine that God exists as three distinct Persons — Father, Son, and Holy Spirit — who are one God.",
+      "fr": "La Trinité est la doctrine chrétienne selon laquelle Dieu existe en trois Personnes distinctes — Père, Fils et Saint-Esprit — qui sont un seul Dieu.",
+      "yo": "Mẹtalọkan ni ẹkọ Kristian pe Ọlọrun wa gẹgẹbi eniyan mẹta ọtọọtọ — Baba, Ọmọ, ati Ẹmí Mimọ.",
+      "ig": "Ụlọ Atọ bụ nkuzi Krist na Chineke dị ka mmadụ atọ dị iche iche — Nna, Ọkpara, na Mmụọ Nsọ.",
+      "ha": "Triniti shine koyarwar Kirista cewa Allah yana wanzuwa a matsayin mutane uku daban-daban — Uba, Ɗa, da Ruhu Mai Tsarki.",
+      "pcm": "Trinity na di Christian teaching say God exist as three different Person — Father, Son, and Holy Spirit.",
+      "sw": "Utatu Mtakatifu ni fundisho la Kikristo kwamba Mungu yupo kama Watu watatu tofauti — Baba, Mwana, na Roho Mtakatifu.",
+      "ar": "الثالوث هو عقيدة مسيحية بأن الله موجود كثلاثة أقانيم متمايزة — الآب والابن والروح القدس."
+    },
+    "scripture": {
+      "en": "The Bible is God's inspired, authoritative Word — completely true and reliable. 2 Timothy 3:16 teaches that all Scripture is God-breathed.",
+      "fr": "La Bible est la Parole inspirée et faisant autorité de Dieu — complètement vraie et fiable.",
+      "yo": "Bibeli jẹ Ọrọ Ọlọrun ti a fà simi, ni aṣẹ — ootọ patapata ati igbẹkẹle. 2 Timoteu 3:16 kọ pe gbogbo iwe-mimọ jẹ ìmísí Ọlọrun.",
+      "ig": "Baịbụl bụ Okwu Chineke nke atụfuo, nke nwere ọchịchọ — ziri ezi kpamkpam. 2 Tim 3:16 na-akụzi na ihe niile edere n'akwụkwọ nsọ sitere n'ụmị Chineke.",
+      "ha": "Littafi Mai Tsarki shine Maganar Allah mai wahayi, mai iko — daidai gaba ɗaya kuma mai aminci.",
+      "pcm": "Bible na God inspired, authoritative Word — completely true and reliable.",
+      "sw": "Biblia ni Neno la Mungu lililovuviwa, lenye mamlaka — kweli kabisa na linaloaminika.",
+      "ar": "الكتاب المقدس هو كلمة الله الملهمة ذات السلطة — صادقة تماماً وموثوقة."
+    },
+    "suffering": {
+      "en": "God doesn't promise a life without suffering, but He promises to be with us in it. Romans 8:28 assures us that all things work together for good.",
+      "fr": "Dieu ne promet pas une vie sans souffrance, mais Il promet d'être avec nous dans la souffrance. Romains 8:28 nous assure que toutes choses concourent au bien.",
+      "yo": "Ọlọrun ko ṣe ileri igbesi aye laisi ijiya, ṣugbọn O ṣe ileri lati wa pẹlu wa. Romani 8:28 da wa lójú pé gbogbo nkan n ṣiṣẹ papọ fun rere.",
+      "ig": "Chineke anaghị ekwe nkwa ndụ na-enweghị ịta ahụ̀, mana o kwenyere ịnọ anyị n'oge ahụ. Rom 8:28 na-egosi na ihe niile na-arụkọ ọrụ ọma.",
+      "ha": "Allah baya alkawari rayuwa ba tare da wahala ba, amma Yana alkawarin zama tare da mu a ciki. Romani 8:28 ya tabbatar da mu.",
+      "pcm": "God no promise say life go be without suffering, but He promise to dey with us. Romans 8:28 assure us say all things work for good.",
+      "sw": "Mungu haahidi maisha bila mateso, lakini anaahidi kuwepo nasi ndani yake. Warumi 8:28 inatuhakikishia kwamba vitu vyote vinafanya kazi pamoja kwa wema.",
+      "ar": "الله لا يعد بحياة بلا معاناة، لكنه يعد بأن يكون معنا فيها. رومية ٨:٢٨ يطمئننا أن كل الأشياء تعمل معاً للخير."
+    },
+    "only-way": {
+      "en": "Jesus is the exclusive way to God because He alone is both fully God and fully human — the only mediator between God and humanity.",
+      "fr": "Jésus est le seul chemin vers Dieu parce qu'Il est à la fois pleinement Dieu et pleinement humain — le seul médiateur entre Dieu et l'humanité.",
+      "yo": "Jesu ni ọna kanṣoṣo si Ọlọrun nitori pe Oun nikan ni Ọlọrun ni kikun ati eniyan ni kikun.",
+      "ig": "Jizọs bụ ụzọ naanị gaa n'ebe Chineke n'ihi na naanị ya bụ Chineke kpamkpam ma bụruo mmadụ kpamkpam.",
+      "ha": "Yesu shine hanyar musamman zuwa ga Allah saboda Shi kaɗai ne cikakken Allah kuma cikakken ɗan adam.",
+      "pcm": "Jesus na di only way to God because He alone na fully God and fully human — only mediator.",
+      "sw": "Yesu ndiye njia pekee kwenda kwa Mungu kwa sababu yeye peke yake ni Mungu kamili na mwanadamu kamili.",
+      "ar": "يسوع هو الطريق الحصري إلى الله لأنه وحده إله كامل وإنسان كامل — الوسيط الوحيد."
+    },
+    "salvation-prayer": {
+      "en": "The prayer of salvation is a simple confession of faith in Jesus. Romans 10:9 says: confess with your mouth and believe in your heart.",
+      "fr": "La prière du salut est une simple confession de foi en Jésus. Romains 10:9 dit : confesse de ta bouche et crois dans ton cœur.",
+      "yo": "Adura igbala jẹ ijẹwọ igbagbọ ti o rọrun ninu Jesu. Romani 10:9 sọ: jẹwọ pẹlu ẹnu rẹ ki o si gbagbọ ninu ọkàn rẹ.",
+      "ig": "Ekpere nzọpụta bụ nkwupụta okwukwe dị mfe na Jizọs. Rom 10:9 na-ekwu: kwụpụta n'ọnụ gị ma kwene n'obi gị.",
+      "ha": "Addu'ar ceto ita ce sauƙaƙƙiyar ikirari na bangaskiya ga Yesu. Romani 10:9 ya ce: furta da bakinku kuma ku gaskata a zukatanku.",
+      "pcm": "Prayer of salvation na simple confession of faith in Jesus. Romans 10:9 say: confess with your mouth and believe in your heart.",
+      "sw": "Sala ya wokovu ni kukiri kwa unyoofu imani katika Yesu. Warumi 10:9 inasema: ikiri kwa mdomo wako na uamini moyoni mwako.",
+      "ar": "صلاة الخلاص هي اعتراف بسيط بالإيمان بيسوع. رومية ١٠:٩ تقول: اعترف بفمك وآمن بقلبك."
+    },
+    "holy-spirit": {
+      "en": "The Holy Spirit is God's presence in believers, empowering us for holy living and witness. Acts 1:8 promises power when the Spirit comes.",
+      "fr": "Le Saint-Esprit est la présence de Dieu dans les croyants, nous donnant le pouvoir pour une vie sainte et un témoignage.",
+      "yo": "Ẹmí Mimọ ni iwaju Ọlọrun ninu awọn olugbagbọ, ni fifún wa ni agbara fun igbesi aye mimo.",
+      "ig": "Mmụọ Nsọ bụ ọnụnọ Chineke n'ime ndị kwere, na-enye anyị ike maka ndụ nsọ na àkà.",
+      "ha": "Ruhu Mai Tsarki shine kasancewar Allah a cikin masu bi, yana ba mu ƙarfi don rayuwa mai tsarki.",
+      "pcm": "Holy Spirit na God presence inside believers, empowering us for holy living. Acts 1:8 promise power.",
+      "sw": "Roho Mtakatifu ni uwepo wa Mungu katika waamini, akitupa nguvu za maisha ya utakatifu na ushuhuda.",
+      "ar": "الروح القدس هو حضور الله في المؤمنين، يمكّننا للعيش القدوس والشهادة. أعمال ١:٨ يعد بالقوة."
+    },
+    "great-commission": {
+      "en": "The Great Commission is Jesus' final command to make disciples of all nations, baptizing and teaching them to obey His commands.",
+      "fr": "La Grande Commission est le commandement final de Jésus de faire des disciples de toutes les nations, en les baptisant et en leur enseignant.",
+      "yo": "Àṣẹ Nla ni àṣẹ ikẹhìn Jesu lati ṣe awọn ọmọ-ẹkọ ti gbogbo orilẹ-ède, ti n ṣe baptisi wọn.",
+      "ig": "Àjà Maka Ụwa niile bụ nkwụsịtụ ikpeazụ Jizọs ileta ụmụ akwụkwọ n'ime mba niile, na-abatịzi ha.",
+      "ha": "Babbar Hukuma ita ce ƙarshen umarni na Yesu na yi almajiran al'ummai duka, suna yi musu baftisma.",
+      "pcm": "Great Commission na Jesus final command to make disciples of all nations, baptize and teach them.",
+      "sw": "Agizo Kuu ni amri ya mwisho ya Yesu kufanya wanafunzi katika mataifa yote, kuwabatiza na kuwafundisha.",
+      "ar": "الوصية العظيمة هي أمر يسوع الأخير لتلمذة جميع الأمم وتعميدهم وتعليمهم."
+    },
+    "love-neighbor": {
+      "en": "Loving your neighbor means actively showing God's love to others through practical acts of service, kindness, and forgiveness.",
+      "fr": "Aimer son prochain signifie montrer activement l'amour de Dieu aux autres par des actes pratiques de service, de bonté et de pardon.",
+      "yo": "Ifi ẹlẹgbẹ rẹ lẹ tumọ si ṣiṣe afihan ife Ọlọrun ni itara si awọn ẹlomiiran nipasẹ awọn iṣẹ iṣe ti iṣẹ, inure, ati idariji.",
+      "ig": "Ịhụnanya agbataobi gị pụtara igosi ịhụnanya Chineke nye ndị ọzọ site n'ọrụ ọzizi, ebere, na ịgbaghara.",
+      "ha": "Ƙaunar maƙwabcinka na nufin nuna ƙaunar Allah ga wasu ta hanyar ayyuka na zahiri na hidima, alheri da gafara.",
+      "pcm": "Love your neighbor mean you go show God love to others through practical service, kindness, and forgiveness.",
+      "sw": "Kupenda jirani yako kunamaanisha kuonyesha kwa vitendo upendo wa Mungu kwa wengine kupitia huduma na huruma.",
+      "ar": "محبة قريبك تعني إظهار محبة الله للآخرين بشكل فعال من خلال أعمال الخدمة والطيبة والمغفرة."
+    },
+    "forgiveness": {
+      "en": "Forgiveness is releasing resentment toward someone who has wronged you, just as God forgave you in Christ. Ephesians 4:32.",
+      "fr": "Le pardon, c'est libérer le ressentiment envers quelqu'un qui vous a fait du tort, tout comme Dieu vous a pardonné en Christ.",
+      "yo": "Idariji ni itusilẹ ibinu si ẹnikan ti o ṣe aṣiṣe si ọ, gẹgẹ bi Ọlọrun ti dariji rẹ ninu Kristi.",
+      "ig": "Ịgbaghara bụ ịhapụ iwe n'afu onye mere gị ihe ọjọọ, dị ka Chineke gbaghaara gị na Kraịst.",
+      "ha": "Gafara ita ce sakin fushi ga wanda ya yi maka laifi, kamar yadda Allah ya gafarta maka a cikin Kristi.",
+      "pcm": "Forgiveness na release the grudge against person wey wrong you, just like God forgive you in Christ.",
+      "sw": "Msamaha ni kuacha chuki dhidi ya mtu aliyekukosea, kama vile Mungu alivyokusamehe katika Kristo.",
+      "ar": "المغفرة هي إطلاق سراح الاستياء تجاه من أساء إليك، كما أن الله غفر لك في المسيح."
+    },
+    "eternal-hope": {
+      "en": "Eternal hope is the confident expectation of God's promises for the future, including resurrection and eternal life. Romans 8:38-39.",
+      "fr": "L'espérance éternelle est l'attente confiante des promesses de Dieu pour l'avenir, y compris la résurrection et la vie éternelle.",
+      "yo": "Ireti ayérayé ni ireti igbẹkẹle ti awọn ileri Ọlọrun fun ọjọ iwaju, pẹlu àjinde ati igbesi aye ayérayé.",
+      "ig": "Olileanya ebighi ebi bụ atụmanya na nkwa Chineke maka ọdịnihu, gụnyere mbilite n'ọnwụ na ndụ ebighi ebi.",
+      "ha": "Bege na gaba shine tsammanin amintattu na alkawuran Allah na gaba, gami da tashin matattu da rayuwa ta har abada.",
+      "pcm": "Eternal hope na the confident expectation of God promises for future including resurrection and eternal life.",
+      "sw": "Tumaini la milele ni matarajio ya ujasiri ya ahadi za Mungu kwa siku zijazo, ikiwa ni pamoja na ufufuo na uzima wa milele.",
+      "ar": "الرجاء الأبدي هو التوقع الواثق لمواعيد الله للمستقبل، بما في ذلك القيامة والحياة الأبدية."
+    }
   },
-  "aiPrayerAssistant": { ... same as before ... },
-  "dailyVerses": [ ... same as before ... ],
-  "metrics": { ... same as before ... }
+  "dailyVerses": [
+    {
+      "verse": "The LORD is my shepherd, I lack nothing.",
+      "ref": "Psalm 23:1"
+    },
+    {
+      "verse": "I can do all this through him who gives me strength.",
+      "ref": "Philippians 4:13"
+    },
+    {
+      "verse": "Trust in the LORD with all your heart and lean not on your own understanding.",
+      "ref": "Proverbs 3:5"
+    },
+    {
+      "verse": "For I know the plans I have for you, declares the LORD, plans to prosper you and not to harm you.",
+      "ref": "Jeremiah 29:11"
+    },
+    {
+      "verse": "Be strong and courageous. Do not be afraid; do not be discouraged, for the LORD your God will be with you.",
+      "ref": "Joshua 1:9"
+    },
+    {
+      "verse": "The name of the LORD is a fortified tower; the righteous run to it and are safe.",
+      "ref": "Proverbs 18:10"
+    },
+    {
+      "verse": "Come to me, all you who are weary and burdened, and I will give you rest.",
+      "ref": "Matthew 11:28"
+    }
+  ],
+  "metrics": {
+    "betaUsers": 1247,
+    "versesShared": 8934,
+    "prayersSaved": 3456,
+    "avgStreak": 14,
+    "costPerSoul": 0.37,
+    "targetConversions": 50000
+  }
 }

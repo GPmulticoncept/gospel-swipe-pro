@@ -1,10 +1,10 @@
 // ==========================================
-// GospelSwipe Pro v1.1 — Service Worker
+// GospelSwipe Pro v2.0 — Service Worker
 // Offline-first · Cache-then-network
 // ==========================================
 
-const CACHE_NAME = 'gospel-swipe-v1.2.5';
-const CONTENT_CACHE = 'gospel-swipe-content-v1.2.5';
+const CACHE_NAME = 'gospel-swipe-v2.0.1';
+const CONTENT_CACHE = 'gospel-swipe-content-v2.0.1';
 
 const PRECACHE_URLS = [
   './',
@@ -18,6 +18,7 @@ const PRECACHE_URLS = [
   './tracts_ext.js',
   './prayers.js',
   './translations.js',
+  './training_i18n.js',
   './content.json',
   './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',

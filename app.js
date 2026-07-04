@@ -1,5 +1,5 @@
 // ==========================================
-// GospelSwipe Pro v1.1 — Main Application
+// GospelSwipe Pro v2.0 — Main Application
 // Offline-first · Multi-language · IndexedDB
 // All bugs fixed · Production ready
 // ==========================================
@@ -250,10 +250,41 @@ async function changeLanguage(lang) {
   AppState.language = lang;
   localStorage.setItem('language', lang);
   applyTranslations();
-  if (AppState.currentScreen === 'presentation-screen') initializeSlides();
+  refreshCurrentScreenContent();
   const langName = t('languageName') || lang;
   showToast(`Language: ${langName}`, 'success');
   vibrate(20);
+}
+
+// Re-renders whatever dynamic (non data-i18n) content is on screen right now.
+// FIX: previously, changing language only updated static data-i18n tags via
+// applyTranslations(). Any screen whose content is generated in JavaScript
+// (Evangelism Training steps, New Believer Guide days, Devotional text,
+// Living Faith, The Thread, Tract detail, Soul Journal, Prayer Guide modal)
+// kept showing whatever language it was first rendered in until the user
+// left the screen and came back. This function makes language changes take
+// effect immediately, everywhere, without needing to navigate away.
+function refreshCurrentScreenContent() {
+  const screen = AppState.currentScreen;
+  try {
+    if (screen === 'presentation-screen') initializeSlides();
+    else if (screen === 'training-screen') { renderTrainingMethod(); }
+    else if (screen === 'newbeliever-screen') { renderNBDay(_nbCurrentDay); _renderNBDaySelector(); updateNBDayButtons(); }
+    else if (screen === 'devotional-screen') { loadDevotional(); }
+    else if (screen === 'livingfaith-screen') { _renderLF(); }
+    else if (screen === 'thread-screen') { _renderThread(); }
+    else if (screen === 'tracts-screen') { _renderTractCategoryButtons(); _renderTractList(); }
+    else if (screen === 'tract-detail-screen') { /* re-open same tract if one is active */ if (typeof _lastOpenedTractId === 'number') openTract(_lastOpenedTractId); }
+    else if (screen === 'prayer-screen') { loadPrayers(); }
+    else if (screen === 'stats-screen') { updateStatsDisplay(); }
+  } catch (e) { console.warn('refreshCurrentScreenContent failed for', screen, e); }
+
+  // If a modal is currently open (Prayer Guide, Soul Journal, AI Explain, etc.)
+  // and it has a re-render hook, refresh it too so open modals aren't stuck
+  // in the old language.
+  if (activeModal && typeof activeModal._i18nRerender === 'function') {
+    try { activeModal._i18nRerender(); } catch (e) {}
+  }
 }
 
 // ========== Screen Management ==========
@@ -274,14 +305,10 @@ function showScreen(screenId) {
     requestAnimationFrame(() => target.classList.add('active'));
     AppState.currentScreen = screenId;
 
-    // Nav highlight
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    const navMap = { 'home-screen':'Home','prayer-screen':'Prayer','stats-screen':'Stats' };
+    // Nav highlight — uses data-screen attribute, never compares translated text
+    // (fixes bug where nav highlighting broke in every non-English language)
     document.querySelectorAll('.nav-btn').forEach(btn => {
-      const span = btn.querySelector('span');
-      if (span && Object.values(navMap).includes(span.textContent.trim()) &&
-          navMap[screenId] === span.textContent.trim())
-        btn.classList.add('active');
+      btn.classList.toggle('active', btn.dataset.screen === screenId);
     });
 
     const bottomNav = document.querySelector('.bottom-nav');
@@ -682,21 +709,26 @@ function showAllPrayers(categoryKey) {
 }
 
 // ========== Evangelism Journal ==========
-const EVANGELISM_RESPONSES = {
-  prayed:      { label:"🙏 Prayed to receive Christ", color:"#2ecc71", icon:"fa-pray" },
-  interested:  { label:"💬 Interested, still thinking", color:"#3498db", icon:"fa-comments" },
-  listened:    { label:"👂 Heard the gospel attentively", color:"#f39c12", icon:"fa-ear-listen" },
-  rejected:    { label:"🚫 Rejected but heard the Word", color:"#e74c3c", icon:"fa-times-circle" },
-  followup:    { label:"📞 Following up later", color:"#9b59b6", icon:"fa-calendar-check" }
-};
+function getEvangelismResponses() {
+  return {
+    prayed:     { label: t('respPrayed')     || '🙏 Prayed to receive Christ',    color: '#2ecc71', icon: 'fa-pray' },
+    interested: { label: t('respInterested') || '💬 Interested, still thinking',  color: '#3498db', icon: 'fa-comments' },
+    listened:   { label: t('respListened')   || '👂 Heard the gospel attentively', color: '#f39c12', icon: 'fa-ear-listen' },
+    rejected:   { label: t('respRejected')   || '🚫 Rejected but heard the Word', color: '#e74c3c', icon: 'fa-times-circle' },
+    followup:   { label: t('respFollowup')   || '📞 Following up later',          color: '#9b59b6', icon: 'fa-calendar-check' }
+  };
+}
+// Backwards-compatible alias — some older code paths may still reference this directly
+const EVANGELISM_RESPONSES = new Proxy({}, { get: (_, key) => getEvangelismResponses()[key] });
 
 function showEvangelismJournal() {
+  const EVANGELISM_RESPONSES = getEvangelismResponses();
   const records = safeParse(localStorage.getItem('evangelismRecords'), []);
   const totalDecisions = records.filter(r => r.response === 'prayed').length;
   const totalReached = records.length;
 
   const historyHTML = records.length === 0
-    ? `<div style="text-align:center;padding:24px;opacity:0.5;"><i class="fas fa-book-open" style="font-size:2.5rem;margin-bottom:10px;display:block;"></i><p>No entries yet. Log your first gospel conversation.</p></div>`
+    ? `<div style="text-align:center;padding:24px;opacity:0.5;"><i class="fas fa-book-open" style="font-size:2.5rem;margin-bottom:10px;display:block;"></i><p>${escapeHtml(t('noEntriesYet') || 'No entries yet. Log your first gospel conversation.')}</p></div>`
     : records.slice(0, 20).map(r => {
         const resp = EVANGELISM_RESPONSES[r.response] || EVANGELISM_RESPONSES.listened;
         const dateStr = new Date(r.date).toLocaleDateString();
@@ -711,42 +743,42 @@ function showEvangelismJournal() {
 
   showModal(`
     <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
-    <h3 style="margin-bottom:4px;"><i class="fas fa-book-open" style="color:#2ecc71;"></i> Soul Journal</h3>
-    <p style="font-size:0.82rem;opacity:0.65;margin-bottom:16px;">Every gospel conversation logged here is proof of real-world impact.</p>
+    <h3 style="margin-bottom:4px;"><i class="fas fa-book-open" style="color:#2ecc71;"></i> ${escapeHtml(t('soulJournalTitle') || 'Soul Journal')}</h3>
+    <p style="font-size:0.82rem;opacity:0.65;margin-bottom:16px;">${escapeHtml(t('soulJournalDesc') || 'Every gospel conversation logged here is proof of real-world impact.')}</p>
 
     <!-- Summary bar -->
     <div style="display:flex;gap:10px;margin-bottom:18px;">
       <div style="flex:1;background:rgba(46,204,113,0.12);border:1px solid rgba(46,204,113,0.3);border-radius:16px;padding:12px;text-align:center;">
         <div style="font-size:1.8rem;font-weight:800;color:#2ecc71;">${totalReached}</div>
-        <div style="font-size:0.75rem;opacity:0.7;">People Reached</div>
+        <div style="font-size:0.75rem;opacity:0.7;">${escapeHtml(t('peopleReachedLabel') || 'People Reached')}</div>
       </div>
       <div style="flex:1;background:rgba(52,152,219,0.12);border:1px solid rgba(52,152,219,0.3);border-radius:16px;padding:12px;text-align:center;">
         <div style="font-size:1.8rem;font-weight:800;color:#3498db;">${totalDecisions}</div>
-        <div style="font-size:0.75rem;opacity:0.7;">Decisions Made 🙌</div>
+        <div style="font-size:0.75rem;opacity:0.7;">${escapeHtml(t('decisionsMadeLabel') || 'Decisions Made 🙌')}</div>
       </div>
     </div>
 
     <!-- Log new entry -->
     <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:22px;padding:16px;margin-bottom:16px;">
-      <div style="font-size:0.85rem;font-weight:700;margin-bottom:10px;opacity:0.8;">+ Log a Gospel Conversation</div>
-      <select id="evangelismResponse" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:#fff;padding:11px 14px;border-radius:16px;font-size:0.88rem;margin-bottom:10px;outline:none;font-family:inherit;" aria-label="Select response">
+      <div style="font-size:0.85rem;font-weight:700;margin-bottom:10px;opacity:0.8;">+ ${escapeHtml(t('logConversationTitle') || 'Log a Gospel Conversation')}</div>
+      <select id="evangelismResponse" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:#fff;padding:11px 14px;border-radius:16px;font-size:0.88rem;margin-bottom:10px;outline:none;font-family:inherit;" aria-label="${escapeAttr(t('selectResponseLabel') || 'Select response')}">
         ${Object.entries(EVANGELISM_RESPONSES).map(([k,v]) => `<option value="${k}">${v.label}</option>`).join('')}
       </select>
-      <input id="evangelismNotes" type="text" placeholder="Short note (optional)... e.g. 'Friend at work, Lagos'"
-        style="width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:#fff;padding:11px 14px;border-radius:16px;font-size:0.88rem;outline:none;font-family:inherit;" aria-label="Optional notes">
+      <input id="evangelismNotes" type="text" placeholder="${escapeAttr(t('notesPlaceholder') || 'Short note (optional)...')}"
+        style="width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:#fff;padding:11px 14px;border-radius:16px;font-size:0.88rem;outline:none;font-family:inherit;" aria-label="${escapeAttr(t('notesPlaceholder') || 'Optional notes')}">
       <button id="logEvangelismBtn" class="action-btn primary" style="width:100%;margin-top:12px;background:linear-gradient(135deg,#2ecc71,#27ae60);border-color:transparent;">
-        <i class="fas fa-plus"></i> Log This Encounter
+        <i class="fas fa-plus"></i> ${escapeHtml(t('logEncounterBtn') || 'Log This Encounter')}
       </button>
     </div>
 
     <!-- History -->
-    <div style="font-size:0.8rem;font-weight:700;opacity:0.6;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Recent Encounters</div>
+    <div style="font-size:0.8rem;font-weight:700;opacity:0.6;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">${escapeHtml(t('recentEncountersLabel') || 'Recent Encounters')}</div>
     <div id="evangelismHistory" style="max-height:200px;overflow-y:auto;">${historyHTML}</div>
     ${totalReached > 0 ? `
     <button id="shareJournalBtn" class="action-btn" style="width:100%;margin-top:14px;background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.4);color:#25d366;">
-      <i class="fab fa-whatsapp"></i> Share My Impact Report
+      <i class="fab fa-whatsapp"></i> ${escapeHtml(t('shareImpactReportBtn') || 'Share My Impact Report')}
     </button>` : ''}
-  `);
+  `, showEvangelismJournal); // re-render hook: keeps this modal in sync if language changes while open
 
   // Wire up the log button via event delegation
   requestAnimationFrame(() => {
@@ -1121,7 +1153,7 @@ function speakSlide(slideId) {
 
 // ========== Modal ==========
 let activeModal = null;
-function showModal(content) {
+function showModal(content, rerenderFn) {
   if (activeModal) closeModal();
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -1130,6 +1162,9 @@ function showModal(content) {
   overlay.innerHTML = `<div class="modal-content">${content}</div>`;
   document.body.appendChild(overlay);
   activeModal = overlay;
+  // Optional: allows changeLanguage() to refresh this modal's dynamic
+  // content in place instead of leaving it stuck in the old language.
+  if (typeof rerenderFn === 'function') activeModal._i18nRerender = rerenderFn;
   requestAnimationFrame(() => overlay.classList.add('active'));
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 }
@@ -1248,33 +1283,248 @@ function setAppIcon(iconSrc, title) {
   if (appleIcon) appleIcon.href = iconSrc;
 }
 
-function activateVOMMode() {
-  AppState.vomMode = !AppState.vomMode;
+// ==========================================================
+// VOM / PERSECUTION MODE — REAL FUNCTIONAL CALCULATOR DISGUISE
+// Fixes the original bug where "disguise" only swapped an icon.
+// Now the entire app is hidden and replaced by a genuinely working
+// calculator. A secret PIN (default 7777, user-changeable) unlocks
+// GospelSwipe Pro again by typing PIN + "=" on the calculator.
+// ==========================================================
+const VOM_DEFAULT_PIN = '7777';
 
-  if (AppState.vomMode) {
-    setAppIcon(VOM_ICON, 'Calculator');
-    // Encrypt prayers
-    try {
-      AppState.prayers = AppState.prayers.map(p => ({
-        ...p,
-        text: btoa(unescape(encodeURIComponent(p.text)))
-      }));
-    } catch (e) { /* already encoded */ }
-    saveAllData();
-    showToast('🔒 VOM Mode on. App disguised as Calculator.', 'success');
-  } else {
-    setAppIcon(NORMAL_ICON, 'GospelSwipe Pro');
-    // Decrypt prayers
-    try {
-      AppState.prayers = AppState.prayers.map(p => ({
-        ...p,
-        text: decodeURIComponent(escape(atob(p.text)))
-      }));
-    } catch (e) { /* already decoded */ }
-    saveAllData();
-    showToast('🔓 VOM Mode off. App restored.', 'info');
+function getVomPin() {
+  return localStorage.getItem('vomPin') || VOM_DEFAULT_PIN;
+}
+
+// Simple reversible obfuscation for prayer text while disguise is active.
+// Tracks encryption state explicitly per-record to avoid the old bug where
+// toggling VOM mode twice (or reloading mid-toggle) could double-encode
+// or double-decode prayer text and corrupt it permanently.
+function vomEncode(text) {
+  try { return btoa(unescape(encodeURIComponent(text))); }
+  catch (e) { return text; }
+}
+function vomDecode(text) {
+  try { return decodeURIComponent(escape(atob(text))); }
+  catch (e) { return text; }
+}
+
+function activateVOMMode() {
+  const turningOn = !AppState.vomMode;
+
+  if (turningOn) {
+    showModal(`
+      <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      <div style="text-align:center;">
+        <i class="fas fa-shield-halved" style="font-size:2.6rem;color:#e74c3c;margin-bottom:14px;display:block;"></i>
+        <h3 style="margin-bottom:10px;">Activate Persecution Mode?</h3>
+        <p style="font-size:0.88rem;opacity:0.75;line-height:1.7;margin-bottom:18px;text-align:left;">
+          The entire app will instantly disguise itself as a real, working <strong>Calculator</strong>.
+          Your prayers will be encoded. To return to GospelSwipe Pro, type your secret unlock code
+          on the calculator followed by <strong>"="</strong>.
+        </p>
+        <div style="text-align:left;background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.25);border-radius:16px;padding:14px 16px;margin-bottom:18px;">
+          <label style="font-size:0.78rem;font-weight:700;opacity:0.7;display:block;margin-bottom:8px;">SET YOUR 4-DIGIT UNLOCK CODE</label>
+          <input id="vomPinSetup" type="tel" inputmode="numeric" maxlength="4" placeholder="e.g. 7734"
+            style="width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:#fff;padding:12px 14px;border-radius:14px;font-size:1.1rem;letter-spacing:4px;text-align:center;outline:none;font-family:inherit;" />
+          <p style="font-size:0.72rem;opacity:0.5;margin-top:8px;">Leave blank to use the default code: 7777. Remember this — write it down somewhere safe offline.</p>
+        </div>
+        <button id="vomConfirmBtn" class="action-btn primary" style="width:100%;justify-content:center;background:linear-gradient(135deg,#e74c3c,#c0392b);border-color:transparent;">
+          <i class="fas fa-lock"></i> Activate Disguise Now
+        </button>
+      </div>
+    `);
+    requestAnimationFrame(() => {
+      const btn = document.getElementById('vomConfirmBtn');
+      if (btn) btn.addEventListener('click', () => {
+        const pinInput = document.getElementById('vomPinSetup');
+        let pin = (pinInput?.value || '').trim();
+        if (pin && !/^\d{4}$/.test(pin)) {
+          showToast('PIN must be exactly 4 digits. Using default 7777 instead.', 'warning');
+          pin = '';
+        }
+        localStorage.setItem('vomPin', pin || VOM_DEFAULT_PIN);
+        closeModal();
+        _engageVomDisguise();
+      });
+    });
+    return;
   }
+
+  // Turning off is handled exclusively via the calculator PIN unlock
+  // (see calcCheckUnlock), never directly from inside the app UI —
+  // that is the entire point of a persecution disguise.
+  showToast('To exit, the app must be disguised first. Use the calculator PIN to unlock.', 'info');
+}
+
+function _engageVomDisguise() {
+  AppState.vomMode = true;
+
+  // Encode prayers (guarded by an explicit flag so this can never double-encode)
+  AppState.prayers = AppState.prayers.map(p =>
+    p._vomEncoded ? p : { ...p, text: vomEncode(p.text), _vomEncoded: true }
+  );
+  saveAllData();
+
+  setAppIcon(VOM_ICON, 'Calculator');
+  document.title = 'Calculator';
+
+  const appContainer = document.getElementById('appContainer');
+  const calcScreen = document.getElementById('calc-disguise-screen');
+  if (appContainer) appContainer.style.display = 'none';
+  if (calcScreen) { calcScreen.style.display = 'flex'; calcResetDisplay(); }
+
+  vibrate([30, 20, 30]);
+}
+
+function _disengageVomDisguise() {
+  AppState.vomMode = false;
+
+  // Decode prayers back to normal, again guarded by the explicit flag
+  AppState.prayers = AppState.prayers.map(p =>
+    p._vomEncoded ? { ...p, text: vomDecode(p.text), _vomEncoded: false } : p
+  );
+  saveAllData();
+
+  setAppIcon(NORMAL_ICON, 'GospelSwipe Pro');
+  document.title = 'GospelSwipe Pro';
+
+  const appContainer = document.getElementById('appContainer');
+  const calcScreen = document.getElementById('calc-disguise-screen');
+  if (calcScreen) calcScreen.style.display = 'none';
+  if (appContainer) { appContainer.style.display = 'block'; appContainer.classList.add('active'); }
+
+  // If the app launched straight into disguise mode (cold start with VOM
+  // already active), the normal init routines never ran — run them now.
+  if (!AppState._fullyInitialized) {
+    AppState._fullyInitialized = true;
+    try { initializeSlides(); } catch (e) { console.warn(e); }
+    try { setupEventListeners(); } catch (e) { console.warn(e); }
+    try { updateOnlineStatus(); } catch (e) {}
+    try { checkInstallPrompt(); } catch (e) {}
+    try { checkStreak(); } catch (e) {}
+  }
+
   loadPrayers();
+  refreshStats();
+  showToast('🔓 ' + (t('vomDeactivatedMsg') || 'VOM Mode off. App restored.'), 'success');
+  vibrate([40, 20, 40, 20, 60]);
+}
+
+// ===== Calculator engine (genuinely functional, not just cosmetic) =====
+let _calcCurrent = '0';
+let _calcPrevious = null;
+let _calcOperator = null;
+let _calcExpressionStr = '';
+let _calcResetNext = false;
+let _calcEnteredDigits = ''; // tracks raw digit sequence for secret PIN detection
+
+function calcResetDisplay() {
+  _calcCurrent = '0';
+  _calcPrevious = null;
+  _calcOperator = null;
+  _calcExpressionStr = '';
+  _calcResetNext = false;
+  _calcEnteredDigits = '';
+  calcRender();
+}
+
+function calcRender() {
+  const disp = document.getElementById('calcDisplay');
+  const expr = document.getElementById('calcExpression');
+  if (disp) disp.textContent = _calcCurrent;
+  if (expr) expr.textContent = _calcExpressionStr;
+}
+
+function calcInput(action) {
+  vibrate(10);
+  if (/^[0-9]$/.test(action)) {
+    _calcEnteredDigits += action;
+    if (_calcEnteredDigits.length > 12) _calcEnteredDigits = _calcEnteredDigits.slice(-12);
+    if (_calcCurrent === '0' || _calcResetNext) {
+      _calcCurrent = action;
+      _calcResetNext = false;
+    } else {
+      _calcCurrent += action;
+    }
+    calcRender();
+    return;
+  }
+
+  switch (action) {
+    case 'clear':
+      calcResetDisplay();
+      return;
+    case 'sign':
+      _calcCurrent = String(parseFloat(_calcCurrent) * -1);
+      calcRender();
+      return;
+    case 'percent':
+      _calcCurrent = String(parseFloat(_calcCurrent) / 100);
+      calcRender();
+      return;
+    case 'decimal':
+      if (!_calcCurrent.includes('.')) _calcCurrent += '.';
+      calcRender();
+      return;
+    case 'add': case 'subtract': case 'multiply': case 'divide':
+      if (_calcOperator && !_calcResetNext) {
+        calcInput('equals');
+      }
+      _calcPrevious = parseFloat(_calcCurrent);
+      _calcOperator = action;
+      const opSymbol = { add:'+', subtract:'−', multiply:'×', divide:'÷' }[action];
+      _calcExpressionStr = `${_calcPrevious} ${opSymbol}`;
+      _calcResetNext = true;
+      calcRender();
+      return;
+    case 'equals': {
+      // Secret PIN check happens first — before any math is evaluated
+      if (calcCheckUnlock()) return;
+
+      if (_calcOperator === null || _calcPrevious === null) return;
+      const cur = parseFloat(_calcCurrent);
+      let result;
+      switch (_calcOperator) {
+        case 'add': result = _calcPrevious + cur; break;
+        case 'subtract': result = _calcPrevious - cur; break;
+        case 'multiply': result = _calcPrevious * cur; break;
+        case 'divide': result = cur === 0 ? 0 : _calcPrevious / cur; break;
+      }
+      result = Math.round((result + Number.EPSILON) * 1e10) / 1e10;
+      _calcExpressionStr = '';
+      _calcCurrent = String(result);
+      _calcPrevious = null;
+      _calcOperator = null;
+      _calcResetNext = true;
+      calcRender();
+      return;
+    }
+  }
+}
+
+// Checks whether the digits typed so far match the secret unlock PIN.
+// Returns true (and unlocks) if matched — used right before "=" runs any math.
+function calcCheckUnlock() {
+  const pin = getVomPin();
+  if (_calcEnteredDigits.endsWith(pin) || _calcCurrent === pin) {
+    _disengageVomDisguise();
+    calcResetDisplay();
+    return true;
+  }
+  return false;
+}
+
+// Wire up calculator button events once, using delegation (works even
+// though the disguise screen is created hidden at page load).
+function setupCalculatorDisguise() {
+  const screen = document.getElementById('calc-disguise-screen');
+  if (!screen || screen._wired) return;
+  screen._wired = true;
+  screen.addEventListener('click', e => {
+    const btn = e.target.closest('[data-calc]');
+    if (btn) calcInput(btn.dataset.calc);
+  });
 }
 
 function showPremiumDetails_church() {
@@ -1820,131 +2070,8 @@ function hexToRgb(hex) {
 // ============================================================
 // FEATURE 2: EVANGELISM TRAINING
 // ============================================================
-const TRAINING_METHODS = [
-  {
-    name: 'Romans Road',
-    desc: 'Romans Road uses five key scriptures from the book of Romans to take someone from understanding their sin to receiving salvation. It is simple, scripturally grounded, and easy to memorise.',
-    steps: [
-      {
-        title: 'Step 1 — Everyone Has Sinned',
-        icon: '⚠️', color: '#e74c3c',
-        verse: '"For all have sinned and fall short of the glory of God." — Romans 3:23',
-        explanation: 'Start here. This establishes common ground — you are not attacking the person, you are including yourself. Everyone, including you, has sinned. Sin means falling short of God\'s perfect standard. There is no one who is the exception.',
-        tip: 'Say it gently: "The Bible says all of us — including me — have sinned and fallen short of what God intended for our lives."'
-      },
-      {
-        title: 'Step 2 — Sin Has a Consequence',
-        icon: '💀', color: '#e74c3c',
-        verse: '"For the wages of sin is death, but the gift of God is eternal life in Christ Jesus our Lord." — Romans 6:23',
-        explanation: 'Sin is not just behaviour — it earns a wage: death. Spiritual separation from God both now and eternally. BUT — notice the contrast. The same verse holds the solution: God\'s gift is eternal life. This is the pivot from bad news to good news.',
-        tip: 'Pause on the word "gift." Ask: "Have you ever refused a gift? Gifts are free — you just have to receive them."'
-      },
-      {
-        title: 'Step 3 — God Showed His Love',
-        icon: '❤️', color: '#e74c3c',
-        verse: '"But God demonstrates his own love for us in this: While we were still sinners, Christ died for us." — Romans 5:8',
-        explanation: 'God did not wait for us to get better. While we were still sinners — at our worst — Christ died. This is the gospel in one sentence. Not religion. Not self-improvement. God acting first, out of love, on our behalf.',
-        tip: 'Emphasise the timing: "While we were STILL sinners. Not after we cleaned up. Before we even asked."'
-      },
-      {
-        title: 'Step 4 — Confess and Believe',
-        icon: '🗣️', color: '#2ecc71',
-        verse: '"If you declare with your mouth, \'Jesus is Lord,\' and believe in your heart that God raised him from the dead, you will be saved." — Romans 10:9',
-        explanation: 'Salvation has two parts: confession with the mouth and belief in the heart. It is both internal (genuine faith) and external (public acknowledgement). This is the invitation. This is the step they take.',
-        tip: 'Ask: "Do you believe that Jesus died for your sins and rose again?" If yes: "Would you like to confess Him as Lord right now?"'
-      },
-      {
-        title: 'Step 5 — Lead the Prayer',
-        icon: '🙏', color: '#2ecc71',
-        verse: '"Everyone who calls on the name of the Lord will be saved." — Romans 10:13',
-        explanation: 'Lead them in a simple prayer. You do not need elaborate words. What matters is the sincerity of their heart. After they pray, affirm what just happened — they are now a child of God. Then connect them to a church.',
-        tip: 'Sample prayer: "Lord Jesus, I believe You died for my sins and rose again. I confess You as Lord. Forgive me and come into my heart. I receive eternal life. Amen." Then say: "If you meant that, you are now saved."'
-      }
-    ]
-  },
-  {
-    name: 'The Bridge',
-    desc: 'The Bridge Illustration is a visual tool showing the gap between sinful humanity and holy God, and how Jesus is the only bridge across. Ideal for visual learners — you can draw it on paper or the ground as you speak.',
-    steps: [
-      {
-        title: 'Step 1 — Draw God\'s Side',
-        icon: '✝️', color: '#f39c12',
-        verse: '"For God is holy." — 1 Peter 1:16 | "God is love." — 1 John 4:8',
-        explanation: 'Draw a cliff on the right side. Label it GOD. Explain: God is holy — completely perfect with no sin. God is also love — He desires relationship with us. These two facts create the tension: a God who loves us but cannot ignore our sin.',
-        tip: 'Say: "Picture a canyon. On one side is God — holy, perfect, loving. Draw it with me if you have paper."'
-      },
-      {
-        title: 'Step 2 — Draw Humanity\'s Side',
-        icon: '👤', color: '#e74c3c',
-        verse: '"For all have sinned and fall short of the glory of God." — Romans 3:23',
-        explanation: 'Draw a cliff on the left side. Label it US / HUMANITY. There is a gap between the two sides — that gap is sin. We were created for relationship with God, but sin broke that connection. No matter how good we try to be, we cannot jump across.',
-        tip: 'Draw someone on the left side trying to jump across — but falling into the canyon. "No human effort can bridge this gap. Not religion, not good deeds, not education."'
-      },
-      {
-        title: 'Step 3 — Human Solutions Don\'t Work',
-        icon: '❌', color: '#e74c3c',
-        verse: '"There is a way that appears to be right, but in the end it leads to death." — Proverbs 14:12',
-        explanation: 'People try many ways to get to God: good works, religion, self-improvement, money, fame. Draw these as short planks that fall into the canyon. None of them reach. The gap is not a gap of effort — it is a gap of sin that only God can close.',
-        tip: 'Ask: "What do you think gets a person to heaven?" Listen fully. Then gently show why those planks fall short.'
-      },
-      {
-        title: 'Step 4 — Jesus Is the Bridge',
-        icon: '🌉', color: '#2ecc71',
-        verse: '"Jesus answered, \'I am the way and the truth and the life. No one comes to the Father except through me.\'" — John 14:6',
-        explanation: 'Draw a cross laid across the canyon — connecting both sides. That is Jesus. He is fully God and fully man — the only One who could span the gap. His death paid for our sin. His resurrection proved it worked. The bridge is built. It is open. It is free.',
-        tip: 'Draw the cross bridging both cliffs. "Jesus is not one of many paths. He IS the path. The bridge is built. But you have to choose to walk across it."'
-      },
-      {
-        title: 'Step 5 — Cross the Bridge',
-        icon: '👣', color: '#2ecc71',
-        verse: '"Yet to all who did receive him, to those who believed in his name, he gave the right to become children of God." — John 1:12',
-        explanation: 'The bridge exists. The question is whether they will cross it. Receiving Jesus means choosing to leave your side and walk to God\'s side — trusting Jesus completely as Lord and Saviour. It is a one-time decision that changes everything forever.',
-        tip: 'Ask: "The bridge is there. Jesus has done everything. The only question is: will you cross? Would you like to pray and receive Him right now?"'
-      }
-    ]
-  },
-  {
-    name: 'Three Circles',
-    desc: 'The Three Circles method (also called God\'s Story) was developed by Jimmy Scroggins. It uses three overlapping circles to explain God\'s design, brokenness, and the gospel. Perfect for conversational, natural settings.',
-    steps: [
-      {
-        title: 'Circle 1 — God\'s Design',
-        icon: '⭕', color: '#3498db',
-        verse: '"God saw all that he had made, and it was very good." — Genesis 1:31',
-        explanation: 'Draw a circle. Label it GOD\'S DESIGN. In the beginning, everything was created perfectly. Humanity was in perfect relationship with God, with each other, and with creation. We were made in His image — for love, purpose, meaning, and wholeness. That was the original design.',
-        tip: 'Ask: "Do you believe people are meant for something better than what we see in the world? That\'s what we\'re looking for — that original design."'
-      },
-      {
-        title: 'Circle 2 — Brokenness',
-        icon: '💔', color: '#e74c3c',
-        verse: '"For all have sinned and fall short of the glory of God." — Romans 3:23',
-        explanation: 'Draw a broken circle with a crack, separated from the first. Label it BROKENNESS. When humanity chose sin, we broke from God\'s design. That brokenness affects everything: relationships, identity, society, the world itself. We feel it — in emptiness, addiction, conflict, grief, and death. We all know something is wrong.',
-        tip: 'Say: "Look at the world — corruption, broken families, addiction, war. That\'s not what we were designed for. Something went very wrong." Connect it to their personal story if they share openly.'
-      },
-      {
-        title: 'Step 3 — Our Broken Recoveries',
-        icon: '🔄', color: '#e74c3c',
-        verse: '"There is a way that appears to be right, but in the end it leads to death." — Proverbs 14:12',
-        explanation: 'People try to escape brokenness on their own. Draw arrows going OUT of the brokenness circle but looping back in — money, success, relationships, religion, pleasure. They feel better briefly, then return to the same emptiness. Human solutions are cycles, not escapes.',
-        tip: 'Ask gently: "Have you ever tried to fill that emptiness with something — and it worked for a while, then stopped?" Most people will immediately relate to this.'
-      },
-      {
-        title: 'Circle 3 — The Gospel',
-        icon: '✝️', color: '#2ecc71',
-        verse: '"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." — John 3:16',
-        explanation: 'Draw a cross between the broken circle and God\'s design circle, with an arrow leading from brokenness back to design. Jesus entered brokenness — lived perfectly, died for our sin, rose again — and opened a path back to God\'s design. Not self-improvement. God coming to us.',
-        tip: 'Say: "Jesus did not stand outside our brokenness and call us to come to Him. He ENTERED our brokenness and paid the price to bring us back. That\'s different from every other religion."'
-      },
-      {
-        title: 'Step 5 — Pursue and Follow',
-        icon: '👣', color: '#2ecc71',
-        verse: '"Repent and believe the good news." — Mark 1:15',
-        explanation: 'Draw an arrow from the brokenness circle, through the cross, into God\'s design circle. This is the response: Repent — turn away from the broken recovery attempts. Believe — trust that Jesus is the way back. Follow — live in ongoing relationship with Him. Salvation is not a moment only, it is a new direction.',
-        tip: 'Ask: "Which circle are you in right now — God\'s design, or brokenness? Would you like to take the step through the cross and back to what you were designed for?"'
-      }
-    ]
-  }
-];
+// TRAINING_METHODS content moved to training_i18n.js (translated into all 8 languages).
+// Use getTrainingMethods() to get the array for the current language.
 
 let _trainingMethod = 0;
 let _trainingStep = 0;
@@ -1965,7 +2092,7 @@ function selectMethod(idx) {
 }
 
 function renderTrainingMethod() {
-  const m = TRAINING_METHODS[_trainingMethod];
+  const m = getTrainingMethods()[_trainingMethod];
   const md = document.getElementById('methodDesc');
   if (md) md.textContent = m.desc;
   renderTrainingStep();
@@ -1974,7 +2101,7 @@ function renderTrainingMethod() {
 }
 
 function renderTrainingStep() {
-  const m = TRAINING_METHODS[_trainingMethod];
+  const m = getTrainingMethods()[_trainingMethod];
   const s = m.steps[_trainingStep];
   const container = document.getElementById('trainingSteps');
   if (!container) return;
@@ -1991,7 +2118,7 @@ function renderTrainingStep() {
       <p style="font-size:0.88rem;line-height:1.72;opacity:0.88;margin-bottom:8px;">${escapeHtml(s.explanation)}</p>
       <div class="training-tip">
         <i class="fas fa-lightbulb" style="margin-right:6px;"></i>
-        <strong>Field Tip:</strong> ${escapeHtml(s.tip)}
+        <strong>${escapeHtml(t('fieldTipLabel') || 'Field Tip:')}</strong> ${escapeHtml(s.tip)}
       </div>
     </div>
   `;
@@ -2010,9 +2137,9 @@ function renderTrainingStep() {
   if (prev) prev.disabled = _trainingStep === 0;
   if (next) {
     if (_trainingStep === m.steps.length - 1) {
-      next.innerHTML = 'Finish <i class="fas fa-flag-checkered"></i>';
+      next.innerHTML = `${escapeHtml(t('finishStepBtn') || 'Finish')} <i class="fas fa-flag-checkered"></i>`;
     } else {
-      next.innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
+      next.innerHTML = `${escapeHtml(t('nextStepBtn') || 'Next')} <i class="fas fa-arrow-right"></i>`;
     }
   }
 }
@@ -2025,7 +2152,7 @@ function hexToRgbTraining(hex) {
 }
 
 function nextStep() {
-  const m = TRAINING_METHODS[_trainingMethod];
+  const m = getTrainingMethods()[_trainingMethod];
   if (_trainingStep < m.steps.length - 1) {
     _trainingStep++;
     renderTrainingStep();
@@ -2166,10 +2293,31 @@ const _nbCompletedDays = new Set(
   JSON.parse(localStorage.getItem('nbCompletedDays') || '[]')
 );
 
+// Generates the "Day 1"..."Day 7" selector buttons dynamically so the
+// label always reflects the current language (fixes hardcoded English
+// "Day 1"..."Day 7" buttons baked directly into index.html).
+function _renderNBDaySelector() {
+  const container = document.getElementById('nbDaySelector');
+  if (!container) return;
+  const dayWord = t('dayLabelPrefix') || 'Day';
+  container.innerHTML = NB_DAYS.map((d, i) =>
+    `<button class="nb-day-btn${i === _nbCurrentDay ? ' active' : ''}${_nbCompletedDays.has(i) ? ' completed' : ''}"
+      data-nbday="${i}" id="nbd-${i}">${escapeHtml(dayWord)} ${i + 1}</button>`
+  ).join('');
+  if (!container._wired) {
+    container._wired = true;
+    container.addEventListener('click', e => {
+      const btn = e.target.closest('[data-nbday]');
+      if (btn) selectNBDay(parseInt(btn.dataset.nbday, 10));
+    });
+  }
+}
+
 function loadNewBeliever() {
   // Restore to last active day, not always day 0
   const saved = parseInt(localStorage.getItem('nbLastDay') || '0', 10);
   _nbCurrentDay = (saved >= 0 && saved < NB_DAYS.length) ? saved : 0;
+  _renderNBDaySelector();
   updateNBDayButtons();
   renderNBDay(_nbCurrentDay);
 
@@ -2201,6 +2349,7 @@ function loadNewBeliever() {
 function selectNBDay(idx) {
   _nbCurrentDay = idx;
   localStorage.setItem('nbLastDay', idx);
+  _renderNBDaySelector();
   updateNBDayButtons();
   renderNBDay(idx);
 }
@@ -2240,7 +2389,7 @@ function renderNBDay(idx) {
           <i class="fas ${d.icon}" style="color:${d.colour};font-size:1.1rem;"></i>
         </div>
         <div>
-          <div style="font-size:0.72rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Day ${d.day} of 7</div>
+          <div style="font-size:0.72rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">${escapeHtml(t('dayLabelPrefix') || 'Day')} ${d.day} ${(t('ofSevenLabel') || 'of 7')}</div>
           <div style="font-weight:800;font-size:1.05rem;line-height:1.3;">${d.title}</div>
         </div>
       </div>
@@ -2251,7 +2400,7 @@ function renderNBDay(idx) {
     <div style="background:rgba(${hexToRgbTraining(d.colour)},0.08);border:1px solid rgba(${hexToRgbTraining(d.colour)},0.22);border-radius:18px;padding:16px;margin-bottom:4px;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
         <i class="fas fa-bolt" style="color:${d.colour};"></i>
-        <span style="font-weight:700;font-size:0.88rem;">Today's Action</span>
+        <span style="font-weight:700;font-size:0.88rem;">${escapeHtml(t('todaysActionLabel') || "Today's Action")}</span>
       </div>
       <p style="font-size:0.86rem;line-height:1.72;opacity:0.88;">${escapeHtml(d.action)}</p>
     </div>
@@ -2268,13 +2417,14 @@ function renderNBDay(idx) {
 
   // Update complete button
   const btn = document.getElementById('nbCompleteBtn');
+  const dayWord = t('dayLabelPrefix') || 'Day';
   if (btn) {
     if (_nbCompletedDays.has(idx)) {
-      btn.innerHTML = '<i class="fas fa-check-circle"></i> Day ' + (idx+1) + ' Complete ✓';
+      btn.innerHTML = `<i class="fas fa-check-circle"></i> ${escapeHtml(dayWord)} ${idx+1} ${escapeHtml(t('readTodayDoneBtn') || 'Complete ✓')}`;
       btn.style.background = 'rgba(46,204,113,0.3)';
       btn.disabled = true;
     } else {
-      btn.innerHTML = '<i class="fas fa-check"></i> Mark Day ' + (idx+1) + ' Complete';
+      btn.innerHTML = `<i class="fas fa-check"></i> ${escapeHtml(t('markDayCompleteBtn') || 'Mark Day Complete')}`;
       btn.style.background = '';
       btn.disabled = false;
     }
@@ -2284,16 +2434,18 @@ function renderNBDay(idx) {
 function markNBDayComplete() {
   _nbCompletedDays.add(_nbCurrentDay);
   safeSetItem('nbCompletedDays', JSON.stringify([..._nbCompletedDays]));
+  _renderNBDaySelector();
   updateNBDayButtons();
 
   const d = NB_DAYS[_nbCurrentDay];
-  showToast(`✅ Day ${d.day} complete! Keep going — you are growing.`, 'success');
+  showToast(`✅ ${t('dayLabelPrefix') || 'Day'} ${d.day} ${t('dayCompleteMsg') || 'complete! Keep going — you are growing.'}`, 'success');
   vibrate([40,20,60]);
 
   // Update button
   const btn = document.getElementById('nbCompleteBtn');
+  const dayWord = t('dayLabelPrefix') || 'Day';
   if (btn) {
-    btn.innerHTML = '<i class="fas fa-check-circle"></i> Day ' + (_nbCurrentDay+1) + ' Complete ✓';
+    btn.innerHTML = `<i class="fas fa-check-circle"></i> ${escapeHtml(dayWord)} ${_nbCurrentDay+1} ✓`;
     btn.style.background = 'rgba(46,204,113,0.3)';
     btn.disabled = true;
   }
@@ -2303,6 +2455,7 @@ function markNBDayComplete() {
     setTimeout(() => {
       _nbCurrentDay++;
       localStorage.setItem('nbLastDay', _nbCurrentDay);
+      _renderNBDaySelector();
       updateNBDayButtons();
       renderNBDay(_nbCurrentDay);
       const nextBtn = document.getElementById(`nbd-${_nbCurrentDay}`);
@@ -2310,7 +2463,7 @@ function markNBDayComplete() {
     }, 1200);
   } else {
     setTimeout(() => {
-      showToast('🎉 7-Day Guide complete! Welcome to the family of God! 🙌', 'success');
+      showToast('🎉 ' + (t('sevenDayCompleteMsg') || '7-Day Guide complete! Welcome to the family of God! 🙌'), 'success');
     }, 1300);
   }
 }
@@ -2488,11 +2641,51 @@ function _getTracts() {
   );
 }
 
+// Real category button labels/colours — shared with filterTracts() below.
+// (Fixes a bug where #tractCats was always empty and the category filter
+// buttons were never generated, so filtering by category silently did nothing.)
+const TRACT_CAT_META = {
+  all:        { label: () => t('catAll') || 'All',        colour: 'rgba(255,255,255,0.55)', bg: 'rgba(255,255,255,0.18)' },
+  conviction: { label: () => t('catConviction') || 'Conviction', colour: '#e74c3c', bg: 'rgba(231,76,60,0.25)' },
+  salvation:  { label: () => t('catSalvation') || 'Salvation',   colour: '#3498db', bg: 'rgba(52,152,219,0.25)' },
+  backslider: { label: () => t('catBackslider') || 'Backslider', colour: '#f39c12', bg: 'rgba(243,156,18,0.25)' },
+  peace:      { label: () => t('catPeace') || 'Peace',           colour: '#2ecc71', bg: 'rgba(46,204,113,0.25)' },
+  identity:   { label: () => t('catIdentity') || 'Identity',     colour: '#9b59b6', bg: 'rgba(155,89,182,0.25)' },
+  struggle:   { label: () => t('catStruggle') || 'Struggle',     colour: '#e67e22', bg: 'rgba(230,126,34,0.25)' },
+  urgency:    { label: () => t('catUrgency') || 'Urgency',       colour: '#c0392b', bg: 'rgba(192,57,43,0.25)' }
+};
+
+function _renderTractCategoryButtons() {
+  const container = document.getElementById('tractCats');
+  if (!container) return;
+  container.innerHTML = Object.keys(TRACT_CAT_META).map(cat => {
+    const meta = TRACT_CAT_META[cat];
+    const isActive = cat === _tractCat;
+    return `<button type="button" data-cat="${cat}"
+      style="flex-shrink:0;padding:8px 16px;border-radius:20px;font-size:0.8rem;font-weight:${isActive ? 800 : 600};
+             font-family:inherit;cursor:pointer;white-space:nowrap;transition:all 0.2s;
+             opacity:${isActive ? 1 : 0.7};
+             border:1px solid ${isActive ? meta.colour : 'rgba(255,255,255,0.15)'};
+             background:${isActive ? meta.bg : 'rgba(255,255,255,0.05)'};
+             color:${isActive ? '#fff' : 'rgba(255,255,255,0.8)'};">${escapeHtml(meta.label())}</button>`;
+  }).join('');
+
+  // Event delegation — wired once, safe to call every render
+  if (!container._wired) {
+    container._wired = true;
+    container.addEventListener('click', e => {
+      const btn = e.target.closest('[data-cat]');
+      if (btn) filterTracts(btn.dataset.cat);
+    });
+  }
+}
+
 function showTractGenerator() {
   _tractIdx  = 0;
   _tractCat  = 'all';
   _tractSearch = '';
   showScreen('tracts-screen');
+  _renderTractCategoryButtons();
   _renderTractList();
 }
 
@@ -2500,34 +2693,33 @@ function _renderTractList() {
   const tracts  = _getTracts();
   const listEl  = document.getElementById('tractList');
   const countEl = document.getElementById('tractCount');
-  if (countEl) countEl.textContent = `${tracts.length} tract${tracts.length !== 1 ? 's' : ''}`;
-
-  const catLabels = {conviction:'Conviction',salvation:'Salvation',backslider:'Backslider',
-    peace:'Peace',identity:'Identity',struggle:'Struggle',urgency:'Urgency'};
+  if (countEl) countEl.textContent = `${tracts.length} ${t('tractsTitle') || 'tracts'}`;
 
   if (!listEl) return;
   if (!tracts.length) {
-    listEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,0.4);margin-top:40px;font-size:0.9rem;">No tracts found</p>';
+    listEl.innerHTML = `<p style="text-align:center;color:rgba(255,255,255,0.4);margin-top:40px;font-size:0.9rem;">${escapeHtml(t('noTractsFound') || 'No tracts found')}</p>`;
     return;
   }
-  listEl.innerHTML = tracts.map(t => {
-    const rgb = (typeof hexToRgb === 'function' && t.color) ? hexToRgb(t.color) : '180,180,180';
+  listEl.innerHTML = tracts.map(tr => {
+    const rgb = (typeof hexToRgb === 'function' && tr.color) ? hexToRgb(tr.color) : '180,180,180';
+    const catMeta = TRACT_CAT_META[tr.category];
+    const catLabel = catMeta ? catMeta.label() : tr.category;
     return `
-    <div onclick="openTract(${t.id})"
+    <div onclick="openTract(${tr.id})"
       style="background:rgba(${rgb},0.09);border:1px solid rgba(${rgb},0.22);
-             border-left:4px solid ${t.color};border-radius:18px;
+             border-left:4px solid ${tr.color};border-radius:18px;
              padding:16px;margin-bottom:10px;cursor:pointer;
              -webkit-tap-highlight-color:transparent;">
-      <span style="font-size:0.7rem;font-weight:800;color:${t.color};
+      <span style="font-size:0.7rem;font-weight:800;color:${tr.color};
                    letter-spacing:0.6px;text-transform:uppercase;">
-        ${catLabels[t.category] || t.category}
+        ${escapeHtml(catLabel)}
       </span>
       <p style="font-weight:800;font-size:1rem;margin:6px 0 4px;color:#ffffff;">
-        ${escapeHtml(t.title)}
+        ${escapeHtml(tr.title)}
       </p>
       <p style="font-size:0.82rem;color:rgba(255,255,255,0.55);
                 font-style:italic;line-height:1.45;margin:0;">
-        ${escapeHtml(t.hook)}
+        ${escapeHtml(tr.hook)}
       </p>
     </div>`;
   }).join('');
@@ -2535,34 +2727,20 @@ function _renderTractList() {
 
 function filterTracts(cat) {
   _tractCat = cat;
-  // Update active state on hardcoded HTML buttons
-  document.querySelectorAll('#tractCats button[data-cat]').forEach(btn => {
-    const isActive = btn.dataset.cat === cat;
-    const colors = {
-      all:'rgba(255,255,255,0.35)',conviction:'#e74c3c',salvation:'#3498db',
-      backslider:'#f39c12',peace:'#2ecc71',identity:'#9b59b6',
-      struggle:'#e67e22',urgency:'#c0392b'
-    };
-    const bgColors = {
-      all:'rgba(255,255,255,0.18)',conviction:'rgba(231,76,60,0.25)',salvation:'rgba(52,152,219,0.25)',
-      backslider:'rgba(243,156,18,0.25)',peace:'rgba(46,204,113,0.25)',identity:'rgba(155,89,182,0.25)',
-      struggle:'rgba(230,126,34,0.25)',urgency:'rgba(192,57,43,0.25)'
-    };
-    const col = colors[btn.dataset.cat] || 'rgba(255,255,255,0.35)';
-    btn.style.borderColor  = isActive ? col : col.replace('0.35','0.25').replace('0.25','0.2');
-    btn.style.background   = isActive ? bgColors[btn.dataset.cat] : 'rgba(255,255,255,0.05)';
-    btn.style.fontWeight   = isActive ? '800' : '600';
-    btn.style.opacity      = isActive ? '1' : '0.7';
-  });
+  vibrate(15);
+  _renderTractCategoryButtons();
   _renderTractList();
   const screen = document.getElementById('tracts-screen');
   if (screen) screen.scrollTop = 0;
 }
 
+let _lastOpenedTractId = null;
+
 function openTract(id) {
   const all = typeof GOSPEL_TRACTS !== 'undefined' ? GOSPEL_TRACTS : [];
   const t = all.find(x => x.id === id);
   if (!t) return;
+  _lastOpenedTractId = id;
   vibrate(15);
 
   const rgb = (typeof hexToRgb === 'function' && t.color) ? hexToRgb(t.color) : '150,150,150';
@@ -2579,7 +2757,8 @@ function openTract(id) {
   }
   if (gel('tdColorBar')) gel('tdColorBar').style.background = t.color;
   if (gel('tdCat')) {
-    gel('tdCat').textContent = (t.category || '').toUpperCase();
+    const catMeta = TRACT_CAT_META[t.category];
+    gel('tdCat').textContent = (catMeta ? catMeta.label() : (t.category || '')).toUpperCase();
     gel('tdCat').style.color = t.color;
   }
   if (gel('tdTitle'))  gel('tdTitle').textContent  = t.title || '';
@@ -2636,6 +2815,28 @@ window.openTract          = openTract;
 window.tractSearch        = tractSearch;
 window._renderTractList   = _renderTractList;
 
+// ============================================================
+// "COMING SOON" MODULES — Notify Me subscription
+// Stores interest locally so, when the feature actually ships,
+// GP Tech Studio can see (via exported data / future backend)
+// exactly how many users wanted each module — real product signal
+// instead of guessing.
+// ============================================================
+function notifyMeComingSoon(moduleKey, btnEl) {
+  const notified = safeParse(localStorage.getItem('comingSoonNotify'), []);
+  if (!notified.includes(moduleKey)) {
+    notified.push(moduleKey);
+    safeSetItem('comingSoonNotify', JSON.stringify(notified));
+  }
+  if (btnEl) {
+    btnEl.disabled = true;
+    btnEl.innerHTML = `<i class="fas fa-check-circle"></i> ${escapeHtml(t('notifiedMsg') || "🔔 We'll let you know the moment this launches!")}`;
+  }
+  showToast(t('notifiedMsg') || "🔔 We'll let you know the moment this launches!", 'success');
+  vibrate([30, 20, 40]);
+}
+window.notifyMeComingSoon = notifyMeComingSoon;
+
 window.showAudioModal       = showAudioModal;
 window.playAllSlides        = playAllSlides;
 window.playCurrentSlide     = playCurrentSlide;
@@ -2672,7 +2873,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (loading) { loading.style.transition = 'opacity 0.3s'; loading.style.opacity = '0'; loading.style.pointerEvents = 'none'; }
       setTimeout(() => {
         if (loading) loading.style.display = 'none';
+
+        try { setupCalculatorDisguise(); } catch(e) { console.warn(e); }
+
+        // If Persecution Mode was left ON when the app was last closed,
+        // open straight into the calculator disguise — never briefly
+        // flash the real app first. This is the real security fix:
+        // previously the app always showed itself and only swapped an icon.
+        if (AppState.vomMode) {
+          if (appContainer) appContainer.style.display = 'none';
+          const calcScreen = document.getElementById('calc-disguise-screen');
+          if (calcScreen) { calcScreen.style.display = 'flex'; calcResetDisplay(); }
+          setAppIcon(VOM_ICON, 'Calculator');
+          document.title = 'Calculator';
+          return;
+        }
+
         if (appContainer) appContainer.classList.add('active');
+        AppState._fullyInitialized = true;
         try { initializeSlides(); }     catch(e) { console.warn(e); }
         try { setupEventListeners(); }  catch(e) { console.warn(e); }
         try { updateOnlineStatus(); }   catch(e) {}
