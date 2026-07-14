@@ -3,8 +3,8 @@
 // Offline-first · Cache-then-network
 // ==========================================
 
-const CACHE_NAME = 'gospel-swipe-v2.0.1';
-const CONTENT_CACHE = 'gospel-swipe-content-v2.0.1';
+const CACHE_NAME = 'gospel-swipe-v2.0.5';
+const CONTENT_CACHE = 'gospel-swipe-content-v2.0.5';
 
 const PRECACHE_URLS = [
   './',
@@ -19,6 +19,11 @@ const PRECACHE_URLS = [
   './prayers.js',
   './translations.js',
   './training_i18n.js',
+  './nb_i18n.js',
+  './tracts_i18n_core.js',
+  './tracts_i18n_struggle_p1.js',
+  './tracts_i18n_struggle_p2.js',
+  './tracts_i18n_struggle_p3.js',
   './content.json',
   './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
