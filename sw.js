@@ -3,8 +3,8 @@
 // Offline-first · Cache-then-network
 // ==========================================
 
-const CACHE_NAME = 'gospel-swipe-v2.0.5';
-const CONTENT_CACHE = 'gospel-swipe-content-v2.0.5';
+const CACHE_NAME = 'gospel-swipe-v2.0.6';
+const CONTENT_CACHE = 'gospel-swipe-content-v2.0.6';
 
 const PRECACHE_URLS = [
   './',

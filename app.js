@@ -575,16 +575,36 @@ function askAI(topic) {
 }
 
 // ========== Prayer Assistant — Local DB ==========
+// Maps each PRAYER_CATEGORIES key to its translated title/guidance text,
+// while keeping the original icon/color from prayers.js unchanged.
+function getLocalizedPrayerCategory(key) {
+  const base = PRAYER_CATEGORIES[key];
+  if (!base) return base;
+  const map = {
+    salvation:    { titleKey: 'prayerCatSalvationTitle',    descKey: 'prayerCatSalvationDesc' },
+    healing:      { titleKey: 'prayerCatHealingTitle',      descKey: 'prayerCatHealingDesc' },
+    guidance:     { titleKey: 'prayerCatGuidanceTitle',     descKey: 'prayerCatGuidanceDesc' },
+    thanksgiving: { titleKey: 'prayerCatThanksgivingTitle', descKey: 'prayerCatThanksgivingDesc' },
+    protection:   { titleKey: 'prayerCatProtectionTitle',   descKey: 'prayerCatProtectionDesc' }
+  };
+  const k = map[key];
+  if (!k) return base;
+  return Object.assign({}, base, {
+    title: t(k.titleKey) || base.title,
+    guidance: t(k.descKey) || base.guidance
+  });
+}
+
 function showPrayerAssistant() {
   if (typeof PRAYER_CATEGORIES === 'undefined' || typeof PRAYERS === 'undefined') {
     showToast('Prayer database not loaded', 'error'); return;
   }
   const cards = Object.keys(PRAYER_CATEGORIES).map(key => {
-    const cat = PRAYER_CATEGORIES[key];
+    const cat = getLocalizedPrayerCategory(key);
     const count = (PRAYERS[key] || []).length;
     return `<div class="ai-prayer-category-card" data-cat="${key}" tabindex="0" role="button" aria-label="${cat.title}">
       <div class="ai-prayer-category-icon" style="background:${cat.color}22;"><i class="fas ${cat.icon}" style="color:${cat.color};"></i></div>
-      <div style="flex:1;"><div class="ai-prayer-category-title">${escapeHtml(cat.title)}</div><div style="font-size:0.78rem;opacity:0.6;">${count} prayers</div></div>
+      <div style="flex:1;"><div class="ai-prayer-category-title">${escapeHtml(cat.title)}</div><div style="font-size:0.78rem;opacity:0.6;">${count} ${escapeHtml(t('prayerCountSuffix') || 'prayers')}</div></div>
       <i class="fas fa-chevron-right" style="opacity:0.35;font-size:0.8rem;"></i>
     </div>`;
   }).join('');
@@ -592,9 +612,9 @@ function showPrayerAssistant() {
   showModal(`
     <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
     <h3 style="margin-bottom:6px;">🙏 ${t('aiPrayerGuide') || 'Prayer Guide'}</h3>
-    <p style="opacity:0.65;font-size:0.88rem;margin-bottom:16px;">200 hand-written prayers · 5 categories</p>
+    <p style="opacity:0.65;font-size:0.88rem;margin-bottom:16px;">${escapeHtml(t('prayerGuideSubtitle') || '200 hand-written prayers · 5 categories')}</p>
     <div class="ai-prayer-category-grid" id="prayerCatGrid">${cards}</div>
-  `);
+  `, showPrayerAssistant);
 
   // Event delegation — fires reliably even inside injected HTML
   requestAnimationFrame(() => {
@@ -617,18 +637,20 @@ function showPrayerCategory(categoryKey) {
   if (typeof PRAYER_CATEGORIES === 'undefined' || typeof PRAYERS === 'undefined') {
     showToast('Prayer database not loaded', 'error'); return;
   }
-  const cat = PRAYER_CATEGORIES[categoryKey];
+  const cat = getLocalizedPrayerCategory(categoryKey);
   const prayerArr = PRAYERS[categoryKey];
   if (!cat || !prayerArr || !prayerArr.length) {
     showToast('No prayers found', 'error'); return;
   }
 
   // Show ALL prayers directly — no intermediate "See All" step needed
+  const prayerWord = t('prayerOfLabel') || 'Prayer';
+  const ofWord = t('ofLabel') || 'of';
   const items = prayerArr.map((pText, idx) => {
     const preview = pText.length > 110 ? pText.substring(0, 110) + '…' : pText;
     return `<div class="ai-prayer-prompt-item" data-pidx="${idx}" tabindex="0" role="button">
       <div style="font-size:0.88rem;line-height:1.55;">${escapeHtml(preview)}</div>
-      <span class="ai-prayer-prompt-type" style="margin-top:6px;display:inline-block;">Prayer ${idx + 1} of ${prayerArr.length}</span>
+      <span class="ai-prayer-prompt-type" style="margin-top:6px;display:inline-block;">${escapeHtml(prayerWord)} ${idx + 1} ${escapeHtml(ofWord)} ${prayerArr.length}</span>
     </div>`;
   }).join('');
 
@@ -640,10 +662,10 @@ function showPrayerCategory(categoryKey) {
     </div>
     <p style="font-size:0.84rem;opacity:0.7;margin-bottom:12px;">${escapeHtml(cat.guidance)}</p>
     <button id="randomPrayerBtn" class="slide-btn primary" style="width:100%;justify-content:center;margin-bottom:14px;">
-      <i class="fas fa-shuffle"></i> &nbsp;Random from ${prayerArr.length}
+      <i class="fas fa-shuffle"></i> &nbsp;${escapeHtml(t('randomFromLabel') || 'Random from')} ${prayerArr.length}
     </button>
     <div class="ai-prayer-prompt-list" id="prayerItemList">${items}</div>
-  `);
+  `, () => showPrayerCategory(categoryKey));
 
   // Event delegation — reliable on all Android browsers
   requestAnimationFrame(() => {
@@ -2187,106 +2209,8 @@ function prevStep() {
 // ============================================================
 // FEATURE 3: NEW BELIEVER 7-DAY GUIDE
 // ============================================================
-const NB_DAYS = [
-  {
-    day: 1, title: 'You Are Saved — What Just Happened',
-    colour: '#2ecc71', icon: 'fa-heart',
-    verse: '"Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!" — 2 Corinthians 5:17',
-    intro: 'Something extraordinary just happened. You are not the same person you were before you prayed that prayer. This is not a feeling — it is a fact declared by God Himself.',
-    truths: [
-      { icon: '✅', text: 'Your sins are completely forgiven — every one of them, past, present, and future.' },
-      { icon: '✅', text: 'You are now a child of God. Not a servant, not a visitor — a son or daughter.' },
-      { icon: '✅', text: 'The Holy Spirit now lives inside you. You are never alone.' },
-      { icon: '✅', text: 'Eternal life has begun. Not in heaven eventually — it starts right now.' },
-      { icon: '✅', text: 'Your old identity is gone. You are a new creation.' }
-    ],
-    action: 'Tell one person that you gave your life to Christ today. Say it out loud. That one step of confession matters more than you know.'
-  },
-  {
-    day: 2, title: 'Talk to God — How to Pray',
-    colour: '#3498db', icon: 'fa-hands-praying',
-    verse: '"Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God." — Philippians 4:6',
-    intro: 'Prayer is simply talking to God. He is not far away and does not require special words. He is your Father. You can speak to Him the same way you would speak to someone who loves you completely.',
-    truths: [
-      { icon: '🙏', text: 'Pray in your own language — Yoruba, Pidgin, English, whatever is natural to you.' },
-      { icon: '📖', text: 'Start with thanksgiving — thank God for at least three things before asking for anything.' },
-      { icon: '❤️', text: 'Be honest — God already knows what you are thinking. Pretending serves no one.' },
-      { icon: '🎧', text: 'Leave space to listen — prayer is a conversation, not a monologue.' },
-      { icon: '📅', text: 'Pray every day, even for just five minutes. Build the habit before building the length.' }
-    ],
-    action: 'Pray for five minutes right now. Talk to God about your day, your fears, your hopes, and say thank you for your salvation.'
-  },
-  {
-    day: 3, title: 'Read the Bible — God\'s Word to You',
-    colour: '#f39c12', icon: 'fa-book-bible',
-    verse: '"Your word is a lamp for my feet, a light on my path." — Psalm 119:105',
-    intro: 'The Bible is not just a religious book. It is God speaking to you. When you read it, you are not reading history — you are listening to your Father. Start with the New Testament, specifically the Gospel of John.',
-    truths: [
-      { icon: '📖', text: 'Start with the Gospel of John — it is written for people who are new to faith.' },
-      { icon: '🗓️', text: 'Read a little every day. Consistency matters more than quantity. One chapter daily is enough.' },
-      { icon: '✍️', text: 'Write down one verse that speaks to you. Carry it through your day.' },
-      { icon: '🤔', text: 'When you do not understand something, do not panic. Ask a pastor or trusted believer.' },
-      { icon: '💡', text: 'Ask before you read: "Holy Spirit, speak to me through this." He will.' }
-    ],
-    action: 'Open John chapter 1 right now and read it fully. Write down one verse that stood out to you.'
-  },
-  {
-    day: 4, title: 'Find a Church — You Need Community',
-    colour: '#9b59b6', icon: 'fa-church',
-    verse: '"And let us not give up meeting together, as some are in the habit of doing, but encouraging one another." — Hebrews 10:25',
-    intro: 'Christianity is not a solo journey. You were designed for community — for worship, accountability, friendship, growth, and service together. A church is not a perfect place. It is a family of imperfect people who love the same Jesus.',
-    truths: [
-      { icon: '🏛️', text: 'Find a church that teaches the Bible clearly and accurately, not just motivational talks.' },
-      { icon: '👋', text: 'Introduce yourself as a new believer. Most churches have dedicated new believer programmes.' },
-      { icon: '🤝', text: 'Attend consistently for at least two months before deciding if a church is right for you.' },
-      { icon: '🛡️', text: 'Avoid isolation. The enemy targets believers who are alone and disconnected.' },
-      { icon: '💪', text: 'Church is not just where you receive — it is where you serve and grow.' }
-    ],
-    action: 'Find one church within reasonable distance of you. Commit to attending this Sunday. Tell someone you are going.'
-  },
-  {
-    day: 5, title: 'Baptism — Your Public Declaration',
-    colour: '#3498db', icon: 'fa-water',
-    verse: '"Repent and be baptized, every one of you, in the name of Jesus Christ for the forgiveness of your sins. And you will receive the gift of the Holy Spirit." — Acts 2:38',
-    intro: 'Baptism does not save you — Jesus already did that. Baptism is your public declaration that you belong to Him. It is an outward symbol of an inward reality: the old you has died and the new you has risen with Christ.',
-    truths: [
-      { icon: '💧', text: 'Baptism is a command, not an option. Jesus was baptised. He said to be baptised.' },
-      { icon: '📣', text: 'It is your public announcement to the world, the church, and spiritual forces: I belong to Jesus.' },
-      { icon: '🌅', text: 'Going under the water = the old sinful self dying. Coming up = new life in Christ.' },
-      { icon: '⏰', text: 'Do it soon after salvation — the New Testament shows people being baptised the same day.' },
-      { icon: '🙋', text: 'Tell your pastor or church leader you are ready. They will guide you through it.' }
-    ],
-    action: 'Speak to a pastor or church leader this week about being baptised. Put a date on it. Do not delay.'
-  },
-  {
-    day: 6, title: 'The Holy Spirit — Your Helper',
-    colour: '#2ecc71', icon: 'fa-wind',
-    verse: '"But the Advocate, the Holy Spirit, whom the Father will send in my name, will teach you all things and will remind you of everything I have said to you." — John 14:26',
-    intro: 'You are not living the Christian life on your own strength. The Holy Spirit — God Himself — lives inside you. He is your Helper, Teacher, Comforter, and Guide. This is not optional Christianity. Every believer has the Spirit.',
-    truths: [
-      { icon: '🕊️', text: 'The Holy Spirit is not a feeling — He is a Person. The third Person of the Trinity.' },
-      { icon: '📚', text: 'He teaches you the Bible as you read it. Ask Him to speak before you start.' },
-      { icon: '🛑', text: 'He convicts you of sin — not to condemn you, but to restore you and keep you on track.' },
-      { icon: '💪', text: 'He empowers you to live differently — fruit of the Spirit: love, joy, peace, patience...' },
-      { icon: '🎤', text: 'He gives you words when you share your faith and do not know what to say.' }
-    ],
-    action: 'Ask the Holy Spirit to fill you afresh right now. Simply say: "Holy Spirit, I yield to You. Fill me, lead me, and use me today."'
-  },
-  {
-    day: 7, title: 'Share Your Faith — You Have Good News',
-    colour: '#f39c12', icon: 'fa-bullhorn',
-    verse: '"But you will receive power when the Holy Spirit comes on you; and you will be my witnesses in Jerusalem, and in all Judea and Samaria, and to the ends of the earth." — Acts 1:8',
-    intro: 'You have the best news in the world. Someone who loves you shared it with you — now it is your turn. Sharing your faith does not require years of training or perfect theological knowledge. It starts with your personal story.',
-    truths: [
-      { icon: '📖', text: 'Your testimony is your most powerful tool. It is: what your life was before, how you came to Christ, and what changed.' },
-      { icon: '🌱', text: 'You do not have to have all the answers. Saying "I don\'t know but I can find out" is perfectly fine.' },
-      { icon: '💬', text: 'Start with the people closest to you — family, friends, neighbours. Pray for them by name first.' },
-      { icon: '📱', text: 'Use GospelSwipe Pro to share the gospel visually when words feel hard. Let the slides do the work.' },
-      { icon: '🔥', text: 'You are a witness, not a lawyer. A witness simply tells what they saw and experienced. Do that.' }
-    ],
-    action: 'Write your testimony in three sentences: life before Christ, how you received Christ, life after Christ. Share it with one person this week.'
-  }
-];
+// NB_DAYS content moved to nb_i18n.js (NB_DAYS_I18N) for full 8-language translation support.
+// Use getNBDays() instead of NB_DAYS directly throughout this file.
 
 let _nbCurrentDay = 0;
 const _nbCompletedDays = new Set(
@@ -2300,7 +2224,7 @@ function _renderNBDaySelector() {
   const container = document.getElementById('nbDaySelector');
   if (!container) return;
   const dayWord = t('dayLabelPrefix') || 'Day';
-  container.innerHTML = NB_DAYS.map((d, i) =>
+  container.innerHTML = getNBDays().map((d, i) =>
     `<button class="nb-day-btn${i === _nbCurrentDay ? ' active' : ''}${_nbCompletedDays.has(i) ? ' completed' : ''}"
       data-nbday="${i}" id="nbd-${i}">${escapeHtml(dayWord)} ${i + 1}</button>`
   ).join('');
@@ -2316,7 +2240,7 @@ function _renderNBDaySelector() {
 function loadNewBeliever() {
   // Restore to last active day, not always day 0
   const saved = parseInt(localStorage.getItem('nbLastDay') || '0', 10);
-  _nbCurrentDay = (saved >= 0 && saved < NB_DAYS.length) ? saved : 0;
+  _nbCurrentDay = (saved >= 0 && saved < getNBDays().length) ? saved : 0;
   _renderNBDaySelector();
   updateNBDayButtons();
   renderNBDay(_nbCurrentDay);
@@ -2336,7 +2260,7 @@ function loadNewBeliever() {
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) {
         if (dx < 0) {
           // Swipe left → next day
-          if (_nbCurrentDay < NB_DAYS.length - 1) { selectNBDay(_nbCurrentDay + 1); }
+          if (_nbCurrentDay < getNBDays().length - 1) { selectNBDay(_nbCurrentDay + 1); }
         } else {
           // Swipe right → previous day
           if (_nbCurrentDay > 0) { selectNBDay(_nbCurrentDay - 1); }
@@ -2355,7 +2279,7 @@ function selectNBDay(idx) {
 }
 
 function updateNBDayButtons() {
-  NB_DAYS.forEach((_,i) => {
+  getNBDays().forEach((_,i) => {
     const btn = document.getElementById(`nbd-${i}`);
     if (!btn) return;
     btn.classList.remove('active','completed');
@@ -2371,7 +2295,7 @@ function updateNBDayButtons() {
 }
 
 function renderNBDay(idx) {
-  const d = NB_DAYS[idx];
+  const d = getNBDays()[idx];
   const container = document.getElementById('nbDayContent');
   if (!container) return;
 
@@ -2437,7 +2361,7 @@ function markNBDayComplete() {
   _renderNBDaySelector();
   updateNBDayButtons();
 
-  const d = NB_DAYS[_nbCurrentDay];
+  const d = getNBDays()[_nbCurrentDay];
   showToast(`✅ ${t('dayLabelPrefix') || 'Day'} ${d.day} ${t('dayCompleteMsg') || 'complete! Keep going — you are growing.'}`, 'success');
   vibrate([40,20,60]);
 
@@ -2633,7 +2557,7 @@ let _tractCat      = 'all';
 let _tractSearch   = '';
 
 function _getTracts() {
-  const all = typeof GOSPEL_TRACTS !== 'undefined' ? GOSPEL_TRACTS : [];
+  const all = typeof getLocalizedTracts === 'function' ? getLocalizedTracts() : (typeof GOSPEL_TRACTS !== 'undefined' ? GOSPEL_TRACTS : []);
   if (_tractCat === 'all' && !_tractSearch) return all;
   return all.filter(t =>
     (_tractCat === 'all' || t.category === _tractCat) &&
@@ -2737,7 +2661,7 @@ function filterTracts(cat) {
 let _lastOpenedTractId = null;
 
 function openTract(id) {
-  const all = typeof GOSPEL_TRACTS !== 'undefined' ? GOSPEL_TRACTS : [];
+  const all = typeof getLocalizedTracts === 'function' ? getLocalizedTracts() : (typeof GOSPEL_TRACTS !== 'undefined' ? GOSPEL_TRACTS : []);
   const t = all.find(x => x.id === id);
   if (!t) return;
   _lastOpenedTractId = id;
