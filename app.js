@@ -2025,9 +2025,11 @@ function setupEventListeners() {
 // FEATURE 1: DAILY DEVOTIONAL
 // ============================================================
 function loadDevotional() {
-  const d = (typeof getTodayDevotional === 'function')
-    ? getTodayDevotional()
-    : (typeof DEVOTIONALS !== 'undefined' ? DEVOTIONALS[0] : null);
+  const d = (typeof getTodayLocalizedDevotional === 'function')
+    ? getTodayLocalizedDevotional()
+    : (typeof getTodayDevotional === 'function')
+      ? getTodayDevotional()
+      : (typeof DEVOTIONALS !== 'undefined' ? DEVOTIONALS[0] : null);
   if (!d) return;
 
   // Theme the card
@@ -2539,10 +2541,12 @@ function playCurrentSlide() {
 }
 
 function playDailyDevotional() {
-  if (typeof getTodayDevotional !== 'function') return;
-  const d = getTodayDevotional();
+  const d = (typeof getTodayLocalizedDevotional === 'function')
+    ? getTodayLocalizedDevotional()
+    : (typeof getTodayDevotional === 'function' ? getTodayDevotional() : null);
+  if (!d) return;
   const text = `${d.title}. ${d.verse} — ${d.ref}. Reflection: ${d.reflection}. Prayer: ${d.prayer}`;
-  speakText(text, 'en');
+  speakText(text, (typeof AppState !== 'undefined' && AppState.language) || 'en');
   showToast('🔊 Reading devotional aloud...', 'info');
 }
 
