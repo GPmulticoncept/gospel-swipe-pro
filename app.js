@@ -2909,9 +2909,20 @@ window.showAllPrayers = showAllPrayers;
 // ============================================================
 let _lfIndex = -1;
 
+function _getLFList() {
+  if (typeof getLocalizedLivingFaith === 'function') return getLocalizedLivingFaith();
+  return (typeof LIVING_FAITH !== 'undefined') ? LIVING_FAITH : [];
+}
+
 function _getLFEntry() {
-  if (_lfIndex < 0) return (typeof getTodayLivingFaith === 'function') ? getTodayLivingFaith() : (typeof LIVING_FAITH !== 'undefined' ? LIVING_FAITH[0] : null);
-  return (typeof LIVING_FAITH !== 'undefined') ? LIVING_FAITH[_lfIndex % LIVING_FAITH.length] : null;
+  const lf = _getLFList();
+  if (!lf.length) return null;
+  if (_lfIndex < 0) {
+    return (typeof getTodayLocalizedLivingFaith === 'function')
+      ? getTodayLocalizedLivingFaith()
+      : (typeof getTodayLivingFaith === 'function' ? getTodayLivingFaith() : lf[0]);
+  }
+  return lf[_lfIndex % lf.length];
 }
 
 function loadLivingFaith() {
@@ -2944,10 +2955,13 @@ function _renderLF() {
   if (el('lfQuestion')) el('lfQuestion').textContent  = f.question;
   const badge = el('lfWeekBadge');
   if (badge) {
-    const lf = typeof LIVING_FAITH !== 'undefined' ? LIVING_FAITH : [];
-    const todayEntry = typeof getTodayLivingFaith === 'function' ? getTodayLivingFaith() : null;
-    const totalIdx = _lfIndex < 0 ? lf.indexOf(todayEntry) : _lfIndex % lf.length;
-    badge.textContent = _lfIndex < 0 ? 'THIS WEEK\'S REFLECTION' : `WEEK ${Math.max(totalIdx + 1, 1)} OF ${lf.length}`;
+    const lf = _getLFList();
+    const totalIdx = _lfIndex < 0
+      ? (typeof getLivingFaithWeekIndex === 'function' ? getLivingFaithWeekIndex() : 0)
+      : _lfIndex % lf.length;
+    badge.textContent = _lfIndex < 0
+      ? (t('thisWeeksReflectionBadge') || "THIS WEEK'S REFLECTION")
+      : `WEEK ${Math.max(totalIdx + 1, 1)} ${t('ofLabel') || 'OF'} ${lf.length}`;
   }
   const shareBtn = el('lfShareBtn');
   if (shareBtn) {
@@ -2962,20 +2976,18 @@ function _renderLF() {
   if (completeBtn) {
     const lastRead = localStorage.getItem('lfLastRead');
     const today = new Date().toDateString();
-    if (lastRead === today) { completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> Reflected Today ✓'; completeBtn.style.background = 'rgba(46,204,113,0.3)'; completeBtn.disabled = true; }
-    else { completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> I\'ve Sat With This'; completeBtn.style.background = ''; completeBtn.disabled = false; }
+    if (lastRead === today) { completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> ' + (t('sitWithThisDoneBtn') || "I've Sat With This") + ' ✓'; completeBtn.style.background = 'rgba(46,204,113,0.3)'; completeBtn.disabled = true; }
+    else { completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> ' + (t('sitWithThisDoneBtn') || "I've Sat With This"); completeBtn.style.background = ''; completeBtn.disabled = false; }
   }
 }
 
 function lfBrowse(dir) {
   vibrate(15);
+  const lf = _getLFList();
+  if (!lf.length) return;
   if (_lfIndex < 0) {
-    const lf = typeof LIVING_FAITH !== 'undefined' ? LIVING_FAITH : [];
-    const today = typeof getTodayLivingFaith === 'function' ? getTodayLivingFaith() : lf[0];
-    _lfIndex = lf.indexOf(today);
-    if (_lfIndex < 0) _lfIndex = 0;
+    _lfIndex = (typeof getLivingFaithWeekIndex === 'function') ? getLivingFaithWeekIndex() : 0;
   }
-  const lf = typeof LIVING_FAITH !== 'undefined' ? LIVING_FAITH : [{}];
   _lfIndex = (_lfIndex + dir + lf.length) % lf.length;
   _renderLF();
 }
