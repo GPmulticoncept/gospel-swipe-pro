@@ -130,8 +130,16 @@
         aria-label="New Believer Guide" onkeydown="if(event.key==='Enter'){showScreen('newbeliever-screen');loadNewBeliever()}">
         <i class="fas fa-seedling" style="color:#2ecc71;" aria-hidden="true"></i>
         <h3 data-i18n="newBelieverCardTitle">New Believer Guide</h3>
-        <p>7-day journey for new faith</p>
+        <p data-i18n="newBelieverCardDesc">7-day journey for new faith</p>
         <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;" data-i18n="badge7Days">7 DAYS</span>
+      </div>
+      <div class="feature-card" onclick="openAskAI()" role="listitem" tabindex="0"
+        style="background:linear-gradient(135deg,rgba(142,68,173,0.2),rgba(52,152,219,0.15));"
+        aria-label="Ask AI" onkeydown="if(event.key==='Enter')openAskAI()">
+        <i class="fas fa-comments" style="color:#9b59b6;" aria-hidden="true"></i>
+        <h3 data-i18n="askAICardTitle">Ask AI</h3>
+        <p data-i18n="askAICardDesc">Gospel answers, offline</p>
+        <span class="feature-badge" style="background:rgba(155,89,182,0.22);color:#c39bd3;" data-i18n="askAIBadge">NEW</span>
       </div>
       <div class="feature-card" onclick="showAudioModal()" role="listitem" tabindex="0"
         style="background:linear-gradient(135deg,rgba(52,152,219,0.15),rgba(41,128,185,0.15));"
@@ -147,7 +155,7 @@
         aria-label="Gospel Tracts" onkeydown="if(event.key==='Enter')showTractGenerator()">
         <i class="fas fa-share-nodes" style="color:#2ecc71;" aria-hidden="true"></i>
         <h3 data-i18n="gospelTractsCardTitle">Gospel Tracts</h3>
-        <p>200 powerful written tracts</p>
+        <p data-i18n="gospelTractsCardDesc">200 powerful written tracts</p>
         <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;" data-i18n="badge200Tracts">200 TRACTS</span>
       </div>
 
@@ -648,11 +656,16 @@
       <div class="settings-option">
         <label for="voiceSpeed" data-i18n="voiceSpeed">Voice Speed</label>
         <select id="voiceSpeed" onchange="updateVoiceSettings()" aria-label="Voice reading speed">
-          <option value="0.8">Slow</option>
-          <option value="1" selected>Normal</option>
-          <option value="1.25">Fast</option>
-          <option value="1.5">Faster</option>
+          <option value="0.8" data-i18n="voiceSpeedSlow">Slow</option>
+          <option value="0.95" selected data-i18n="voiceSpeedNormal">Natural</option>
+          <option value="1.15" data-i18n="voiceSpeedFast">Fast</option>
+          <option value="1.35" data-i18n="voiceSpeedFaster">Faster</option>
         </select>
+      </div>
+      <div class="settings-option" style="flex-direction:column;align-items:stretch;gap:8px;">
+        <label for="voiceSelect" data-i18n="voicePick">Voice</label>
+        <select id="voiceSelect" onchange="gsOnVoiceSelectChange()" aria-label="Choose a voice"
+          style="width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:#fff;padding:11px 14px;border-radius:14px;font-size:0.88rem;font-family:inherit;"></select>
       </div>
       <div class="settings-option">
         <label for="autoPlayToggle" data-i18n="autoPlayAudio">Auto-play Audio</label>
@@ -724,7 +737,7 @@
     </div>
 
     <div style="text-align:center;font-size:0.75rem;opacity:0.4;padding:16px 0;">
-      GospelSwipe Pro v2.0.0 &bull; Made in Nigeria 🇳🇬 &bull; GP Tech Studio
+      GospelSwipe Pro v2.0.9 &bull; Made in Nigeria 🇳🇬 &bull; GP Tech Studio
     </div>
   </div>
 
@@ -1339,6 +1352,8 @@
 <script src="tracts_i18n_struggle_p1.js"></script>
 <script src="tracts_i18n_struggle_p2.js"></script>
 <script src="tracts_i18n_struggle_p3.js"></script>
+<script src="voice_engine.js"></script>
+<script src="ai_engine.js"></script>
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {

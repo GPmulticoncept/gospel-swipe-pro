@@ -249,8 +249,13 @@ async function clearOfflineContent() {
 async function changeLanguage(lang) {
   AppState.language = lang;
   localStorage.setItem('language', lang);
+  if (typeof gsStop === 'function') gsStop();
   applyTranslations();
   refreshCurrentScreenContent();
+  if (typeof gsPopulateVoiceSelect === 'function') gsPopulateVoiceSelect();
+  if (document.getElementById('gsAskAI') && document.getElementById('gsAskAI').classList.contains('show') && typeof gsAiI18nChrome === 'function') {
+    gsAiI18nChrome();
+  }
   const langName = t('languageName') || lang;
   showToast(`Language: ${langName}`, 'success');
   vibrate(20);
@@ -385,8 +390,7 @@ const SLIDE_TRANSLATIONS = {
     { title:"Ọrọ Ọlọrun",             verse:"Gbogbo iwe-mimọ ni ìmísí Ọlọrun ti fi ìmísí rẹ fun, o wulo si fun ẹkọ, fun atunse, fun atunse ihuwasi, fun ẹkọ ninu ododo.",                                                                               reference:"2 Timotiu 3:16" },
     { title:"Ijiya ati Ireti",          verse:"A si mọ wipe gbogbo nkan n ṣiṣẹ papọ fun rere fun awọn ti o fẹ Ọlọrun, fun awọn ti a ti pe ni gẹgẹ bi ero rẹ.",                                                                                          reference:"Romani 8:28" },
     { title:"Ọna Kanṣoṣo",            verse:"Jesu wi fún un pe, Emi ni ọna, ati otitọ, ati iye: ẹnikẹni kò tọ̀ Baba wá bikoṣe nipasẹ mi.",                                                                                                             reference:"Johanu 14:6" },
-    { title:"Adura Igbala",            verse:"Nitoripe bi o bá jẹwọ Jesu gẹgẹ bi Oluwa pẹlu ẹnu rẹ, ti o si gbagbọ ninu ọkàn rẹ pe Ọlọrun jí i dide lati ọdọ awọn okú, a ó gbà ọ.",                                                                   reference:"Romani 10:9" },
-    { title:"Ẹmí Mimọ",               verse:"Ṣugbọn ẹ ó gba agbara, nigbati Ẹmí Mimọ bá bọ sori yín; ẹ ó si jẹ ẹlẹri mi ni Jerusalemu ati ni gbogbo Judea ati Samaria, ati títí di ìpàrí ayé.",                                                       reference:"Iṣẹ Aposteli 1:8" },
+    { title:"Adura Igbala",            verse:"Nitoripe bi o bá jẹwọ Jesu gẹgẹ bi Oluwa pẹlu ẹnu rẹ, ti o si gbagbọ ninu ọkàn rẹ pe Ọlọrun ji Jerusalemu ati ni gbogbo Judea ati Samaria, ati títí di ìpàrí ayé.",                                                       reference:"Iṣẹ Aposteli 1:8" },
     { title:"Àṣẹ Nla",               verse:"Nitorina lọ, ẹ kọ gbogbo orílẹ-èdè ni ẹkọ, ti ẹ bá wọn ni baptisi ati kọ wọn lati gbọràn si ohun gbogbo ti mo pàṣẹ fún yín.",                                                                             reference:"Matteu 28:19-20" },
     { title:"Fi Ẹlẹgbẹ Rẹ Lẹ",       verse:"Fẹ Oluwa Ọlọrun rẹ pẹlu gbogbo ọkàn rẹ... fẹ ẹlẹgbẹ rẹ bi ara rẹ. Lori àṣẹ méjì wọ̀nyí gbogbo ofin ati awọn woli gbé.",                                                                                reference:"Matteu 22:37-40" },
     { title:"Idariji",                 verse:"Jẹ ki ẹ si dáa, ẹ si ní ìjẹ̀pọ, ẹ si dariji ara ẹni, gẹgẹ bi Ọlọrun ninu Kristi ti dariji yín.",                                                                                                         reference:"Efesu 4:32" },
@@ -516,8 +520,13 @@ function startPresentation() {
   initializeSlides();
   showScreen('presentation-screen');
   vibrate(30);
+  const auto = document.getElementById('autoPlayToggle');
+  if (auto && auto.checked) {
+    const slides = AppState.contentData?.slides || FALLBACK_CONTENT.slides;
+    if (slides[0]) setTimeout(() => speakSlide(slides[0].id), 450);
+  }
 }
-function exitPresentation() { showScreen('home-screen'); vibrate(30); }
+function exitPresentation() { if (typeof gsStop === 'function') gsStop(); showScreen('home-screen'); vibrate(30); }
 
 function nextSlide() {
   const slides = AppState.contentData?.slides || FALLBACK_CONTENT.slides;
@@ -534,6 +543,10 @@ function nextSlide() {
   AppState.currentSlide++;
   trackSlideView(slides[AppState.currentSlide].id);
   vibrate(40);
+  const auto = document.getElementById('autoPlayToggle');
+  if (auto && auto.checked && slides[AppState.currentSlide]) {
+    speakSlide(slides[AppState.currentSlide].id);
+  }
 }
 
 function prevSlide() {
@@ -548,30 +561,10 @@ function prevSlide() {
   vibrate(40);
 }
 
-// ========== AI Explain ==========
+// ========== AI Explain — full Ask AI engine ==========
 function askAI(topic) {
-  const answers = AppState.contentData?.aiAnswers || FALLBACK_CONTENT.aiAnswers;
-  const topicData = answers[topic];
-  if (!topicData) { showToast('No explanation available', 'info'); return; }
-  const text = topicData[AppState.language] || topicData['en'] || 'Explanation coming soon.';
-  showModal(`
-    <button class="modal-close-btn" onclick="closeModal()" aria-label="Close"><i class="fas fa-times"></i></button>
-    <div style="color:white;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
-        <i class="fas fa-robot" style="font-size:2rem;color:#3498db;"></i>
-        <h3>${t('aiExplanation') || 'Explanation'}</h3>
-      </div>
-      <p style="font-size:1.15rem;line-height:1.7;">${escapeHtml(text)}</p>
-      <div style="text-align:center;margin-top:20px;">
-        <button class="slide-btn primary" onclick="shareVersePicture('${escapeAttr(text)}','AI Insight','GospelSwipe Pro')">
-          <i class="fas fa-share"></i> ${t('share') || 'Share'}
-        </button>
-      </div>
-    </div>
-  `);
-  AppState.userStats.aiQuestions = (AppState.userStats.aiQuestions || 0) + 1;
-  refreshStats();
-  vibrate(40);
+  if (typeof openAskAI === 'function') { openAskAI(topic || ''); return; }
+  showToast(t('noExplanation') || 'No explanation available yet', 'info');
 }
 
 // ========== Prayer Assistant — Local DB ==========
@@ -1053,7 +1046,13 @@ function toggleDarkMode() {
   localStorage.setItem('darkMode', AppState.darkMode);
   vibrate(20);
 }
-function updateVoiceSettings() { showToast('Voice settings updated', 'info'); }
+function updateVoiceSettings() {
+  const speed = document.getElementById('voiceSpeed')?.value;
+  if (speed) localStorage.setItem('gsVoiceRate', speed);
+  const auto = document.getElementById('autoPlayToggle');
+  if (auto) localStorage.setItem('gsAutoPlay', auto.checked ? '1' : '0');
+  showToast(t('audioVoiceUpdated') || 'Voice updated', 'success');
+}
 function showLanguageSettings() {
   showScreen('settings-screen');
   setTimeout(() => document.getElementById('languageSelect')?.focus(), 300);
@@ -2049,13 +2048,23 @@ function loadDevotional() {
   if (_d('devoPrayer'))     _d('devoPrayer').textContent     = d.prayer;
   if (_d('devoAction'))     _d('devoAction').textContent     = d.action;
 
-  // Wire share button
+  // Wire share + listen
   const shareBtn = document.getElementById('devoShareBtn');
   if (shareBtn) {
     shareBtn.onclick = () => {
       const msg = `📖 *${d.title}*\n\n"${d.verse}"\n— ${d.ref}\n\n${d.reflection.substring(0,120)}...\n\n📱 GospelSwipe Pro — gospelswipe.app`;
       window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
     };
+    let listen = document.getElementById('devoListenBtn');
+    if (!listen) {
+      listen = document.createElement('button');
+      listen.id = 'devoListenBtn';
+      listen.className = 'action-btn';
+      listen.style.cssText = 'width:100%;justify-content:center;margin-bottom:8px;';
+      shareBtn.parentNode.insertBefore(listen, shareBtn);
+    }
+    listen.innerHTML = `<i class="fas fa-volume-up"></i> ${escapeHtml(t('listenDevo') || t('listen') || 'Listen')}`;
+    listen.onclick = () => { if (typeof playDailyDevotional === 'function') playDailyDevotional(); };
   }
 
   // Check if already read today
@@ -2398,48 +2407,30 @@ function markNBDayComplete() {
 // FEATURE 4: SCRIPTURE AUDIO MODE
 // ============================================================
 let _audioActive = false;
-let _audioUtterance = null;
-let _audioQueue = [];
-let _audioQueueIdx = 0;
 
 function getAudioVoice(lang) {
-  const voices = window.speechSynthesis.getVoices();
-  const langMap = { fr:'fr', ar:'ar', yo:'yo', ig:'ig', ha:'ha', sw:'sw', pcm:'en-NG', en:'en' };
-  const target = langMap[lang] || 'en';
-  return voices.find(v => v.lang.startsWith(target)) ||
-         voices.find(v => v.lang.startsWith('en')) ||
-         voices[0] || null;
+  return (typeof gsPickVoice === 'function') ? gsPickVoice(lang) : null;
 }
 
 function speakText(text, lang, onEnd) {
-  if (!window.speechSynthesis) {
-    showToast('Audio not supported on this device', 'info');
+  if (typeof gsSpeak === 'function') {
+    gsSpeak(text, { label: (typeof t === 'function' && t('audioModeTitle')) || 'Audio' });
+    if (typeof onEnd === 'function') {
+      const prev = GSVoice.queue.length;
+      const check = setInterval(() => {
+        if (!GSVoice.speaking) { clearInterval(check); onEnd(); }
+      }, 400);
+      setTimeout(() => clearInterval(check), 180000);
+    }
     return;
   }
-  window.speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.voice = getAudioVoice(lang || AppState.language || 'en');
-  utt.rate = 0.88;
-  utt.pitch = 1.0;
-  utt.volume = 1.0;
-  utt.onend = onEnd || null;
-  utt.onerror = () => {};
-  _audioUtterance = utt;
-  // Chrome mobile fix: voices load async
-  if (window.speechSynthesis.getVoices().length === 0) {
-    window.speechSynthesis.onvoiceschanged = () => {
-      utt.voice = getAudioVoice(lang || AppState.language || 'en');
-      window.speechSynthesis.speak(utt);
-    };
-  } else {
-    window.speechSynthesis.speak(utt);
-  }
+  showToast(t('audioNotSupported') || 'Audio is not supported on this device', 'info');
 }
 
 function stopAudio() {
   _audioActive = false;
-  _audioQueue = [];
-  window.speechSynthesis?.cancel();
+  if (typeof gsStop === 'function') gsStop();
+  else { try { window.speechSynthesis?.cancel(); } catch (e) {} }
   updateAudioModeUI(false);
 }
 
@@ -2447,97 +2438,77 @@ function updateAudioModeUI(playing) {
   const btn = document.getElementById('audioModeBtn');
   if (!btn) return;
   if (playing) {
-    btn.innerHTML = '<i class="fas fa-stop-circle" style="color:#e74c3c;"></i> Stop Audio';
+    btn.innerHTML = '<i class="fas fa-stop-circle" style="color:#e74c3c;"></i> ' + (t('audioStop') || 'Stop');
     btn.style.borderColor = 'rgba(231,76,60,0.4)';
   } else {
-    btn.innerHTML = '<i class="fas fa-volume-up" style="color:#3498db;"></i> Audio Mode';
+    btn.innerHTML = '<i class="fas fa-volume-up" style="color:#3498db;"></i> ' + (t('audioModeCardTitle') || 'Audio Mode');
     btn.style.borderColor = '';
   }
 }
 
 function showAudioModal() {
-  const slides = AppState.contentData?.slides || FALLBACK_CONTENT.slides;
   const lang = AppState.language || 'en';
-
+  const names = { ar:'Arabic', yo:'Yoruba', ig:'Igbo', ha:'Hausa', fr:'French', sw:'Swahili', pcm:'Pidgin', en:'English' };
   showModal(`
     <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
     <div style="text-align:center;margin-bottom:20px;">
       <i class="fas fa-volume-up" style="font-size:2.5rem;color:#3498db;margin-bottom:10px;display:block;"></i>
-      <h3 style="margin-bottom:6px;">Scripture Audio Mode</h3>
+      <h3 style="margin-bottom:6px;">${escapeHtml(t('audioModeTitle') || 'Scripture Audio')}</h3>
       <p style="font-size:0.83rem;opacity:0.65;line-height:1.5;">
-        Listen to all 15 gospel slides read aloud.<br>Works offline — uses your device's built-in voice.
+        ${escapeHtml(t('audioModeLongDesc') || "Listen as a person would read — offline, in your language.")}
       </p>
     </div>
-
     <div style="background:rgba(52,152,219,0.08);border:1px solid rgba(52,152,219,0.22);border-radius:18px;padding:14px 16px;margin-bottom:14px;font-size:0.84rem;line-height:1.65;opacity:0.85;">
-      <strong style="color:#3498db;">Current language:</strong> ${lang.toUpperCase()} —
-      ${lang === 'ar' ? 'Arabic' : lang === 'yo' ? 'Yoruba' : lang === 'ig' ? 'Igbo' :
-        lang === 'ha' ? 'Hausa' : lang === 'fr' ? 'French' : lang === 'sw' ? 'Swahili' :
-        lang === 'pcm' ? 'Pidgin' : 'English'}.
-      Change language in Settings to hear a different language.
+      <strong style="color:#3498db;">${escapeHtml(t('audioCurrentLang') || 'Current language')}:</strong>
+      ${escapeHtml((names[lang] || lang).toUpperCase())}.
+      ${escapeHtml(t('audioLangNote') || 'Change language in Settings to hear a different language.')}
     </div>
-
-    <!-- Individual slide picker -->
-    <div style="font-size:0.78rem;font-weight:700;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Choose what to hear</div>
-
+    <div style="font-size:0.78rem;font-weight:700;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">${escapeHtml(t('audioChooseWhat') || 'Choose what to hear')}</div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-      <button class="action-btn primary" onclick="playAllSlides();closeModal();"
-        style="justify-content:center;padding:14px;font-size:0.95rem;">
-        <i class="fas fa-play-circle"></i> &nbsp;Play All 15 Slides
+      <button class="action-btn primary" onclick="playAllSlides();closeModal();" style="justify-content:center;padding:14px;font-size:0.95rem;">
+        <i class="fas fa-play-circle"></i> &nbsp;${escapeHtml(t('audioPlayAll') || 'Play all 15 slides')}
       </button>
-      <button class="action-btn" onclick="playCurrentSlide();closeModal();"
-        style="justify-content:center;">
-        <i class="fas fa-play"></i> &nbsp;Play Current Slide Only
+      <button class="action-btn" onclick="playCurrentSlide();closeModal();" style="justify-content:center;">
+        <i class="fas fa-play"></i> &nbsp;${escapeHtml(t('audioPlayCurrent') || 'Play this slide')}
       </button>
       <button class="action-btn" onclick="playDailyDevotional();closeModal();"
         style="justify-content:center;background:rgba(243,156,18,0.1);border-color:rgba(243,156,18,0.3);color:#f39c12;">
-        <i class="fas fa-book-open"></i> &nbsp;Read Today's Devotional Aloud
+        <i class="fas fa-book-open"></i> &nbsp;${escapeHtml(t('audioPlayDevo') || "Read today's devotional")}
+      </button>
+      <button class="action-btn" onclick="playLivingFaithAloud();closeModal();"
+        style="justify-content:center;background:rgba(155,89,182,0.1);border-color:rgba(155,89,182,0.3);color:#9b59b6;">
+        <i class="fas fa-fire"></i> &nbsp;${escapeHtml(t('audioPlayLF') || 'Read Living Faith')}
       </button>
     </div>
-
     <button onclick="stopAudio();closeModal();" class="action-btn"
       style="width:100%;justify-content:center;background:rgba(231,76,60,0.1);border-color:rgba(231,76,60,0.3);color:#e74c3c;">
-      <i class="fas fa-stop"></i> &nbsp;Stop Audio
+      <i class="fas fa-stop"></i> &nbsp;${escapeHtml(t('audioStop') || 'Stop')}
     </button>
-  `);
+  `, showAudioModal);
 }
 
 function playAllSlides() {
   const slides = AppState.contentData?.slides || FALLBACK_CONTENT.slides;
-  const lang = AppState.language || 'en';
-  _audioActive = true;
-  _audioQueueIdx = 0;
-  _audioQueue = slides.map(s => {
+  const parts = slides.map(s => {
     const loc = getSlideInLanguage(s);
-    return `${loc.title}. ${loc.verse} — ${loc.reference}`;
+    const ref = (typeof gsSpokenRef === 'function') ? gsSpokenRef(loc.reference) : loc.reference;
+    return `${loc.title}. ${loc.verse}. ${ref}`;
   });
+  _audioActive = true;
   updateAudioModeUI(true);
-  showToast('🔊 Playing all 15 slides...', 'info');
-  playNextInQueue();
+  showToast('🔊 ' + (t('audioPlayingAll') || 'Reading all 15 slides…'), 'info');
+  if (typeof gsSpeak === 'function') gsSpeak(parts.join('. '), { label: t('audioPlayAll') || 'Slides' });
 }
 
-function playNextInQueue() {
-  if (!_audioActive || _audioQueueIdx >= _audioQueue.length) {
-    stopAudio();
-    if (_audioActive) showToast('✅ Audio complete!', 'success');
-    return;
-  }
-  const text = _audioQueue[_audioQueueIdx];
-  _audioQueueIdx++;
-  speakText(text, AppState.language || 'en', () => {
-    if (_audioActive) setTimeout(playNextInQueue, 600);
-  });
-}
+function playNextInQueue() { /* handled by GSVoice */ }
 
 function playCurrentSlide() {
   const slides = AppState.contentData?.slides || FALLBACK_CONTENT.slides;
   const idx = Math.max(0, AppState.currentSlide || 0);
   const s = slides[idx];
   if (!s) return;
-  const loc = getSlideInLanguage(s);
-  const text = `${loc.title}. ${loc.verse} — ${loc.reference}`;
-  speakText(text, AppState.language || 'en');
-  showToast('🔊 Reading slide aloud...', 'info');
+  speakSlide(s.id);
+  showToast('🔊 ' + (t('audioReadingSlide') || 'Reading this slide…'), 'info');
 }
 
 function playDailyDevotional() {
@@ -2545,10 +2516,23 @@ function playDailyDevotional() {
     ? getTodayLocalizedDevotional()
     : (typeof getTodayDevotional === 'function' ? getTodayDevotional() : null);
   if (!d) return;
-  const text = `${d.title}. ${d.verse} — ${d.ref}. Reflection: ${d.reflection}. Prayer: ${d.prayer}`;
-  speakText(text, (typeof AppState !== 'undefined' && AppState.language) || 'en');
-  showToast('🔊 Reading devotional aloud...', 'info');
+  const ref = (typeof gsSpokenRef === 'function') ? gsSpokenRef(d.ref) : d.ref;
+  const text = `${d.title}. ${d.verse}. ${ref}. ${d.reflection}. ${d.prayer}`;
+  if (typeof gsSpeak === 'function') gsSpeak(text, { label: d.title || t('devotionalTitle') || 'Devotional' });
+  showToast('🔊 ' + (t('audioReadingDevo') || "Reading today's devotional…"), 'info');
 }
+
+function playLivingFaithAloud() {
+  const f = (typeof getTodayLocalizedLivingFaith === 'function')
+    ? getTodayLocalizedLivingFaith()
+    : (typeof getTodayLivingFaith === 'function' ? getTodayLivingFaith() : null);
+  if (!f) return;
+  const ref = (typeof gsSpokenRef === 'function') ? gsSpokenRef(f.ref) : f.ref;
+  const text = `${f.thought}. ${f.verse}. ${ref}. ${f.question}`;
+  if (typeof gsSpeak === 'function') gsSpeak(text, { label: t('livingFaithCardTitle') || 'Living Faith' });
+}
+
+window.playLivingFaithAloud = playLivingFaithAloud;
 
 // ============================================================
 // FEATURE 5: GOSPEL TRACT GENERATOR
@@ -2971,6 +2955,19 @@ function _renderLF() {
       if (navigator.share) { navigator.share({ title: 'Living Faith', text: msg }).catch(() => window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank')); }
       else { window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank'); }
     };
+    let listen = document.getElementById('lfListenBtn');
+    if (!listen) {
+      listen = document.createElement('button');
+      listen.id = 'lfListenBtn';
+      listen.className = 'action-btn';
+      listen.style.cssText = 'width:100%;justify-content:center;margin-bottom:8px;';
+      shareBtn.parentNode.insertBefore(listen, shareBtn);
+    }
+    listen.innerHTML = `<i class="fas fa-volume-up"></i> ${t('listenLF') || t('listen') || 'Listen'}`;
+    listen.onclick = () => {
+      const ref = (typeof gsSpokenRef === 'function') ? gsSpokenRef(f.ref) : f.ref;
+      if (typeof gsSpeak === 'function') gsSpeak(`${f.thought}. ${f.verse}. ${ref}. ${f.question}`, { label: t('livingFaithCardTitle') || 'Living Faith' });
+    };
   }
   const completeBtn = el('lfCompleteBtn');
   if (completeBtn) {
@@ -3036,20 +3033,20 @@ function loadThread() {
 }
 
 function _renderThread() {
-  const t = _getThreadEntry();
-  if (!t) return;
+  const th = _getThreadEntry();
+  if (!th) return;
   const el = id => document.getElementById(id);
 
   // Header
-  if (el('threadTitle'))    el('threadTitle').textContent    = t.title;
-  if (el('threadTagline'))  el('threadTagline').textContent  = t.tagline;
-  if (el('threadSummary'))  el('threadSummary').textContent  = t.summary;
+  if (el('threadTitle'))    el('threadTitle').textContent    = th.title;
+  if (el('threadTagline'))  el('threadTagline').textContent  = th.tagline;
+  if (el('threadSummary'))  el('threadSummary').textContent  = th.summary;
 
   // Theme colour
   const header = el('threadHeader');
-  if (header) { header.style.background = `rgba(${hexToRgb(t.color)},0.12)`; header.style.borderColor = `rgba(${hexToRgb(t.color)},0.3)`; }
+  if (header) { header.style.background = `rgba(${hexToRgb(th.color)},0.12)`; header.style.borderColor = `rgba(${hexToRgb(th.color)},0.3)`; }
   const iconEl = el('threadIcon');
-  if (iconEl) { iconEl.className = t.icon; iconEl.style.color = t.color; }
+  if (iconEl) { iconEl.className = th.icon; iconEl.style.color = th.color; }
 
   // Badge
   const threads = typeof BIBLE_THREADS !== 'undefined' ? BIBLE_THREADS : [];
@@ -3059,25 +3056,25 @@ function _renderThread() {
   if (badge) badge.textContent = _threadIndex < 0 ? 'THIS WEEK\'S THREAD' : `THEME ${Math.max(tIdx + 1, 1)} OF ${threads.length}`;
 
   // Verse chain dots
-  _renderThreadDots(t);
+  _renderThreadDots(th);
 
   // Current verse
-  _renderThreadVerse(t);
+  _renderThreadVerse(th);
 }
 
-function _renderThreadDots(t) {
+function _renderThreadDots(th) {
   const dotsEl = document.getElementById('threadDots');
   if (!dotsEl) return;
-  dotsEl.innerHTML = t.verses.map((_, i) =>
+  dotsEl.innerHTML = th.verses.map((_, i) =>
     `<span class="step-dot${i === _threadVerseIndex ? ' active' : (i < _threadVerseIndex ? ' done' : '')}" onclick="threadGoVerse(${i})" style="cursor:pointer;width:10px;height:10px;"></span>`
   ).join('');
 }
 
-function _renderThreadVerse(t) {
-  const v = t.verses[_threadVerseIndex];
+function _renderThreadVerse(th) {
+  const v = th.verses[_threadVerseIndex];
   if (!v) return;
   const el = id => document.getElementById(id);
-  const t_color = t.color;
+  const t_color = th.color;
 
   // Animate the verse card
   const card = el('threadVerseCard');
@@ -3092,7 +3089,7 @@ function _renderThreadVerse(t) {
 
   // Progress label
   const prog = el('threadProgress');
-  if (prog) prog.textContent = `${_threadVerseIndex + 1} of ${t.verses.length}`;
+  if (prog) prog.textContent = `${_threadVerseIndex + 1} of ${th.verses.length}`;
 
   // Buttons
   const prev = el('threadPrevBtn');
@@ -3100,24 +3097,24 @@ function _renderThreadVerse(t) {
   if (prev) { prev.style.display = 'flex'; prev.disabled = _threadVerseIndex === 0; }
   if (next) {
     next.style.display = 'flex';
-    next.innerHTML = _threadVerseIndex === t.verses.length - 1
+    next.innerHTML = _threadVerseIndex === th.verses.length - 1
       ? 'Complete <i class="fas fa-flag-checkered"></i>'
       : 'Next <i class="fas fa-arrow-right"></i>';
-    next.style.background = _threadVerseIndex === t.verses.length - 1
+    next.style.background = _threadVerseIndex === th.verses.length - 1
       ? `rgba(${hexToRgb(t_color)},0.25)` : '';
   }
 }
 
 function threadNextVerse() {
-  const t = _getThreadEntry();
-  if (!t) return;
+  const th = _getThreadEntry();
+  if (!th) return;
   vibrate(15);
-  if (_threadVerseIndex < t.verses.length - 1) {
+  if (_threadVerseIndex < th.verses.length - 1) {
     _threadVerseIndex++;
-    _renderThreadDots(t);
-    _renderThreadVerse(t);
+    _renderThreadDots(th);
+    _renderThreadVerse(th);
   } else {
-    _threadComplete(t);
+    _threadComplete(th);
   }
 }
 
@@ -3125,18 +3122,18 @@ function threadPrevVerse() {
   vibrate(15);
   if (_threadVerseIndex > 0) {
     _threadVerseIndex--;
-    const t = _getThreadEntry();
-    if (t) { _renderThreadDots(t); _renderThreadVerse(t); }
+    const th = _getThreadEntry();
+    if (th) { _renderThreadDots(th); _renderThreadVerse(th); }
   }
 }
 
 function threadGoVerse(idx) {
   _threadVerseIndex = idx;
-  const t = _getThreadEntry();
-  if (t) { _renderThreadDots(t); _renderThreadVerse(t); }
+  const th = _getThreadEntry();
+  if (th) { _renderThreadDots(th); _renderThreadVerse(th); }
 }
 
-function _threadComplete(t) {
+function _threadComplete(th) {
   const done = document.getElementById('threadComplete');
   const card = document.getElementById('threadVerseCard');
   if (done) done.style.display = 'block';
@@ -3145,26 +3142,26 @@ function _threadComplete(t) {
   const next = document.getElementById('threadNextBtn');
   if (prev) prev.style.display = 'none';
   if (next) next.style.display = 'none';
-  localStorage.setItem(`thread_done_${t.id}`, new Date().toDateString());
+  localStorage.setItem(`thread_done_${th.id}`, new Date().toDateString());
   AppState.userStats.threadsRead = (AppState.userStats.threadsRead || 0) + 1;
-  showToast(`🧵 Thread complete! "${t.title}" — a thread worth pulling.`, 'success');
+  showToast(`🧵 Thread complete! "${th.title}" — a thread worth pulling.`, 'success');
   vibrate([30, 30, 50]);
   refreshStats();
 }
 
 function threadShare() {
-  const t = _getThreadEntry();
-  if (!t) return;
+  const th = _getThreadEntry();
+  if (!th) return;
   vibrate(20);
-  const v = t.verses[_threadVerseIndex];
+  const v = th.verses[_threadVerseIndex];
   const msg =
-    `🧵 *The Thread — ${t.title}*\n\n` +
-    `_"${t.tagline}"_\n\n` +
+    `🧵 *The Thread — ${th.title}*\n\n` +
+    `_"${th.tagline}"_\n\n` +
     `📖 *${v.ref}*\n"${v.text}"\n\n` +
     `${v.note}\n\n` +
     `Trace this thread from Genesis to Revelation on GospelSwipe Pro 👇\n` +
     `📱 gospelswipe.app`;
-  if (navigator.share) { navigator.share({ title: `The Thread — ${t.title}`, text: msg }).catch(() => window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank')); }
+  if (navigator.share) { navigator.share({ title: `The Thread — ${th.title}`, text: msg }).catch(() => window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank')); }
   else { window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank'); }
 }
 
