@@ -927,3 +927,63 @@ textarea:focus-visible { outline:2px solid var(--secondary); }
 @media (min-width: 720px) {
   .gs-voice-player { max-width: 696px; left: 50%; right: auto; transform: translateX(-50%); width: calc(100% - 24px); }
 }
+
+/* ===== Friendlier home ===== */
+.home-greeting {
+  margin-top: 8px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  opacity: 0.78;
+  font-weight: 500;
+  max-width: 320px;
+  text-align: center;
+}
+.feature-card {
+  border-radius: 22px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+}
+.header h1 { letter-spacing: -0.3px; }
+
+/* ===== Gender voice pills ===== */
+.gs-gender-row { display:flex; gap:8px; }
+.gs-gender-btn {
+  flex:1; border-radius:14px; padding:12px 8px; cursor:pointer; font-family:inherit;
+  border:1px solid rgba(255,255,255,0.16); background:rgba(255,255,255,0.05);
+  color:#fff; font-weight:700; font-size:0.88rem;
+}
+.gs-gender-btn.active {
+  background: linear-gradient(135deg,#3498db,#2ecc71);
+  border-color: transparent;
+}
+
+/* ===== Ask AI: one-row chips, swipe left/right ===== */
+.gs-ai-chip-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding: 2px 2px 12px;
+  margin-bottom: 4px;
+  scroll-snap-type: x proximity;
+}
+.gs-ai-chip-row::-webkit-scrollbar { height: 4px; }
+.gs-ai-chip-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.22); border-radius: 4px; }
+.gs-ai-chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  scroll-snap-align: start;
+  border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.06);
+  color:#fff; border-radius:999px; padding:8px 14px; font-size:0.8rem; cursor:pointer; font-family:inherit;
+}
+.gs-ai-chip.on {
+  background: linear-gradient(135deg,#3498db,#8e44ad);
+  border-color: transparent;
+}
+.gs-ai-sheet {
+  background: linear-gradient(180deg, #1a2838 0%, #101820 100%);
+}
+.gs-ai-ans p { font-size: 0.98rem; line-height: 1.8; }
+.gs-ai-q { font-size: 1.12rem; }

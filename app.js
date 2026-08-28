@@ -160,6 +160,15 @@ function applyTranslations() {
   });
   document.documentElement.lang = AppState.language;
   document.body.dir = AppState.language === 'ar' ? 'rtl' : 'ltr';
+  if (typeof setHomeGreeting === 'function') setHomeGreeting();
+}
+
+function setHomeGreeting() {
+  const el = document.getElementById('homeGreeting');
+  if (!el) return;
+  const h = new Date().getHours();
+  const key = h < 12 ? 'greetMorning' : h < 17 ? 'greetAfternoon' : 'greetEvening';
+  el.textContent = t(key) || '';
 }
 
 // ========== Load App Data ==========
@@ -253,8 +262,12 @@ async function changeLanguage(lang) {
   applyTranslations();
   refreshCurrentScreenContent();
   if (typeof gsPopulateVoiceSelect === 'function') gsPopulateVoiceSelect();
-  if (document.getElementById('gsAskAI') && document.getElementById('gsAskAI').classList.contains('show') && typeof gsAiI18nChrome === 'function') {
-    gsAiI18nChrome();
+  if (typeof gsSyncGenderButtons === 'function') gsSyncGenderButtons();
+  if (document.getElementById('gsAskAI') && document.getElementById('gsAskAI').classList.contains('show')) {
+    if (typeof gsAiI18nChrome === 'function') gsAiI18nChrome();
+    if (typeof gsAiAsk === 'function' && (window._gsAiLastTopic || window._gsAiLastQuery)) {
+      gsAiAsk(window._gsAiLastQuery, window._gsAiLastTopic);
+    }
   }
   const langName = t('languageName') || lang;
   showToast(`Language: ${langName}`, 'success');
@@ -1160,16 +1173,12 @@ function showDailyVerse() {
 function speakSlide(slideId) {
   const slide = (AppState.contentData?.slides || FALLBACK_CONTENT.slides).find(s => s.id === slideId);
   if (!slide) return;
-  if (!('speechSynthesis' in window)) { showToast('Voice synthesis unavailable', 'info'); return; }
-  if (AppState.speechSynthesisActive) speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(`${slide.title}. ${slide.verse}. ${slide.reference}`);
-  const langMap = { ar:'ar-SA', fr:'fr-FR', sw:'sw-TZ', yo:'yo-NG', ig:'ig-NG', ha:'ha-NG', pcm:'en-NG' };
-  utt.lang = langMap[AppState.language] || 'en-US';
-  utt.rate = parseFloat(document.getElementById('voiceSpeed')?.value || '1');
-  utt.onstart = () => { AppState.speechSynthesisActive = true; };
-  utt.onend = () => { AppState.speechSynthesisActive = false; };
-  speechSynthesis.speak(utt);
-  vibrate(30);
+  if (typeof GSVoice !== 'undefined' && GSVoice.speaking) { gsStop(); return; }
+  const loc = (typeof getSlideInLanguage === 'function') ? getSlideInLanguage(slide) : slide;
+  const ref = (typeof gsSpokenRef === 'function') ? gsSpokenRef(loc.reference || loc.ref || '') : (loc.reference || '');
+  const text = `${loc.title}. ${loc.verse}. ${ref}`;
+  if (typeof gsSpeak === 'function') gsSpeak(text, { label: loc.title || (t('listen') || 'Listen') });
+  else showToast(t('voiceUnavailable') || 'Voice is not available on this device', 'info');
 }
 
 // ========== Modal ==========

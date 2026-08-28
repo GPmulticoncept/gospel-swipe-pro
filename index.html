@@ -54,6 +54,7 @@
       </button>
       <h1><i class="fas fa-cross" aria-hidden="true"></i> <span data-i18n="appName">GospelSwipe Pro</span></h1>
       <p class="tagline" data-i18n="tagline">Your pocket evangelism toolkit</p>
+      <p class="home-greeting" id="homeGreeting"></p>
 
       <!-- Stats Row -->
       <div class="user-stats">
@@ -662,10 +663,20 @@
           <option value="1.35" data-i18n="voiceSpeedFaster">Faster</option>
         </select>
       </div>
-      <div class="settings-option" style="flex-direction:column;align-items:stretch;gap:8px;">
-        <label for="voiceSelect" data-i18n="voicePick">Voice</label>
+      <div class="settings-option" style="flex-direction:column;align-items:stretch;gap:10px;">
+        <label data-i18n="voiceGender">Voice · used everywhere</label>
+        <div class="gs-gender-row">
+          <button type="button" class="gs-gender-btn" id="gsGenderF" onclick="gsSetGender('female')">
+            <i class="fas fa-venus"></i> <span data-i18n="voiceFemale">Female</span>
+          </button>
+          <button type="button" class="gs-gender-btn" id="gsGenderM" onclick="gsSetGender('male')">
+            <i class="fas fa-mars"></i> <span data-i18n="voiceMale">Male</span>
+          </button>
+        </div>
+        <label for="voiceSelect" data-i18n="voicePick">System voices</label>
         <select id="voiceSelect" onchange="gsOnVoiceSelectChange()" aria-label="Choose a voice"
           style="width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:#fff;padding:11px 14px;border-radius:14px;font-size:0.88rem;font-family:inherit;"></select>
+        <p style="font-size:0.75rem;opacity:0.5;line-height:1.45;margin:0;" data-i18n="voiceEverywhereNote">The voice you pick reads slides, devotionals, Living Faith, and Ask AI — one voice for the whole app.</p>
       </div>
       <div class="settings-option">
         <label for="autoPlayToggle" data-i18n="autoPlayAudio">Auto-play Audio</label>
@@ -1353,6 +1364,7 @@
 <script src="tracts_i18n_struggle_p2.js"></script>
 <script src="tracts_i18n_struggle_p3.js"></script>
 <script src="voice_engine.js"></script>
+<script src="ai_i18n.js"></script>
 <script src="ai_engine.js"></script>
 <script src="app.js"></script>
 <script>

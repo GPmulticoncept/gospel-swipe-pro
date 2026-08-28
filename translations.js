@@ -370,7 +370,15 @@ const TRANSLATIONS = {
     "verseCopied": "Verse copied",
     "voiceError": "Voice error. Try again.",
     "listenDevo": "Listen",
-    "listenLF": "Listen"
+    "listenLF": "Listen",
+    "voiceGender": "Voice · used everywhere",
+    "voiceFemale": "Female",
+    "voiceMale": "Male",
+    "voiceOther": "Other",
+    "voiceEverywhereNote": "The voice you pick reads slides, devotionals, Living Faith, and Ask AI — one voice for the whole app.",
+    "greetMorning": "Good morning. The Lord is already ahead of you today.",
+    "greetAfternoon": "Good afternoon. Stay close. He has not left you.",
+    "greetEvening": "Good evening. Rest in the One who does not sleep."
   },
   fr: {
     "appName": "GospelSwipe Pro",
@@ -738,7 +746,15 @@ const TRANSLATIONS = {
     "verseCopied": "Verset copié",
     "voiceError": "Erreur vocale. Réessayez.",
     "listenDevo": "Écouter",
-    "listenLF": "Écouter"
+    "listenLF": "Écouter",
+    "voiceGender": "Voix · partout dans l'appli",
+    "voiceFemale": "Femme",
+    "voiceMale": "Homme",
+    "voiceOther": "Autre",
+    "voiceEverywhereNote": "La voix choisie lit les diapositives, les dévotions, Foi vivante et Demander à l'IA.",
+    "greetMorning": "Bonjour. Le Seigneur est déjà devant toi aujourd'hui.",
+    "greetAfternoon": "Bon après-midi. Reste proche. Il ne t'a pas quitté.",
+    "greetEvening": "Bonsoir. Repose-toi en Celui qui ne dort pas."
   },
   sw: {
     "appName": "GospelSwipe Pro",
@@ -1106,7 +1122,15 @@ const TRANSLATIONS = {
     "verseCopied": "Aya imenakiliwa",
     "voiceError": "Hitilafu ya sauti. Jaribu tena.",
     "listenDevo": "Sikiliza",
-    "listenLF": "Sikiliza"
+    "listenLF": "Sikiliza",
+    "voiceGender": "Sauti · inatumika kila mahali",
+    "voiceFemale": "Mwanamke",
+    "voiceMale": "Mwanaume",
+    "voiceOther": "Nyingine",
+    "voiceEverywhereNote": "Sauti unayochagua husoma slaidi, ibada, Imani Hai, na Uliza AI.",
+    "greetMorning": "Habari za asubuhi. Bwana amekwenda mbele yako leo.",
+    "greetAfternoon": "Habari za mchana. Kaa karibu. Hakuacha.",
+    "greetEvening": "Habari za jioni. Pumzika katika Yeye asiyelala."
   },
   ar: {
     "appName": "جوسبل سويف برو",
@@ -1474,7 +1498,15 @@ const TRANSLATIONS = {
     "verseCopied": "تم نسخ الآية",
     "voiceError": "خطأ في الصوت. حاول مرة أخرى.",
     "listenDevo": "استمع",
-    "listenLF": "استمع"
+    "listenLF": "استمع",
+    "voiceGender": "الصوت · في التطبيق كله",
+    "voiceFemale": "أنثى",
+    "voiceMale": "ذكر",
+    "voiceOther": "أخرى",
+    "voiceEverywhereNote": "الصوت الذي تختاره يقرأ الشرائح والتأملات والإيمان الحي واسأل الذكاء.",
+    "greetMorning": "صباح الخير. الرب أمامك اليوم.",
+    "greetAfternoon": "مساء الخير. ابقَ قريباً. لم يتركك.",
+    "greetEvening": "مساء الخير. استرح في الذي لا ينام."
   },
   yo: {
     "appName": "GospelSwipe Pro",
@@ -1842,7 +1874,15 @@ const TRANSLATIONS = {
     "verseCopied": "A ti dàákọ ẹsẹ",
     "voiceError": "Àṣìṣe ohùn. Gbìyànjú lẹ́ẹ̀kan sí i.",
     "listenDevo": "Gbọ́",
-    "listenLF": "Gbọ́"
+    "listenLF": "Gbọ́",
+    "voiceGender": "Ohùn · ni gbogbo app",
+    "voiceFemale": "Obìnrin",
+    "voiceMale": "Ọkùnrin",
+    "voiceOther": "Òmíràn",
+    "voiceEverywhereNote": "Ohùn tí o yàn ni yóò ka sáàdì, ìsọdún, Ìgbàgbọ́ Alààyè, àti Béèrè lọ́wọ́ AI.",
+    "greetMorning": "Ẹ káàárọ̀. Olúwa ti lọ síwájú rẹ lónìí.",
+    "greetAfternoon": "Ẹ káàsán. Dúró tòsí. Kò fi ọ́ sílẹ̀.",
+    "greetEvening": "Ẹ káalẹ́. Sinmi nínú Ẹni tí kì í sùn."
   },
   ig: {
     "appName": "GospelSwipe Pro",
@@ -2210,7 +2250,15 @@ const TRANSLATIONS = {
     "verseCopied": "Edetuola amaokwu",
     "voiceError": "Njehie olu. Nwaa ọzọ.",
     "listenDevo": "Gee ntị",
-    "listenLF": "Gee ntị"
+    "listenLF": "Gee ntị",
+    "voiceGender": "Olu · eji ya ebe niile",
+    "voiceFemale": "Nwanyị",
+    "voiceMale": "Nwoke",
+    "voiceOther": "Ọzọ",
+    "voiceEverywhereNote": "Olu ị họrọ na-agụ slide, ekpere, Okwukwe Dị Ndụ, na Jụọ AI.",
+    "greetMorning": "Ụtụtụ ọma. Onyenwe agaarala n'ihu gị taa.",
+    "greetAfternoon": "Ehihie ọma. Nọrọ nso. Ọ hapụghị gị.",
+    "greetEvening": "Mgbede ọma. Zurie ike n'Onye anaghị ehi ụra."
   },
   ha: {
     "appName": "GospelSwipe Pro",
@@ -2578,7 +2626,15 @@ const TRANSLATIONS = {
     "verseCopied": "An kwafa aya",
     "voiceError": "Kuskuren murya. Sake gwadawa.",
     "listenDevo": "Saurara",
-    "listenLF": "Saurara"
+    "listenLF": "Saurara",
+    "voiceGender": "Murya · a duk app",
+    "voiceFemale": "Mace",
+    "voiceMale": "Namiji",
+    "voiceOther": "Wani",
+    "voiceEverywhereNote": "Muryar da ka zaɓa tana karanta silidi, ibada, Bangaskiya Mai Rai, da Tambayi AI.",
+    "greetMorning": "Barka da safe. Ubangiji ya riga ya tafi gaban ka yau.",
+    "greetAfternoon": "Barka da rana. Tsaya kusa. Bai bari ka ba.",
+    "greetEvening": "Barka da yamma. Huta a wurin wanda ba ya barci."
   },
   pcm: {
     "appName": "GospelSwipe Pro",
@@ -2946,7 +3002,15 @@ const TRANSLATIONS = {
     "verseCopied": "Verse don copy",
     "voiceError": "Voice error. Try again.",
     "listenDevo": "Hear am",
-    "listenLF": "Hear am"
+    "listenLF": "Hear am",
+    "voiceGender": "Voice · e dey work for di whole app",
+    "voiceFemale": "Woman",
+    "voiceMale": "Man",
+    "voiceOther": "Other",
+    "voiceEverywhereNote": "Di voice you pick go read slides, devotionals, Living Faith, and Ask AI — one voice for di whole app.",
+    "greetMorning": "Good morning. Di Lord don go ahead of you today.",
+    "greetAfternoon": "Good afternoon. Stay close. He no leave you.",
+    "greetEvening": "Good evening. Rest for di One wey no dey sleep."
   }
 };
 

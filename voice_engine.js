@@ -1,8 +1,8 @@
 // ==========================================================
-// GospelSwipe Pro — Human Voice Engine
-// Offline device TTS, tuned to sound like a person reading
-// Scripture: natural voice pick, sentence pacing, spoken refs,
-// pause/resume, mini-player. No network. No API key.
+// GospelSwipe Pro — One Voice Engine
+// Uses the device's system voices as the only database.
+// The voice you pick (or Auto + Female/Male) is used everywhere:
+// slides, devotionals, Living Faith, Ask AI, audio mode.
 // ==========================================================
 
 const GSVoice = {
@@ -18,18 +18,20 @@ const GSVoice = {
 };
 
 const GS_LANG_BCP = {
-  en: ['en-NG', 'en-GB', 'en-US', 'en-AU', 'en'],
+  en: ['en-NG', 'en-GB', 'en-US', 'en-AU', 'en-IN', 'en'],
   yo: ['yo-NG', 'yo', 'en-NG', 'en-GB', 'en-US', 'en'],
   ig: ['ig-NG', 'ig', 'en-NG', 'en-GB', 'en'],
   ha: ['ha-NG', 'ha', 'en-NG', 'en-GB', 'en'],
   pcm: ['en-NG', 'en-GB', 'en-US', 'en'],
-  fr: ['fr-FR', 'fr-CA', 'fr'],
+  fr: ['fr-FR', 'fr-CA', 'fr-BE', 'fr'],
   sw: ['sw-TZ', 'sw-KE', 'sw', 'en-GB', 'en'],
-  ar: ['ar-SA', 'ar-EG', 'ar-AE', 'ar']
+  ar: ['ar-SA', 'ar-EG', 'ar-AE', 'ar-MA', 'ar']
 };
 
-const GS_NATURAL_RE = /natural|neural|google|enhanced|premium|premium|samantha|moira|tessa|karen|daniel|fred|alex|victoria|martha|aria|jenny|guy|sonia|libby|raveena|hazel|george|susan|zira|david|mark|ryan|andrew|emma|michelle|nicky|wavenet|studio|journey|neural2/i;
-const GS_AVOID_RE = /eSpeak|compact|robot|dummy|whisper|novelty|bad news|good news|bells|boing|bubbles|cellos|old man|superstar|trinoids|zarvox|organ|princess|junior|kathy|albert/i;
+const GS_FEMALE_RE = /female|woman|girl|samantha|moira|tessa|karen|aria|jenny|sonia|libby|hazel|susan|zira|emma|michelle|nicky|victoria|martha|heera|linda|fiona|veena|serena|kate|amy|joanna|ivy|kendra|kimberly|salli|nicole|raveena|aditi|vicki|allison|ava|susan|zira|eva|marie|julie|pauline|amelie|audrey|claire|denise|eloise|nathalie|brigitte|celine|chantal|cosima|hedda|helena|katja|petra|gisela|ingrid|nora|liv|alva|klara|soothe|wavenet-c|wavenet-f|neural.*female|google.*(us|uk).*female/i;
+const GS_MALE_RE = /male|man|guy|boy|david|daniel|mark|ryan|andrew|george|fred|alex|thomas|james|brian|matthew|justin|joey|geraint|russell|ravi|aaron|nathan|arthur|oliver|tom|richard|paul|jorge|diego|juan|pierre|thomas|bernard|claude|henri|jacques|louis|nicolas|philippe|sebastien|stephan|yannick|wavenet-b|wavenet-d|neural.*male|google.*(us|uk).*male/i;
+const GS_NATURAL_RE = /natural|neural|google|enhanced|premium|samantha|moira|tessa|karen|daniel|aria|jenny|guy|sonia|libby|wavenet|studio|journey|neural2|online/i;
+const GS_AVOID_RE = /eSpeak|compact|robot|dummy|whisper|novelty|bad news|good news|bells|boing|bubbles|cellos|old man|superstar|trinoids|zarvox|organ|princess|junior|kathy|albert|trinoids/i;
 
 function gsEnsureVoices(cb) {
   if (!('speechSynthesis' in window)) { if (cb) cb([]); return; }
@@ -46,55 +48,114 @@ function gsEnsureVoices(cb) {
     window.speechSynthesis.addEventListener('voiceschanged', function once() {
       grab();
       window.speechSynthesis.removeEventListener('voiceschanged', once);
+      gsPopulateVoiceSelect();
+      gsSyncGenderButtons();
     });
-    // Chrome sometimes needs a kick
     try { window.speechSynthesis.getVoices(); } catch (e) {}
     setTimeout(grab, 250);
-    setTimeout(grab, 900);
+    setTimeout(() => { grab(); gsPopulateVoiceSelect(); }, 900);
   }
 }
 
-function gsScoreVoice(v, lang) {
+function gsAllVoices() {
+  return (GSVoice._voices.length ? GSVoice._voices : (window.speechSynthesis ? speechSynthesis.getVoices() : [])) || [];
+}
+
+function gsGuessGender(v) {
+  const n = ((v && v.name) || '') + ' ' + ((v && v.voiceURI) || '');
+  if (GS_FEMALE_RE.test(n)) return 'female';
+  if (GS_MALE_RE.test(n)) return 'male';
+  return 'other';
+}
+
+function gsVoiceGenderPref() {
+  return localStorage.getItem('gsVoiceGender') || 'female';
+}
+
+function gsScoreVoice(v, lang, gender) {
   if (!v) return -1;
-  if (GS_AVOID_RE.test(v.name || '')) return -100;
+  if (GS_AVOID_RE.test(v.name || '')) return -80;
   const prefs = GS_LANG_BCP[lang] || GS_LANG_BCP.en;
   const vl = (v.lang || '').toLowerCase();
   let score = 0;
   prefs.forEach((p, i) => {
     const pl = p.toLowerCase();
-    if (vl === pl) score += 80 - i * 4;
-    else if (vl.startsWith(pl)) score += 50 - i * 3;
+    if (vl === pl) score += 90 - i * 4;
+    else if (vl.startsWith(pl.split('-')[0])) score += 48 - i * 3;
   });
-  if (GS_NATURAL_RE.test(v.name || '')) score += 40;
-  if (/google/i.test(v.name || '')) score += 18;
-  if (/microsoft/i.test(v.name || '')) score += 12;
-  if (/apple|samantha|moira|daniel|karen/i.test(v.name || '')) score += 16;
-  if (v.localService) score += 6; // more reliable offline
-  if (/female|woman|aria|jenny|samantha|moira|tessa|karen|sonia|libby|hazel|susan|zira|emma/i.test(v.name || '')) score += 4;
+  const g = gsGuessGender(v);
+  if (gender && g === gender) score += 35;
+  else if (gender && g !== 'other' && g !== gender) score -= 25;
+  if (GS_NATURAL_RE.test(v.name || '')) score += 28;
+  if (/google/i.test(v.name || '')) score += 14;
+  if (/microsoft/i.test(v.name || '')) score += 10;
+  if (v.localService) score += 5;
   return score;
 }
 
+/** THE one voice used everywhere in the app. */
 function gsPickVoice(lang) {
+  const voices = gsAllVoices();
   const saved = localStorage.getItem('gsVoiceURI');
-  const voices = GSVoice._voices.length ? GSVoice._voices : (window.speechSynthesis ? speechSynthesis.getVoices() : []);
   if (saved) {
     const hit = voices.find(v => v.voiceURI === saved);
     if (hit) return hit;
   }
   const L = lang || (typeof AppState !== 'undefined' && AppState.language) || 'en';
+  const gender = gsVoiceGenderPref();
   let best = null, bestScore = -1;
   voices.forEach(v => {
-    const s = gsScoreVoice(v, L);
+    const s = gsScoreVoice(v, L, gender);
     if (s > bestScore) { bestScore = s; best = v; }
   });
   return best || voices[0] || null;
 }
 
+function gsLockVoice(uri, gender) {
+  if (uri) localStorage.setItem('gsVoiceURI', uri);
+  else localStorage.removeItem('gsVoiceURI');
+  if (gender) localStorage.setItem('gsVoiceGender', gender);
+}
+
+function gsSetGender(gender) {
+  localStorage.setItem('gsVoiceGender', gender);
+  const lang = (typeof AppState !== 'undefined' && AppState.language) || 'en';
+  const voices = gsAllVoices();
+  let best = null, bestScore = -1;
+  voices.forEach(v => {
+    const s = gsScoreVoice(v, lang, gender);
+    if (s > bestScore) { bestScore = s; best = v; }
+  });
+  if (best) localStorage.setItem('gsVoiceURI', best.voiceURI);
+  gsSyncGenderButtons();
+  gsPopulateVoiceSelect();
+  gsPreviewCurrent();
+  if (typeof showToast === 'function') {
+    const label = gender === 'male'
+      ? ((typeof t === 'function' && t('voiceMale')) || 'Male')
+      : ((typeof t === 'function' && t('voiceFemale')) || 'Female');
+    showToast((typeof t === 'function' && t('audioVoiceUpdated')) || 'Voice updated: ' + label, 'success');
+  }
+}
+
 function gsSpokenRef(ref) {
   if (!ref) return '';
-  return String(ref)
-    .replace(/(\d+)\s*:\s*(\d+)\s*[-–—]\s*(\d+)/g, 'chapter $1, verses $2 to $3')
-    .replace(/(\d+)\s*:\s*(\d+)/g, 'chapter $1, verse $2');
+  const lang = (typeof AppState !== 'undefined' && AppState.language) || 'en';
+  const s = String(ref);
+  if (lang === 'fr') {
+    return s.replace(/(\d+)\s*:\s*(\d+)\s*[-–—]\s*(\d+)/g, 'chapitre $1, versets $2 à $3')
+            .replace(/(\d+)\s*:\s*(\d+)/g, 'chapitre $1, verset $2');
+  }
+  if (lang === 'yo') {
+    return s.replace(/(\d+)\s*:\s*(\d+)\s*[-–—]\s*(\d+)/g, 'orí $1, ẹsẹ $2 sí $3')
+            .replace(/(\d+)\s*:\s*(\d+)/g, 'orí $1, ẹsẹ $2');
+  }
+  if (lang === 'ar') {
+    return s.replace(/(\d+)\s*:\s*(\d+)\s*[-–—]\s*(\d+)/g, 'الإصحاح $1، الأعداد $2 إلى $3')
+            .replace(/(\d+)\s*:\s*(\d+)/g, 'الإصحاح $1، العدد $2');
+  }
+  return s.replace(/(\d+)\s*:\s*(\d+)\s*[-–—]\s*(\d+)/g, 'chapter $1, verses $2 to $3')
+          .replace(/(\d+)\s*:\s*(\d+)/g, 'chapter $1, verse $2');
 }
 
 function gsHumanize(text) {
@@ -105,7 +166,6 @@ function gsHumanize(text) {
   s = s.replace(/\s+\.\.\./g, '.');
   s = s.replace(/\s{2,}/g, ' ');
   s = s.replace(/\s+([,.;:!?])/g, '$1');
-  // Help the engine breathe at clause boundaries
   s = s.replace(/; /g, '. ');
   return s.trim();
 }
@@ -113,7 +173,7 @@ function gsHumanize(text) {
 function gsSplitChunks(text) {
   const clean = gsHumanize(text);
   if (!clean) return [];
-  const parts = clean.split(/(?<=[.!?])\s+/).map(p => p.trim()).filter(Boolean);
+  const parts = clean.split(/(?<=[.!?؟。])\s+/).map(p => p.trim()).filter(Boolean);
   const chunks = [];
   parts.forEach(p => {
     if (p.length <= 220) chunks.push(p);
@@ -132,17 +192,14 @@ function gsSplitChunks(text) {
 
 function gsRate() {
   const raw = parseFloat(document.getElementById('voiceSpeed')?.value || localStorage.getItem('gsVoiceRate') || '0.95');
-  // Map UI 0.8/1/1.25/1.5 onto a more human band
   if (raw <= 0.85) return 0.82;
   if (raw <= 1.05) return 0.94;
   if (raw <= 1.3) return 1.08;
   return 1.18;
 }
 
-function gsPitch(lang) {
-  if (lang === 'ar') return 1.0;
-  if (lang === 'fr') return 1.04;
-  return 1.03;
+function gsPitch() {
+  return gsVoiceGenderPref() === 'male' ? 0.97 : 1.04;
 }
 
 function gsEnsurePlayer() {
@@ -210,7 +267,6 @@ function gsResume() {
   if (!GSVoice.speaking) return;
   GSVoice.paused = false;
   try { speechSynthesis.resume(); } catch (e) {}
-  // Some Android Chrome pause/resume is broken — restart current chunk
   setTimeout(() => {
     if (GSVoice.speaking && GSVoice.paused === false && speechSynthesis.paused) {
       try { speechSynthesis.resume(); } catch (e) {}
@@ -226,7 +282,7 @@ function gsSpeakNext() {
     const done = GSVoice.queue.length > 0;
     gsStop();
     if (done && typeof showToast === 'function') {
-      showToast((typeof t === 'function' && t('audioComplete')) || '✅ Reading complete', 'success');
+      showToast((typeof t === 'function' && t('audioComplete')) || 'Reading complete', 'success');
     }
     return;
   }
@@ -242,12 +298,12 @@ function gsSpeakNext() {
     utt.lang = (GS_LANG_BCP[lang] || ['en-US'])[0];
   }
   utt.rate = gsRate();
-  utt.pitch = gsPitch(lang);
+  utt.pitch = gsPitch();
   utt.volume = 1;
   GSVoice._utt = utt;
   utt.onend = () => {
     if (!GSVoice.speaking) return;
-    GSVoice._pauseTimer = setTimeout(gsSpeakNext, 280);
+    GSVoice._pauseTimer = setTimeout(gsSpeakNext, 260);
   };
   utt.onerror = () => {
     if (!GSVoice.speaking) return;
@@ -275,24 +331,18 @@ function gsSpeak(text, opts) {
   if (typeof AppState !== 'undefined') AppState.speechSynthesisActive = true;
   if (typeof updateAudioModeUI === 'function') updateAudioModeUI(true);
   if (typeof vibrate === 'function') vibrate(20);
-  // Tiny delay lets cancel() flush on Chrome
   setTimeout(gsSpeakNext, 60);
 }
 
 function gsSpeakSections(sections, opts) {
-  // sections: [{label, text}] — extra pause between sections
   opts = opts || {};
   const bits = [];
   (sections || []).forEach(sec => {
     if (!sec || !sec.text) return;
-    const body = gsHumanize(sec.text);
-    if (!body) return;
-    gsSplitChunks(body).forEach(c => bits.push(c));
-    bits.push('\u200A'); // hair-space marker — skipped visually, still a beat via empty skip
+    gsSplitChunks(gsHumanize(sec.text)).forEach(c => bits.push(c));
   });
-  const cleaned = bits.filter(b => b && b.trim() && b !== '\u200A');
-  if (!cleaned.length) return;
-  gsSpeak(cleaned.join('. '), opts);
+  if (!bits.length) return;
+  gsSpeak(bits.join('. '), opts);
 }
 
 function gsPopulateVoiceSelect() {
@@ -300,28 +350,49 @@ function gsPopulateVoiceSelect() {
   if (!sel) return;
   gsEnsureVoices(voices => {
     const saved = localStorage.getItem('gsVoiceURI') || '';
-    const lang = (typeof AppState !== 'undefined' && AppState.language) || 'en';
-    const autoLabel = (typeof t === 'function' && t('voiceAutoBest')) || 'Auto — most natural';
-    sel.innerHTML = `<option value="">${autoLabel}</option>`;
-    const ranked = voices.slice().sort((a, b) => gsScoreVoice(b, lang) - gsScoreVoice(a, lang));
-    ranked.slice(0, 18).forEach(v => {
-      const opt = document.createElement('option');
-      opt.value = v.voiceURI;
-      opt.textContent = v.name + (v.lang ? ' · ' + v.lang : '');
-      if (v.voiceURI === saved) opt.selected = true;
-      sel.appendChild(opt);
+    const autoLabel = (typeof t === 'function' && t('voiceAutoBest')) || 'Auto — match language + gender';
+    const fLab = (typeof t === 'function' && t('voiceFemale')) || 'Female';
+    const mLab = (typeof t === 'function' && t('voiceMale')) || 'Male';
+    const oLab = (typeof t === 'function' && t('voiceOther')) || 'Other';
+    const groups = { female: [], male: [], other: [] };
+    voices.forEach(v => groups[gsGuessGender(v)].push(v));
+    const opt = (v) => {
+      const o = document.createElement('option');
+      o.value = v.voiceURI;
+      o.textContent = v.name + (v.lang ? ' · ' + v.lang : '');
+      if (v.voiceURI === saved) o.selected = true;
+      return o;
+    };
+    sel.innerHTML = '';
+    const auto = document.createElement('option');
+    auto.value = '';
+    auto.textContent = autoLabel;
+    if (!saved) auto.selected = true;
+    sel.appendChild(auto);
+    [['female', fLab], ['male', mLab], ['other', oLab]].forEach(([key, lab]) => {
+      if (!groups[key].length) return;
+      const g = document.createElement('optgroup');
+      g.label = lab;
+      groups[key]
+        .slice()
+        .sort((a, b) => (a.lang || '').localeCompare(b.lang || '') || a.name.localeCompare(b.name))
+        .forEach(v => g.appendChild(opt(v)));
+      sel.appendChild(g);
     });
     if (saved) sel.value = saved;
   });
+  gsSyncGenderButtons();
 }
 
-function gsOnVoiceSelectChange() {
-  const sel = document.getElementById('voiceSelect');
-  if (!sel) return;
-  if (sel.value) localStorage.setItem('gsVoiceURI', sel.value);
-  else localStorage.removeItem('gsVoiceURI');
-  if (typeof showToast === 'function') showToast((typeof t === 'function' && t('audioVoiceUpdated')) || 'Voice updated', 'success');
-  // Preview a short line so they hear the difference
+function gsSyncGenderButtons() {
+  const g = gsVoiceGenderPref();
+  const f = document.getElementById('gsGenderF');
+  const m = document.getElementById('gsGenderM');
+  if (f) f.classList.toggle('active', g === 'female');
+  if (m) m.classList.toggle('active', g === 'male');
+}
+
+function gsPreviewCurrent() {
   const lang = (typeof AppState !== 'undefined' && AppState.language) || 'en';
   const preview = {
     en: 'The Lord is my shepherd. I lack nothing.',
@@ -329,11 +400,29 @@ function gsOnVoiceSelectChange() {
     ig: 'Onyenwe anyị bụ ọzụzụ atụrụ m. Ọ dịghị ihe m na-agụ.',
     ha: 'Ubangiji ne makiyayina. Ba ni rasa komai.',
     pcm: 'The Lord na my shepherd. I no dey lack anything.',
-    fr: 'L\'Éternel est mon berger: je ne manquerai de rien.',
+    fr: "L'Éternel est mon berger: je ne manquerai de rien.",
     sw: 'Bwana ndiye mchungaji wangu, sitapungukiwa na kitu.',
     ar: 'الرب راعي فلا يعوزني شيء.'
   };
   gsSpeak(preview[lang] || preview.en, { label: (typeof t === 'function' && t('voicePreview')) || 'Preview' });
+}
+
+function gsOnVoiceSelectChange() {
+  const sel = document.getElementById('voiceSelect');
+  if (!sel) return;
+  if (sel.value) {
+    localStorage.setItem('gsVoiceURI', sel.value);
+    const v = gsAllVoices().find(x => x.voiceURI === sel.value);
+    if (v) {
+      const g = gsGuessGender(v);
+      if (g === 'female' || g === 'male') localStorage.setItem('gsVoiceGender', g);
+    }
+  } else {
+    localStorage.removeItem('gsVoiceURI');
+  }
+  gsSyncGenderButtons();
+  if (typeof showToast === 'function') showToast((typeof t === 'function' && t('audioVoiceUpdated')) || 'Voice updated', 'success');
+  gsPreviewCurrent();
 }
 
 window.GSVoice = GSVoice;
@@ -348,10 +437,13 @@ window.gsPopulateVoiceSelect = gsPopulateVoiceSelect;
 window.gsOnVoiceSelectChange = gsOnVoiceSelectChange;
 window.gsEnsureVoices = gsEnsureVoices;
 window.gsHumanize = gsHumanize;
+window.gsSetGender = gsSetGender;
+window.gsSyncGenderButtons = gsSyncGenderButtons;
+window.gsAllVoices = gsAllVoices;
 
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
-    gsEnsureVoices(() => gsPopulateVoiceSelect());
-    setTimeout(() => gsPopulateVoiceSelect(), 1200);
+    gsEnsureVoices(() => { gsPopulateVoiceSelect(); gsSyncGenderButtons(); });
+    setTimeout(() => { gsPopulateVoiceSelect(); gsSyncGenderButtons(); }, 1200);
   });
 }
