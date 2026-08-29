@@ -1,5 +1,5 @@
 // ==========================================
-// GospelSwipe Pro v2.0 — Main Application
+// GospelSwipe Pro v2.1.1 — Main Application
 // Offline-first · Multi-language · IndexedDB
 // All bugs fixed · Production ready
 // ==========================================

@@ -1,6 +1,8 @@
 // ==========================================================
-// GospelSwipe Pro — Ask AI (offline pastoral engine)
+// GospelSwipe Pro — Ask AI (offline pastoral engine)  v2.1.1
 // Answers in all 8 app languages. Content: ai_i18n.js
+// Question chips sit in a thin isolated left/right scroller
+// so they never cover the answer.
 // ==========================================================
 
 function gsEsc(s) {
@@ -61,7 +63,7 @@ function gsAiSearchLocal(query) {
     slides.forEach(s => {
       const loc = (typeof getSlideInLanguage === 'function') ? getSlideInLanguage(s) : s;
       const hay = gsAiNorm((loc.title || '') + ' ' + (loc.verse || '') + ' ' + (s.topic || ''));
-      const sc = qtok.filter(t => hay.includes(t)).length;
+      const sc = qtok.filter(tok => hay.includes(tok)).length;
       if (sc) hits.push({ kind: 'slide', score: sc * 5, title: loc.title, text: loc.verse, ref: loc.reference });
     });
   } catch (e) {}
@@ -69,7 +71,7 @@ function gsAiSearchLocal(query) {
     const list = (typeof getLocalizedDevotionals === 'function') ? getLocalizedDevotionals() : [];
     list.slice(0, 56).forEach(d => {
       const hay = gsAiNorm((d.title || '') + ' ' + (d.reflection || '') + ' ' + (d.verse || ''));
-      const sc = qtok.filter(t => hay.includes(t)).length;
+      const sc = qtok.filter(tok => hay.includes(tok)).length;
       if (sc >= 2) hits.push({ kind: 'devo', score: sc * 3, title: d.title, text: d.reflection, ref: d.ref });
     });
   } catch (e) {}
@@ -77,7 +79,7 @@ function gsAiSearchLocal(query) {
     const list = (typeof getLocalizedLivingFaith === 'function') ? getLocalizedLivingFaith() : [];
     list.forEach(f => {
       const hay = gsAiNorm((f.thought || '') + ' ' + (f.question || '') + ' ' + (f.verse || ''));
-      const sc = qtok.filter(t => hay.includes(t)).length;
+      const sc = qtok.filter(tok => hay.includes(tok)).length;
       if (sc >= 2) hits.push({ kind: 'lf', score: sc * 3, title: (typeof t === 'function' && t('livingFaithCardTitle')) || 'Living Faith', text: f.thought, ref: f.ref });
     });
   } catch (e) {}
@@ -107,6 +109,18 @@ function gsAiRelated(entry) {
   return GS_AI_KB.filter(s => s.id !== (entry && entry.id)).slice(0, 8);
 }
 
+function gsAiScrollChip(chip, row) {
+  if (!chip || !row) return;
+  try {
+    const left = chip.offsetLeft - (row.clientWidth - chip.offsetWidth) / 2;
+    if (typeof row.scrollTo === 'function') {
+      row.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
+    } else {
+      row.scrollLeft = Math.max(0, left);
+    }
+  } catch (e) {}
+}
+
 function gsAiEnsureOverlay() {
   if (document.getElementById('gsAskAI')) return;
   const wrap = document.createElement('div');
@@ -124,9 +138,11 @@ function gsAiEnsureOverlay() {
       </div>
       <form id="gsAiForm" class="gs-ai-form" autocomplete="off">
         <input id="gsAiInput" type="text" maxlength="240" enterkeyhint="go" />
-        <button type="submit" class="gs-ai-go" id="gsAiGo"><i class="fas fa-arrow-up"></i></button>
+        <button type="submit" class="gs-ai-go" id="gsAiGo" aria-label="Ask"><i class="fas fa-arrow-up"></i></button>
       </form>
-      <div class="gs-ai-chip-row" id="gsAiChips"></div>
+      <div class="gs-ai-chip-wrap">
+        <div class="gs-ai-chip-row" id="gsAiChips" role="list"></div>
+      </div>
       <div class="gs-ai-body" id="gsAiBody"></div>
     </div>`;
   document.body.appendChild(wrap);
@@ -151,7 +167,7 @@ function gsAiI18nChrome() {
   if (chips) {
     chips.innerHTML = GS_AI_KB.map(s => {
       const label = gsAiPick(s.q);
-      return `<button type="button" class="gs-ai-chip" data-aid="${s.id}">${gsEsc(label)}</button>`;
+      return `<button type="button" class="gs-ai-chip" data-aid="${s.id}" role="listitem">${gsEsc(label)}</button>`;
     }).join('');
     chips.querySelectorAll('[data-aid]').forEach(btn => {
       btn.addEventListener('click', () => gsAiAsk(btn.textContent, btn.dataset.aid));
@@ -214,7 +230,7 @@ function gsAiRenderResult(res) {
         <button type="button" class="gs-ai-act" id="gsAiCopy"><i class="fas fa-copy"></i> ${gsEsc(T('askAICopy', 'Copy'))}</button>
       </div>
       <div class="gs-ai-kicker" style="margin-top:16px;">${gsEsc(T('askAIRelated', 'Ask next'))}</div>
-      <div class="gs-ai-chip-row rel">${rel}</div>
+      <div class="gs-ai-related">${rel}</div>
     </div>`;
   const speakText = [q, ans, vText, vRef, live].filter(Boolean).join('. ');
   const listenBtn = document.getElementById('gsAiListen');
@@ -237,14 +253,15 @@ function gsAiRenderResult(res) {
     if (typeof copyToClipboard === 'function') copyToClipboard(blob);
     if (typeof showToast === 'function') showToast(T('linkCopied', 'Copied'), 'success');
   };
-  body.querySelectorAll('.rel [data-aid]').forEach(btn => {
+  body.querySelectorAll('.gs-ai-related [data-aid]').forEach(btn => {
     btn.addEventListener('click', () => gsAiAsk(btn.textContent, btn.dataset.aid));
   });
-  const active = document.querySelector(`#gsAiChips [data-aid="${e.id}"]`);
-  if (active) {
-    document.querySelectorAll('#gsAiChips .gs-ai-chip').forEach(c => c.classList.remove('on'));
+  const row = document.getElementById('gsAiChips');
+  const active = row && row.querySelector(`[data-aid="${e.id}"]`);
+  if (active && row) {
+    row.querySelectorAll('.gs-ai-chip').forEach(c => c.classList.remove('on'));
     active.classList.add('on');
-    active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    gsAiScrollChip(active, row);
   }
 }
 
@@ -252,6 +269,8 @@ function gsAiAsk(query, topicId) {
   const input = document.getElementById('gsAiInput');
   if (input && query) input.value = query;
   const res = gsAiResolve(query, topicId);
+  window._gsAiLastQuery = query || '';
+  window._gsAiLastTopic = topicId || (res && res.entry && res.entry.id) || '';
   gsAiRenderResult(res);
   if (typeof AppState !== 'undefined') {
     AppState.userStats = AppState.userStats || {};
@@ -268,6 +287,7 @@ function openAskAI(seed) {
   gsAiI18nChrome();
   const overlay = document.getElementById('gsAskAI');
   overlay.classList.add('show');
+  document.body.classList.add('gs-ai-open');
   const input = document.getElementById('gsAiInput');
   if (typeof seed === 'string' && seed && GS_AI_KB.some(e => e.id === seed)) {
     const e = GS_AI_KB.find(x => x.id === seed);
@@ -284,6 +304,8 @@ function openAskAI(seed) {
 function closeAskAI() {
   const overlay = document.getElementById('gsAskAI');
   if (overlay) overlay.classList.remove('show');
+  document.body.classList.remove('gs-ai-open');
+  if (typeof gsStop === 'function') gsStop();
 }
 
 function askAI(topic) {

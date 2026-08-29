@@ -1,10 +1,10 @@
 // ==========================================
-// GospelSwipe Pro v2.0 — Service Worker
+// GospelSwipe Pro v2.1.1 — Service Worker
 // Offline-first · Cache-then-network
 // ==========================================
 
-const CACHE_NAME = 'gospel-swipe-v2.1.0';
-const CONTENT_CACHE = 'gospel-swipe-content-v2.1.0';
+const CACHE_NAME = 'gospel-swipe-v2.1.1';
+const CONTENT_CACHE = 'gospel-swipe-content-v2.1.1';
 
 const PRECACHE_URLS = [
   './',

@@ -1,5 +1,5 @@
 /* ==========================================
-   GospelSwipe Pro v1.1 — Complete Stylesheet
+   GospelSwipe Pro v2.1.1 — Complete Stylesheet
    RTL · Dark Mode · PWA · WCAG 2.1
    ========================================== */
 
@@ -88,7 +88,7 @@ body.dark-mode {
 .screen {
   position:fixed; inset:0;
   padding:20px 20px calc(80px + env(safe-area-inset-bottom));
-  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch;
   background:var(--bg-gradient);
   transform:translateX(100%);
   transition:transform 0.4s cubic-bezier(0.2,0.9,0.3,1);
@@ -102,7 +102,7 @@ body.dark-mode .screen { background:linear-gradient(145deg,#0a0f14 0%,#060c10 10
   position:fixed; inset:0;
   padding:20px 20px calc(80px + env(safe-area-inset-bottom));
   display:flex; flex-direction:column;
-  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch;
   z-index:100;
   background:var(--bg-gradient);
 }
@@ -810,7 +810,7 @@ textarea:focus-visible { outline:2px solid var(--secondary); }
 .gs-voice-player {
   position: fixed;
   left: 12px; right: 12px; bottom: 78px;
-  z-index: 1200;
+  z-index: 1400;
   display: none;
   align-items: center;
   gap: 12px;
@@ -848,32 +848,41 @@ textarea:focus-visible { outline:2px solid var(--secondary); }
 }
 .gs-vp-btn.gs-vp-stop { border-color:rgba(231,76,60,0.4); color:#e74c3c; }
 
-/* ===== Ask AI overlay ===== */
+/* ===== Ask AI overlay — isolated chip strip, no overlap ===== */
 .gs-ai-overlay {
-  position: fixed; inset: 0; z-index: 1100;
-  background: rgba(4,8,14,0.72);
+  position: fixed; inset: 0; z-index: 1300;
+  background: rgba(4,8,14,0.78);
   display: none; align-items: flex-end; justify-content: center;
-  padding: 12px 12px 18px;
+  padding: 8px 8px max(8px, env(safe-area-inset-bottom));
 }
 .gs-ai-overlay.show { display:flex; }
 .gs-ai-sheet {
   width: min(560px, 100%);
-  max-height: 92vh;
+  height: min(90vh, 900px);
+  height: min(90dvh, 900px);
+  max-height: 90vh;
+  max-height: 90dvh;
   overflow: hidden;
-  display: flex; flex-direction: column;
-  background: linear-gradient(180deg, #15202e 0%, #0e1620 100%);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #1a2838 0%, #101820 100%);
   border: 1px solid rgba(52,152,219,0.28);
-  border-radius: 28px 28px 22px 22px;
-  padding: 18px 16px 16px;
+  border-radius: 28px 28px 18px 18px;
+  padding: 16px 16px 12px;
   position: relative;
   box-shadow: 0 -20px 60px rgba(0,0,0,0.45);
   animation: fadeIn 0.28s ease;
+  gap: 0;
 }
 .gs-ai-close {
   position:absolute; top:12px; right:12px; width:36px; height:36px; border-radius:50%;
-  border:none; background:rgba(255,255,255,0.08); color:#fff; cursor:pointer;
+  border:none; background:rgba(255,255,255,0.08); color:#fff; cursor:pointer; z-index:5;
 }
-.gs-ai-head { display:flex; gap:12px; align-items:center; margin-bottom:14px; padding-right:36px; }
+.gs-ai-head {
+  display:flex; gap:12px; align-items:center;
+  margin: 0 0 12px; padding-right:40px;
+  flex: 0 0 auto;
+}
 .gs-ai-orb {
   width:48px; height:48px; border-radius:16px; flex-shrink:0;
   display:flex; align-items:center; justify-content:center;
@@ -881,31 +890,116 @@ textarea:focus-visible { outline:2px solid var(--secondary); }
 }
 .gs-ai-title { font-size:1.12rem; font-weight:800; margin:0 0 2px; }
 .gs-ai-sub { font-size:0.78rem; opacity:0.6; margin:0; line-height:1.4; }
-.gs-ai-form { display:flex; gap:8px; margin-bottom:10px; }
+.gs-ai-form {
+  display:flex; gap:8px; margin: 0 0 10px;
+  flex: 0 0 auto; align-items: stretch;
+}
 .gs-ai-form input {
-  flex:1; border:1px solid rgba(255,255,255,0.14); background:rgba(0,0,0,0.28);
-  color:#fff; border-radius:16px; padding:12px 14px; font-size:0.95rem; font-family:inherit; outline:none;
+  flex:1 1 auto; min-width:0;
+  border:1px solid rgba(255,255,255,0.14); background:rgba(0,0,0,0.28);
+  color:#fff; border-radius:16px; padding:12px 14px; font-size:0.95rem;
+  font-family:inherit; outline:none;
 }
 .gs-ai-form input:focus { border-color:#3498db; }
 .gs-ai-go {
-  width:46px; height:46px; border-radius:16px; border:none; cursor:pointer; color:#fff;
+  flex: 0 0 46px; width:46px; height:46px; border-radius:16px; border:none;
+  cursor:pointer; color:#fff;
   background: linear-gradient(135deg,#3498db,#2ecc71);
 }
-.gs-ai-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+
+/* Chip strip is its own layer — never paints over the answer */
+.gs-ai-chip-wrap {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 3;
+  isolation: isolate;
+  overflow: hidden;
+  background: #152230;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  margin: 0 0 12px;
+  padding: 8px 8px 6px;
+}
+.gs-ai-chip-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 28px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #152230);
+  z-index: 2;
+}
+[dir="rtl"] .gs-ai-chip-wrap::after {
+  right: auto; left: 0;
+  background: linear-gradient(270deg, transparent, #152230);
+}
+.gs-ai-chip-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+  scrollbar-width: thin;
+  min-height: 40px;
+  padding: 2px 20px 4px 2px;
+  margin: 0;
+  scroll-snap-type: x proximity;
+}
+.gs-ai-chip-row::-webkit-scrollbar { height: 3px; }
+.gs-ai-chip-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.22); border-radius: 4px; }
 .gs-ai-chip {
-  border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.06);
-  color:#fff; border-radius:999px; padding:7px 12px; font-size:0.78rem; cursor:pointer; font-family:inherit;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  scroll-snap-align: start;
+  height: 34px;
+  max-width: 78vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0 14px;
+  font-size: 0.8rem;
+  line-height: 32px;
+  cursor: pointer;
+  font-family: inherit;
+  position: relative;
+  z-index: 1;
 }
 .gs-ai-chip:hover { border-color:#3498db; }
-.gs-ai-body { overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; padding-bottom:8px; }
+.gs-ai-chip.on {
+  background: linear-gradient(135deg,#3498db,#8e44ad);
+  border-color: transparent;
+}
+
+.gs-ai-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 2px 2px 10px;
+  position: relative;
+  z-index: 1;
+}
 .gs-ai-hint { opacity:0.55; font-size:0.88rem; text-align:center; padding:18px 8px; }
 .gs-ai-card {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px; padding: 16px;
+  border-radius: 20px;
+  padding: 16px;
+  margin: 0;
+  position: relative;
+  z-index: 1;
 }
-.gs-ai-q { font-weight:800; font-size:1.02rem; margin-bottom:10px; line-height:1.35; }
-.gs-ai-ans p { font-size:0.92rem; line-height:1.72; opacity:0.92; margin:0 0 12px; }
+.gs-ai-q { font-weight:800; font-size:1.08rem; margin-bottom:10px; line-height:1.35; }
+.gs-ai-ans p { font-size: 0.96rem; line-height: 1.78; opacity:0.92; margin:0 0 12px; }
 .gs-ai-verse, .gs-ai-live, .gs-ai-extra {
   border-radius:16px; padding:12px 14px; margin-top:10px;
 }
@@ -921,6 +1015,20 @@ textarea:focus-visible { outline:2px solid var(--secondary); }
   border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.06); color:#fff; font-size:0.8rem; font-weight:700;
 }
 .gs-ai-act.primary { background:linear-gradient(135deg,#3498db,#2ecc71); border-color:transparent; }
+.gs-ai-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  overflow: visible;
+}
+.gs-ai-related .gs-ai-chip {
+  max-width: 100%;
+  height: auto;
+  line-height: 1.3;
+  white-space: normal;
+  padding: 8px 12px;
+}
 [dir="rtl"] .gs-ai-verse, [dir="rtl"] .gs-ai-live, [dir="rtl"] .gs-ai-extra { border-left:none; border-right:4px solid #3498db; }
 [dir="rtl"] .gs-ai-live { border-right-color:#2ecc71; }
 [dir="rtl"] .gs-ai-extra { border-right-color:#9b59b6; }
@@ -937,53 +1045,61 @@ textarea:focus-visible { outline:2px solid var(--secondary); }
   font-weight: 500;
   max-width: 320px;
   text-align: center;
+  margin-left: auto; margin-right: auto;
 }
 .feature-card {
   border-radius: 22px;
   box-shadow: 0 8px 22px rgba(0,0,0,0.12);
+  overflow: hidden;
 }
-.header h1 { letter-spacing: -0.3px; }
+.feature-card h3 { overflow-wrap: anywhere; padding: 0 4px; }
+.header h1 { letter-spacing: -0.3px; overflow-wrap: anywhere; }
 
 /* ===== Gender voice pills ===== */
 .gs-gender-row { display:flex; gap:8px; }
 .gs-gender-btn {
-  flex:1; border-radius:14px; padding:12px 8px; cursor:pointer; font-family:inherit;
+  flex:1; border-radius:16px; padding:14px 8px; cursor:pointer; font-family:inherit;
   border:1px solid rgba(255,255,255,0.16); background:rgba(255,255,255,0.05);
-  color:#fff; font-weight:700; font-size:0.88rem;
+  color:#fff; font-weight:700; font-size:0.9rem;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  min-height: 48px;
 }
-.gs-gender-btn.active {
-  background: linear-gradient(135deg,#3498db,#2ecc71);
+#gsGenderF.active {
+  background: linear-gradient(135deg,#a29bfe,#74b9ff);
   border-color: transparent;
+}
+#gsGenderM.active {
+  background: linear-gradient(135deg,#0984e3,#00b894);
+  border-color: transparent;
+}
+.gs-voice-preview-btn {
+  width: 100%;
+  border-radius: 14px;
+  padding: 12px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #fff;
+  background: rgba(52,152,219,0.18);
+  border: 1px solid rgba(52,152,219,0.4);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
 }
 
-/* ===== Ask AI: one-row chips, swipe left/right ===== */
-.gs-ai-chip-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  padding: 2px 2px 12px;
-  margin-bottom: 4px;
-  scroll-snap-type: x proximity;
+/* ===== Version footer — no wrap collision ===== */
+.gs-app-version {
+  text-align: center;
+  font-size: 0.75rem;
+  opacity: 0.45;
+  padding: 18px 16px 28px;
+  line-height: 1.65;
+  word-break: break-word;
 }
-.gs-ai-chip-row::-webkit-scrollbar { height: 4px; }
-.gs-ai-chip-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.22); border-radius: 4px; }
-.gs-ai-chip {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  scroll-snap-align: start;
-  border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.06);
-  color:#fff; border-radius:999px; padding:8px 14px; font-size:0.8rem; cursor:pointer; font-family:inherit;
-}
-.gs-ai-chip.on {
-  background: linear-gradient(135deg,#3498db,#8e44ad);
-  border-color: transparent;
-}
-.gs-ai-sheet {
-  background: linear-gradient(180deg, #1a2838 0%, #101820 100%);
-}
-.gs-ai-ans p { font-size: 0.98rem; line-height: 1.8; }
-.gs-ai-q { font-size: 1.12rem; }
+
+/* When Ask AI is open, keep the mini-player above the sheet */
+body.gs-ai-open .gs-voice-player { bottom: 12px; z-index: 1400; }
+
+/* Misc overlap locks */
+.coming-soon-ribbon { pointer-events: none; }
+.settings-option select { max-width: min(180px, 48%); }
+#voiceSelect { max-width: 100% !important; width: 100%; }
