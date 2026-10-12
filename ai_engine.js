@@ -122,37 +122,16 @@ function gsAiScrollChip(chip, row) {
 }
 
 function gsAiEnsureOverlay() {
-  if (document.getElementById('gsAskAI')) return;
-  const wrap = document.createElement('div');
-  wrap.id = 'gsAskAI';
-  wrap.className = 'gs-ai-overlay';
-  wrap.innerHTML = `
-    <div class="gs-ai-sheet" role="dialog" aria-modal="true" aria-labelledby="gsAiTitle">
-      <button type="button" class="gs-ai-close" id="gsAiClose" aria-label="Close"><i class="fas fa-times"></i></button>
-      <div class="gs-ai-head">
-        <div class="gs-ai-orb" aria-hidden="true"><i class="fas fa-comments"></i></div>
-        <div>
-          <h2 id="gsAiTitle" class="gs-ai-title"></h2>
-          <p class="gs-ai-sub" id="gsAiSub"></p>
-        </div>
-      </div>
-      <form id="gsAiForm" class="gs-ai-form" autocomplete="off">
-        <input id="gsAiInput" type="text" maxlength="240" enterkeyhint="go" />
-        <button type="submit" class="gs-ai-go" id="gsAiGo" aria-label="Ask"><i class="fas fa-arrow-up"></i></button>
-      </form>
-      <div class="gs-ai-chip-wrap">
-        <div class="gs-ai-chip-row" id="gsAiChips" role="list"></div>
-      </div>
-      <div class="gs-ai-body" id="gsAiBody"></div>
-    </div>`;
-  document.body.appendChild(wrap);
-  wrap.addEventListener('click', e => { if (e.target === wrap) closeAskAI(); });
-  wrap.querySelector('#gsAiClose').addEventListener('click', closeAskAI);
-  wrap.querySelector('#gsAiForm').addEventListener('submit', e => {
+  const form = document.getElementById('gsAiForm');
+  if (!form || form._wired) return;
+  form._wired = true;
+  form.addEventListener('submit', e => {
     e.preventDefault();
     const q = (document.getElementById('gsAiInput').value || '').trim();
     if (q) gsAiAsk(q);
   });
+  const closeBtn = document.getElementById('gsAiClose');
+  if (closeBtn) closeBtn.addEventListener('click', closeAskAI);
 }
 
 function gsAiI18nChrome() {
@@ -285,9 +264,7 @@ function gsAiAsk(query, topicId) {
 function openAskAI(seed) {
   gsAiEnsureOverlay();
   gsAiI18nChrome();
-  const overlay = document.getElementById('gsAskAI');
-  overlay.classList.add('show');
-  document.body.classList.add('gs-ai-open');
+  if (typeof showScreen === 'function') showScreen('askai-screen');
   const input = document.getElementById('gsAiInput');
   if (typeof seed === 'string' && seed && GS_AI_KB.some(e => e.id === seed)) {
     const e = GS_AI_KB.find(x => x.id === seed);
@@ -295,17 +272,16 @@ function openAskAI(seed) {
   } else if (typeof seed === 'string' && seed) {
     gsAiAsk(seed);
   } else {
-    document.getElementById('gsAiBody').innerHTML = `<p class="gs-ai-hint">${gsEsc((typeof t === 'function' && t('askAITry')) || 'Pick a question or type your own. Works fully offline.')}</p>`;
+    const body = document.getElementById('gsAiBody');
+    if (body) body.innerHTML = `<p class="gs-ai-hint">${gsEsc((typeof t === 'function' && t('askAITry')) || 'Pick a question or type your own. Works fully offline.')}</p>`;
     gsAiAsk(gsAiPick(GS_AI_KB[0].q), 'god-love');
   }
   setTimeout(() => { if (input) input.focus(); }, 280);
 }
 
 function closeAskAI() {
-  const overlay = document.getElementById('gsAskAI');
-  if (overlay) overlay.classList.remove('show');
-  document.body.classList.remove('gs-ai-open');
   if (typeof gsStop === 'function') gsStop();
+  if (typeof showScreen === 'function') showScreen('home-screen');
 }
 
 function askAI(topic) {

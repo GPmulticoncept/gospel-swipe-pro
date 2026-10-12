@@ -1,10 +1,10 @@
 // ==========================================
-// GospelSwipe Pro v2.1.1 — Service Worker
+// GospelSwipe Pro v2.2.2 — Service Worker
 // Offline-first · Cache-then-network
 // ==========================================
 
-const CACHE_NAME = 'gospel-swipe-v2.1.1';
-const CONTENT_CACHE = 'gospel-swipe-content-v2.1.1';
+const CACHE_NAME = 'gospel-swipe-v2.2.2';
+const CONTENT_CACHE = 'gospel-swipe-content-v2.2.2';
 
 const PRECACHE_URLS = [
   './',
@@ -19,9 +19,14 @@ const PRECACHE_URLS = [
   './ai_i18n.js',
   './ai_engine.js',
   './thread.js',
+  './thread_i18n.js',
+  './icon.png',
+  './icon-192.png',
+  './icon-512.png',
   './tracts.js',
   './tracts_ext.js',
   './prayers.js',
+  './prayers_i18n.js',
   './translations.js',
   './training_i18n.js',
   './nb_i18n.js',
@@ -31,8 +36,11 @@ const PRECACHE_URLS = [
   './tracts_i18n_struggle_p3.js',
   './content.json',
   './manifest.json',
+  './og.png',
+  './robots.txt',
+  './sitemap.xml',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
+  'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&display=swap'
 ];
 
 // ===== Install: pre-cache core assets =====

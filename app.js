@@ -1,5 +1,5 @@
 // ==========================================
-// GospelSwipe Pro v2.1.1 — Main Application
+// GospelSwipe Pro v2.2.2 — Main Application
 // Offline-first · Multi-language · IndexedDB
 // All bugs fixed · Production ready
 // ==========================================
@@ -160,6 +160,11 @@ function applyTranslations() {
   });
   document.documentElement.lang = AppState.language;
   document.body.dir = AppState.language === 'ar' ? 'rtl' : 'ltr';
+  const chip = document.getElementById('homeLangChip');
+  if (chip) {
+    const names = { en:'EN', yo:'YO', ig:'IG', ha:'HA', pcm:'PCM', fr:'FR', sw:'SW', ar:'AR' };
+    chip.textContent = names[AppState.language] || 'EN';
+  }
   if (typeof setHomeGreeting === 'function') setHomeGreeting();
 }
 
@@ -263,7 +268,7 @@ async function changeLanguage(lang) {
   refreshCurrentScreenContent();
   if (typeof gsPopulateVoiceSelect === 'function') gsPopulateVoiceSelect();
   if (typeof gsSyncGenderButtons === 'function') gsSyncGenderButtons();
-  if (document.getElementById('gsAskAI') && document.getElementById('gsAskAI').classList.contains('show')) {
+  if (AppState.currentScreen === 'askai-screen') {
     if (typeof gsAiI18nChrome === 'function') gsAiI18nChrome();
     if (typeof gsAiAsk === 'function' && (window._gsAiLastTopic || window._gsAiLastQuery)) {
       gsAiAsk(window._gsAiLastQuery, window._gsAiLastTopic);
@@ -601,13 +606,19 @@ function getLocalizedPrayerCategory(key) {
   });
 }
 
+function getPrayerPack() {
+  if (typeof getLocalizedPrayers === 'function') return getLocalizedPrayers() || {};
+  return (typeof PRAYERS !== 'undefined' && PRAYERS) ? PRAYERS : {};
+}
+
 function showPrayerAssistant() {
   if (typeof PRAYER_CATEGORIES === 'undefined' || typeof PRAYERS === 'undefined') {
     showToast('Prayer database not loaded', 'error'); return;
   }
+  const pack = getPrayerPack();
   const cards = Object.keys(PRAYER_CATEGORIES).map(key => {
     const cat = getLocalizedPrayerCategory(key);
-    const count = (PRAYERS[key] || []).length;
+    const count = (pack[key] || PRAYERS[key] || []).length;
     return `<div class="ai-prayer-category-card" data-cat="${key}" tabindex="0" role="button" aria-label="${cat.title}">
       <div class="ai-prayer-category-icon" style="background:${cat.color}22;"><i class="fas ${cat.icon}" style="color:${cat.color};"></i></div>
       <div style="flex:1;"><div class="ai-prayer-category-title">${escapeHtml(cat.title)}</div><div style="font-size:0.78rem;opacity:0.6;">${count} ${escapeHtml(t('prayerCountSuffix') || 'prayers')}</div></div>
@@ -644,7 +655,8 @@ function showPrayerCategory(categoryKey) {
     showToast('Prayer database not loaded', 'error'); return;
   }
   const cat = getLocalizedPrayerCategory(categoryKey);
-  const prayerArr = PRAYERS[categoryKey];
+  const pack = getPrayerPack();
+  const prayerArr = pack[categoryKey] || PRAYERS[categoryKey];
   if (!cat || !prayerArr || !prayerArr.length) {
     showToast('No prayers found', 'error'); return;
   }
@@ -723,7 +735,8 @@ function useFreshPrayer(categoryKey) {
 }
 
 function copyPrayerToJournal(categoryKey, idx) {
-  const arr = typeof PRAYERS !== 'undefined' ? PRAYERS[categoryKey] : null;
+  const pack = getPrayerPack();
+  const arr = pack[categoryKey] || (typeof PRAYERS !== 'undefined' ? PRAYERS[categoryKey] : null);
   if (!arr || arr[idx] === undefined) return;
   usePrayerText(arr[idx]);
 }
@@ -1347,20 +1360,18 @@ function activateVOMMode() {
       <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
       <div style="text-align:center;">
         <i class="fas fa-shield-halved" style="font-size:2.6rem;color:#e74c3c;margin-bottom:14px;display:block;"></i>
-        <h3 style="margin-bottom:10px;">Activate Persecution Mode?</h3>
+        <h3 style="margin-bottom:10px;">${escapeHtml(t('vomActivateTitle') || 'Activate Persecution Mode?')}</h3>
         <p style="font-size:0.88rem;opacity:0.75;line-height:1.7;margin-bottom:18px;text-align:left;">
-          The entire app will instantly disguise itself as a real, working <strong>Calculator</strong>.
-          Your prayers will be encoded. To return to GospelSwipe Pro, type your secret unlock code
-          on the calculator followed by <strong>"="</strong>.
+          ${escapeHtml(t('vomActivateBody') || 'The entire app will instantly disguise itself as a real, working Calculator. Your prayers will be encoded. To return, type your secret unlock code on the calculator followed by =.')}
         </p>
         <div style="text-align:left;background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.25);border-radius:16px;padding:14px 16px;margin-bottom:18px;">
-          <label style="font-size:0.78rem;font-weight:700;opacity:0.7;display:block;margin-bottom:8px;">SET YOUR 4-DIGIT UNLOCK CODE</label>
+          <label style="font-size:0.78rem;font-weight:700;opacity:0.7;display:block;margin-bottom:8px;">${escapeHtml(t('vomPinLabel') || 'SET YOUR 4-DIGIT UNLOCK CODE')}</label>
           <input id="vomPinSetup" type="tel" inputmode="numeric" maxlength="4" placeholder="e.g. 7734"
             style="width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:#fff;padding:12px 14px;border-radius:14px;font-size:1.1rem;letter-spacing:4px;text-align:center;outline:none;font-family:inherit;" />
-          <p style="font-size:0.72rem;opacity:0.5;margin-top:8px;">Leave blank to use the default code: 7777. Remember this — write it down somewhere safe offline.</p>
+          <p style="font-size:0.72rem;opacity:0.5;margin-top:8px;">${escapeHtml(t('vomPinHint') || 'Leave blank to use the default code: 7777. Remember this — write it down somewhere safe offline.')}</p>
         </div>
         <button id="vomConfirmBtn" class="action-btn primary" style="width:100%;justify-content:center;background:linear-gradient(135deg,#e74c3c,#c0392b);border-color:transparent;">
-          <i class="fas fa-lock"></i> Activate Disguise Now
+          <i class="fas fa-lock"></i> ${escapeHtml(t('vomActivateBtn') || 'Activate Disguise Now')}
         </button>
       </div>
     `);
@@ -1370,7 +1381,7 @@ function activateVOMMode() {
         const pinInput = document.getElementById('vomPinSetup');
         let pin = (pinInput?.value || '').trim();
         if (pin && !/^\d{4}$/.test(pin)) {
-          showToast('PIN must be exactly 4 digits. Using default 7777 instead.', 'warning');
+          showToast(t('vomPinInvalid') || 'PIN must be exactly 4 digits. Using default 7777 instead.', 'warning');
           pin = '';
         }
         localStorage.setItem('vomPin', pin || VOM_DEFAULT_PIN);
@@ -3015,10 +3026,18 @@ function markLFRead() {
 let _threadIndex = -1;
 let _threadVerseIndex = 0;
 
+function _getThreadList() {
+  if (typeof getLocalizedThreads === 'function') return getLocalizedThreads();
+  return (typeof BIBLE_THREADS !== 'undefined') ? BIBLE_THREADS : [];
+}
+
 function _getThreadEntry() {
-  const threads = typeof BIBLE_THREADS !== 'undefined' ? BIBLE_THREADS : [];
+  const threads = _getThreadList();
   if (!threads.length) return null;
-  if (_threadIndex < 0) return typeof getTodayThread === 'function' ? getTodayThread() : threads[0];
+  if (_threadIndex < 0) {
+    if (typeof getTodayLocalizedThread === 'function') return getTodayLocalizedThread();
+    return typeof getTodayThread === 'function' ? getTodayThread() : threads[0];
+  }
   return threads[_threadIndex % threads.length];
 }
 
@@ -3058,11 +3077,14 @@ function _renderThread() {
   if (iconEl) { iconEl.className = th.icon; iconEl.style.color = th.color; }
 
   // Badge
-  const threads = typeof BIBLE_THREADS !== 'undefined' ? BIBLE_THREADS : [];
-  const todayT  = typeof getTodayThread === 'function' ? getTodayThread() : threads[0];
-  const tIdx    = _threadIndex < 0 ? threads.indexOf(todayT) : _threadIndex % threads.length;
+  const threads = _getThreadList();
+  const tIdx    = _threadIndex < 0
+    ? (typeof getThreadWeekIndex === 'function' ? getThreadWeekIndex() : 0)
+    : _threadIndex % threads.length;
   const badge   = el('threadBadge');
-  if (badge) badge.textContent = _threadIndex < 0 ? 'THIS WEEK\'S THREAD' : `THEME ${Math.max(tIdx + 1, 1)} OF ${threads.length}`;
+  if (badge) badge.textContent = _threadIndex < 0
+    ? ((typeof t === 'function' && t('thisWeeksThreadBadge')) || "THIS WEEK'S THREAD")
+    : `${(typeof t === 'function' && t('theThreadCardTitle')) || 'Theme'} ${Math.max(tIdx + 1, 1)} ${(typeof t === 'function' && t('ofLabel')) || 'of'} ${threads.length}`;
 
   // Verse chain dots
   _renderThreadDots(th);
@@ -3098,7 +3120,7 @@ function _renderThreadVerse(th) {
 
   // Progress label
   const prog = el('threadProgress');
-  if (prog) prog.textContent = `${_threadVerseIndex + 1} of ${th.verses.length}`;
+  if (prog) prog.textContent = `${_threadVerseIndex + 1} ${(typeof t === 'function' && t('ofLabel')) || 'of'} ${th.verses.length}`;
 
   // Buttons
   const prev = el('threadPrevBtn');
@@ -3107,8 +3129,8 @@ function _renderThreadVerse(th) {
   if (next) {
     next.style.display = 'flex';
     next.innerHTML = _threadVerseIndex === th.verses.length - 1
-      ? 'Complete <i class="fas fa-flag-checkered"></i>'
-      : 'Next <i class="fas fa-arrow-right"></i>';
+      ? `${escapeHtml((typeof t === 'function' && t('finishStepBtn')) || 'Complete')} <i class="fas fa-flag-checkered"></i>`
+      : `${escapeHtml((typeof t === 'function' && t('nextVerseBtn')) || 'Next')} <i class="fas fa-arrow-right"></i>`;
     next.style.background = _threadVerseIndex === th.verses.length - 1
       ? `rgba(${hexToRgb(t_color)},0.25)` : '';
   }
@@ -3176,12 +3198,10 @@ function threadShare() {
 
 function threadBrowse(dir) {
   vibrate(15);
-  const threads = typeof BIBLE_THREADS !== 'undefined' ? BIBLE_THREADS : [];
+  const threads = _getThreadList();
   if (!threads.length) return;
   if (_threadIndex < 0) {
-    const today = typeof getTodayThread === 'function' ? getTodayThread() : threads[0];
-    _threadIndex = threads.indexOf(today);
-    if (_threadIndex < 0) _threadIndex = 0;
+    _threadIndex = (typeof getThreadWeekIndex === 'function') ? getThreadWeekIndex() : 0;
   }
   _threadIndex = (_threadIndex + dir + threads.length) % threads.length;
   _threadVerseIndex = 0;

@@ -258,17 +258,22 @@ var PRAYER_CATEGORIES = {
 };
 
 // ========== Get Random Prayer ==========
+function getPrayerArray(category) {
+  const pack = (typeof getLocalizedPrayers === 'function') ? getLocalizedPrayers() : PRAYERS;
+  return (pack && pack[category]) || (PRAYERS && PRAYERS[category]) || [];
+}
+
 function getRandomPrayer(category) {
-  const arr = PRAYERS[category];
-  if (!arr || !arr.length) return null;
+  const arr = getPrayerArray(category);
+  if (!arr.length) return null;
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
 // ========== Get Fresh Prayer (no repeats until cycle done) ==========
 var _usedPrayerIndices = {};
 function getFreshPrayer(category) {
-  const arr = PRAYERS[category];
-  if (!arr || !arr.length) return null;
+  const arr = getPrayerArray(category);
+  if (!arr.length) return null;
   if (!_usedPrayerIndices[category]) _usedPrayerIndices[category] = [];
   let available = arr.map((_, i) => i).filter(i => !_usedPrayerIndices[category].includes(i));
   if (available.length === 0) {

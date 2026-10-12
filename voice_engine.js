@@ -119,27 +119,15 @@ function gsScoreEnglishVoice(v, gender) {
   return score;
 }
 
-function gsBestEnglishVoice(gender) {
-  const want = gender || gsVoiceGenderPref();
+function gsBestEnglishVoice() {
   const list = gsEnglishVoices();
   const pool = list.length ? list : gsAllVoices().filter(v => !GS_AVOID_RE.test(v.name || ''));
   let best = null, bestScore = -1000;
   pool.forEach(v => {
-    const s = gsScoreEnglishVoice(v, want);
+    const s = gsScoreEnglishVoice(v, null);
     if (s > bestScore) { bestScore = s; best = v; }
   });
-  if (best && gsGuessGender(best) === want) {
-    GSVoice._genderMatched = true;
-    return best;
-  }
-  // Prefer a same-gender voice even if the score was lower
-  const same = pool.filter(v => gsGuessGender(v) === want);
-  if (same.length) {
-    GSVoice._genderMatched = true;
-    same.sort((a, b) => gsScoreEnglishVoice(b, want) - gsScoreEnglishVoice(a, want));
-    return same[0];
-  }
-  GSVoice._genderMatched = false;
+  GSVoice._genderMatched = true;
   return best || pool[0] || null;
 }
 
@@ -154,22 +142,17 @@ function gsSanitizeSavedVoice() {
   }
 }
 
-/** THE one voice used everywhere in the app — English only. */
-function gsPickVoice(/* lang ignored — English male/female only */) {
+/** THE one voice used everywhere — most natural English on this phone. */
+function gsPickVoice() {
   const voices = gsAllVoices();
-  const gender = gsVoiceGenderPref();
   const saved = localStorage.getItem('gsVoiceURI');
   if (saved) {
     const hit = voices.find(v => v.voiceURI === saved);
     if (hit && gsIsEnglish(hit) && !GS_AVOID_RE.test(hit.name || '')) {
-      const g = gsGuessGender(hit);
-      if (g === 'other' || g === gender) {
-        GSVoice._genderMatched = (g === gender);
-        return hit;
-      }
+      return hit;
     }
   }
-  const best = gsBestEnglishVoice(gender);
+  const best = gsBestEnglishVoice();
   if (best) {
     try { localStorage.setItem('gsVoiceURI', best.voiceURI); } catch (e) {}
   }
@@ -182,24 +165,9 @@ function gsLockVoice(uri, gender) {
   if (gender) localStorage.setItem('gsVoiceGender', gender);
 }
 
-function gsSetGender(gender) {
-  if (gender !== 'male' && gender !== 'female') return;
-  localStorage.setItem('gsVoiceGender', gender);
-  localStorage.removeItem('gsVoiceURI'); // re-pick so we never keep the other gender
-  const apply = () => {
-    const best = gsBestEnglishVoice(gender);
-    if (best) localStorage.setItem('gsVoiceURI', best.voiceURI);
-    gsSyncGenderButtons();
-    gsPopulateVoiceSelect();
-    gsPreviewCurrent();
-    if (typeof showToast === 'function') {
-      const label = gender === 'male'
-        ? ((typeof t === 'function' && t('voiceMale')) || 'Male')
-        : ((typeof t === 'function' && t('voiceFemale')) || 'Female');
-      showToast((typeof t === 'function' && t('audioVoiceUpdated')) || ('Voice updated: ' + label), 'success');
-    }
-  };
-  gsEnsureVoices(() => apply());
+function gsSetGender() {
+  /* Gender split removed — one natural English voice. */
+  gsPreviewCurrent();
 }
 
 function gsSpokenRef(ref) {
@@ -253,13 +221,7 @@ function gsRate() {
 }
 
 function gsPitch() {
-  const gender = gsVoiceGenderPref();
-  if (GSVoice._genderMatched) {
-    // Real male / female voice: do not twist the pitch (that is what sounds robotic)
-    return gender === 'male' ? 0.96 : 1.02;
-  }
-  // Only one unisex voice on this phone — shift enough that male ≠ female
-  return gender === 'male' ? 0.78 : 1.16;
+  return 1.0;
 }
 
 function gsEnsurePlayer() {

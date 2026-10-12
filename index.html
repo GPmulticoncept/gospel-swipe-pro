@@ -2,26 +2,89 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'">
-  <title>GospelSwipe Pro</title>
-
-  <!-- PWA -->
-  <meta name="theme-color" content="#2c3e50">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>GospelSwipe Pro — Offline gospel app for evangelism</title>
+  <meta name="description" content="Free offline gospel app from Lagos. 15 presentation slides, 200 tracts, 200 prayers, 8 languages, VOM persecution mode. No ads. No tracking. Made in Nigeria.">
+  <link rel="canonical" href="https://gospelswipe.app/">
+  <meta name="theme-color" content="#1B2838">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="GospelSwipe">
-  <meta name="description" content="Offline-first gospel presentation PWA. 15 slides, 200 prayers, 8 languages. Made in Nigeria 🇳🇬">
+  <meta name="application-name" content="GospelSwipe Pro">
+  <meta name="author" content="Haggai Enitan, GP Tech Studio, Lagos">
+  <meta name="geo.region" content="NG-LA">
+  <meta name="geo.placename" content="Lagos">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="GospelSwipe Pro">
+  <meta property="og:url" content="https://gospelswipe.app/">
+  <meta property="og:title" content="GospelSwipe Pro — The gospel. In every pocket.">
+  <meta property="og:description" content="Offline-first evangelism tools: 15 gospel slides, 200 tracts, 8 languages. Built in Lagos, Nigeria. Free. No tracking.">
+  <meta property="og:image" content="https://gospelswipe.app/og.png">
+  <meta property="og:image:width" content="1424">
+  <meta property="og:image:height" content="752">
+  <meta property="og:locale" content="en_NG">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GospelSwipe Pro — The gospel. In every pocket.">
+  <meta name="twitter:description" content="Free offline gospel app. 15 slides, 200 tracts, 8 languages. Made in Nigeria.">
+  <meta name="twitter:image" content="https://gospelswipe.app/og.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" id="appFavicon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMmMzZTUwIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzFhMjYzNCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iY3Jvc3MiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMzQ5OGRiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzJlY2M3MSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9InVybCgjYmcpIi8+CiAgPHJlY3QgeD0iMjIwIiB5PSI4MCIgd2lkdGg9IjcyIiBoZWlnaHQ9IjM1MiIgcng9IjIwIiBmaWxsPSJ1cmwoI2Nyb3NzKSIvPgogIDxyZWN0IHg9IjEwMCIgeT0iMTcwIiB3aWR0aD0iMzEyIiBoZWlnaHQ9IjcyIiByeD0iMjAiIGZpbGw9InVybCgjY3Jvc3MpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPg==" type="image/svg+xml">
-
-  <!-- Fonts & Icons (preconnect first) -->
+  <link rel="icon" id="appFavicon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMGUxYTI0Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzBhMTQxYyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iY3Jvc3MiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI5IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZDRBMDE3Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6I2U2YzA1NiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9InVybCgjYmcpIi8+CiAgPHJlY3QgeD0iMjIwIiB5PSI4MCIgd2lkdGg9IjcyIiBoZWlnaHQ9IjM1MiIgcng9IjIwIiBmaWxsPSJ1cmwoI2Nyb3NzKSIvPgogIDxyZWN0IHg9IjEwMCIgeT0iMTcwIiB3aWR0aD0iMzEyIiBoZWlnaHQ9IjcyIiByeD0iMjAiIGZpbGw9InVybCgjY3Jvc3MpIi8+Cjwvc3ZnPg==" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" href="icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "GospelSwipe Pro",
+        "url": "https://gospelswipe.app/",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "Android, iOS, Web",
+        "inLanguage": ["en","yo","ig","ha","pcm","fr","sw","ar"],
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "Offline-first gospel presentation app with 15 slides, 200 tracts, 200 prayers and eight languages. Built in Lagos, Nigeria.",
+        "image": "https://gospelswipe.app/og.png",
+        "author": {
+          "@type": "Organization",
+          "name": "GP Tech Studio",
+          "address": { "@type": "PostalAddress", "addressLocality": "Lagos", "addressCountry": "NG" },
+          "email": "haggai.enitan.dev@gmail.com"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does GospelSwipe work without internet?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. GospelSwipe Pro is a progressive web app. After the first visit, slides, tracts, prayers and devotionals work fully offline." }
+          },
+          {
+            "@type": "Question",
+            "name": "Which languages does GospelSwipe support?",
+            "acceptedAnswer": { "@type": "Answer", "text": "English, Yoruba, Igbo, Hausa, Nigerian Pidgin, French, Swahili and Arabic." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is GospelSwipe free?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The core evangelism tools are free, with no ads and no tracking. Optional premium is $1.99 per month." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
 
@@ -29,7 +92,7 @@
 <div id="loading" role="status" aria-live="polite">
   <div class="loader" aria-hidden="true"></div>
   <h2 data-i18n="appName" style="margin-bottom:8px;">GospelSwipe Pro</h2>
-  <p data-i18n="tagline" style="opacity:0.65;font-size:0.9rem;text-align:center;max-width:260px;">Your pocket evangelism toolkit</p>
+  <p data-i18n="tagline" style="opacity:0.65;font-size:0.9rem;text-align:center;max-width:260px;font-family:Georgia,serif;">The gospel. In every pocket.</p>
   <div style="margin-top:28px;font-size:0.78rem;opacity:0.45;">
     <span id="loadingProgress">0%</span> &bull; Made in 🇳🇬
   </div>
@@ -48,252 +111,215 @@
        HOME SCREEN
   =========================== -->
   <div id="home-screen" class="screen active" role="main">
-    <div class="header">
-      <button class="header-settings-btn" onclick="showScreen('settings-screen')" aria-label="Settings">
-        <i class="fas fa-cog" aria-hidden="true"></i>
+    <a class="skip-link" href="#homeMain">Skip to tools</a>
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><img src="icon.png" alt=""></div>
+        <div>
+          <div class="brand-name">GospelSwipe</div>
+          <div class="brand-sub" data-i18n="madeInNigeria">Made in Nigeria</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="lang-chip" id="homeLangChip" onclick="showLanguageSettings()" aria-label="Language">EN</button>
+        <button type="button" class="icon-btn" onclick="showScreen('settings-screen')" aria-label="Settings">
+          <i class="fas fa-cog" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <p class="home-greeting" id="homeGreeting"></p>
+    <div class="stat-line" aria-live="polite">
+      <span><b id="streakCount">0</b> <span data-i18n="dayStreak">Day streak</span></span>
+      <span><b id="versesShared">0</b> <span data-i18n="versesShared">Verses shared</span></span>
+    </div>
+
+    <section class="hero-convo" aria-label="Start a gospel conversation">
+      <div class="hero-kicker" data-i18n="homeHeroKicker">Ready for a conversation</div>
+      <h2 data-i18n="homeHeroTitle">Walk someone through the gospel</h2>
+      <p class="hero-sub" data-i18n="homeHeroSub">Fifteen slides. Works offline. In their language — or yours.</p>
+      <button type="button" class="hero-cta" onclick="startPresentation()">
+        <span data-i18n="homeHeroCta">Begin the conversation</span>
+        <i class="fas fa-arrow-right" aria-hidden="true"></i>
       </button>
-      <h1><i class="fas fa-cross" aria-hidden="true"></i> <span data-i18n="appName">GospelSwipe Pro</span></h1>
-      <p class="tagline" data-i18n="tagline">Your pocket evangelism toolkit</p>
-      <p class="home-greeting" id="homeGreeting"></p>
-
-      <!-- Stats Row -->
-      <div class="user-stats">
-        <div class="stats-row">
-          <div class="stat-item">
-            <div class="stat-value" id="streakCount">0</div>
-            <div class="stat-label" data-i18n="dayStreak">Day Streak</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" id="versesShared">0</div>
-            <div class="stat-label" data-i18n="versesShared">Verses Shared</div>
-          </div>
-        </div>
+      <div class="hero-pills">
+        <span data-i18n="homePillsSlides">15 slides</span>
+        <span data-i18n="homePillsTracts">200 tracts</span>
+        <span data-i18n="homePillsOffline">Zero tracking</span>
       </div>
+    </section>
 
-      <!-- Support Widget -->
-      <div class="wallet-widget">
-        <div class="wallet-widget-header">
-          <div class="wallet-widget-title">
-            <i class="fas fa-heart" style="color:#e74c3c;font-size:0.95rem;" aria-hidden="true"></i>
-            <span data-i18n="supportThisMinistry">Support This Ministry</span>
-          </div>
-          <span class="wallet-free-badge" data-i18n="freeAppBadge">FREE APP</span>
-        </div>
-        <div class="wallet-desc" data-i18n="walletDesc">Your support keeps the gospel spreading worldwide</div>
-        <div class="wallet-actions">
-          <button class="wallet-btn" onclick="showWallet()"
-            style="background:rgba(52,152,219,0.18);border:1px solid rgba(52,152,219,0.4);color:#3498db;"
-            aria-label="Support this ministry">
-            <i class="fas fa-heart" aria-hidden="true"></i> <span data-i18n="supportUsBtn">Support Us</span>
-          </button>
-          <button class="wallet-btn" onclick="showImpact()"
-            style="background:rgba(52,152,219,0.18);border:1px solid rgba(52,152,219,0.4);color:#3498db;"
-            aria-label="See mission impact">
-            <i class="fas fa-globe" aria-hidden="true"></i>
-            <span data-i18n="seeImpact">See Impact</span>
-          </button>
-        </div>
+    <div id="homeMain">
+    <section class="sec" aria-labelledby="secShare">
+      <h3 class="sec-label" id="secShare" data-i18n="homeSectionShare">Share the gospel</h3>
+      <div class="tool-grid">
+        <button type="button" class="tool-tile" onclick="showTractGenerator()">
+          <i class="fas fa-scroll" aria-hidden="true"></i>
+          <h3 data-i18n="gospelTractsCardTitle">Gospel Tracts</h3>
+          <p data-i18n="gospelTractsCardDesc">200 written tracts</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="openAskAI()">
+          <i class="fas fa-comments" aria-hidden="true"></i>
+          <h3 data-i18n="askAICardTitle">Ask</h3>
+          <p data-i18n="askAICardDesc">Gospel answers, offline</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showScreen('training-screen');loadTraining()">
+          <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+          <h3 data-i18n="trainingTitle">Training</h3>
+          <p data-i18n="trainingDesc3Methods">Romans Road, Bridge, Circles</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="shareGospelWhatsApp()">
+          <i class="fab fa-whatsapp" aria-hidden="true"></i>
+          <h3 data-i18n="whatsappInviteCardTitle">WhatsApp</h3>
+          <p data-i18n="whatsappInviteCardDesc">Send the gospel link</p>
+        </button>
       </div>
+    </section>
+
+    <section class="sec" aria-labelledby="secToday">
+      <h3 class="sec-label" id="secToday" data-i18n="homeSectionToday">For you today</h3>
+      <div class="tool-grid">
+        <button type="button" class="tool-tile" onclick="showScreen('devotional-screen');loadDevotional()">
+          <i class="fas fa-book-open" aria-hidden="true"></i>
+          <h3 data-i18n="dailyDevotionalCardTitle">Daily Devotional</h3>
+          <p data-i18n="dailyDevotionalCardDesc">Verse, reflection and prayer</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showScreen('livingfaith-screen');loadLivingFaith()">
+          <i class="fas fa-fire" aria-hidden="true"></i>
+          <h3 data-i18n="livingFaithCardTitle">Living Faith</h3>
+          <p data-i18n="livingFaithCardDesc">Real thoughts. Deep roots.</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showScreen('thread-screen');loadThread()">
+          <i class="fas fa-link" aria-hidden="true"></i>
+          <h3 data-i18n="theThreadCardTitle">The Thread</h3>
+          <p data-i18n="theThreadCardDesc">Themes from Genesis to Revelation</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showScreen('newbeliever-screen');loadNewBeliever()">
+          <i class="fas fa-seedling" aria-hidden="true"></i>
+          <h3 data-i18n="newBelieverCardTitle">New Believer Guide</h3>
+          <p data-i18n="newBelieverCardDesc">Seven days to start strong</p>
+        </button>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="secWalk">
+      <h3 class="sec-label" id="secWalk" data-i18n="homeSectionWalk">Your walk</h3>
+      <div class="tool-grid">
+        <button type="button" class="tool-tile" onclick="showScreen('prayer-screen')">
+          <i class="fas fa-pray" aria-hidden="true"></i>
+          <h3 data-i18n="prayerJournal">Prayer</h3>
+          <p data-i18n="prayerDesc">Journal, voice, and 200 written prayers</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showPrayerAssistant()">
+          <i class="fas fa-hands-praying" aria-hidden="true"></i>
+          <h3 data-i18n="aiPrayerGuide">Prayer Guide</h3>
+          <p data-i18n="aiPrayerDesc">200 prayers</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showEvangelismJournal()">
+          <i class="fas fa-book" aria-hidden="true"></i>
+          <h3 data-i18n="soulJournalCardTitle">Soul Journal</h3>
+          <p data-i18n="soulJournalCardDesc">Log every gospel conversation</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showAudioModal()">
+          <i class="fas fa-volume-up" aria-hidden="true"></i>
+          <h3 data-i18n="audioModeCardTitle">Listen</h3>
+          <p data-i18n="audioModeCardDesc">Hear slides and devotionals</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showScreen('stats-screen')">
+          <i class="fas fa-chart-line" aria-hidden="true"></i>
+          <h3 data-i18n="myProgress">Progress</h3>
+          <p data-i18n="progressDesc">Streak, people reached, decisions</p>
+        </button>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="secMore">
+      <h3 class="sec-label" id="secMore" data-i18n="homeSectionMore">Also in this app</h3>
+      <div class="tool-grid">
+        <button type="button" class="tool-tile" onclick="showLanguageSettings()">
+          <i class="fas fa-language" aria-hidden="true"></i>
+          <h3 data-i18n="multiLanguage">Languages</h3>
+          <p data-i18n="langDesc">8 supported</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="shareApp()">
+          <i class="fas fa-share-alt" aria-hidden="true"></i>
+          <h3 data-i18n="shareGospel">Share the app</h3>
+          <p data-i18n="shareDesc">Invite others</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showWallet()">
+          <i class="fas fa-heart" aria-hidden="true"></i>
+          <h3 data-i18n="supportThisMinistry">Support</h3>
+          <p data-i18n="walletDesc">Keep this free</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showPremiumDetails()">
+          <i class="fas fa-crown" aria-hidden="true"></i>
+          <h3 data-i18n="premiumFeatures">Premium</h3>
+          <p>$1.99/mo</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="activateVOMMode()">
+          <i class="fas fa-shield-halved" aria-hidden="true"></i>
+          <h3 data-i18n="persecutionMode">VOM Mode</h3>
+          <p data-i18n="vomDesc">Calculator disguise</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showScreen('discipleship-cs-screen')">
+          <i class="fas fa-route" aria-hidden="true"></i>
+          <h3 data-i18n="discipleshipTrackTitle">Discipleship Track</h3>
+          <p data-i18n="comingSoonBadge">Coming soon</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showScreen('churchfinder-cs-screen')">
+          <i class="fas fa-map-location-dot" aria-hidden="true"></i>
+          <h3 data-i18n="churchFinderTitle">Church Finder</h3>
+          <p data-i18n="comingSoonBadge">Coming soon</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showScreen('impactdash-cs-screen')">
+          <i class="fas fa-globe" aria-hidden="true"></i>
+          <h3 data-i18n="impactDashboardTitle">Impact Dashboard</h3>
+          <p data-i18n="comingSoonBadge">Coming soon</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showScreen('smsaccess-cs-screen')">
+          <i class="fas fa-comment-sms" aria-hidden="true"></i>
+          <h3 data-i18n="smsAccessTitle">SMS / USSD</h3>
+          <p data-i18n="comingSoonBadge">Coming soon</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showScreen('testimonywall-cs-screen')">
+          <i class="fas fa-comments" aria-hidden="true"></i>
+          <h3 data-i18n="testimonyWallTitle">Testimony Wall</h3>
+          <p data-i18n="comingSoonBadge">Coming soon</p>
+        </button>
+        <button type="button" class="tool-tile" onclick="showImpact()">
+          <i class="fas fa-chart-bar" aria-hidden="true"></i>
+          <h3 data-i18n="seeImpact">See impact</h3>
+          <p data-i18n="grantApplicationTitle">Grant &amp; fruit</p>
+        </button>
+      </div>
+    </section>
     </div>
 
-    <!-- Features Grid -->
-    <div class="features-grid" role="list">
-      <div class="feature-card" onclick="startPresentation()" role="listitem" tabindex="0"
-        aria-label="Start gospel presentation" onkeydown="if(event.key==='Enter')startPresentation()">
-        <i class="fas fa-play-circle" aria-hidden="true"></i>
-        <h3 data-i18n="startPresentation">Start</h3>
-        <p data-i18n="presentDesc">15 gospel slides</p>
-      </div>
-      <div class="feature-card" onclick="showScreen('prayer-screen')" role="listitem" tabindex="0"
-        aria-label="Open prayer journal" onkeydown="if(event.key==='Enter')showScreen('prayer-screen')">
-        <i class="fas fa-pray" aria-hidden="true"></i>
-        <h3 data-i18n="prayerJournal">Prayer</h3>
-        <p data-i18n="prayerDesc">Journal & voice</p>
-      </div>
-      <div class="feature-card" onclick="showScreen('devotional-screen');loadDevotional()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(243,156,18,0.15),rgba(230,126,34,0.15));"
-        aria-label="Daily Devotional" onkeydown="if(event.key==='Enter'){showScreen('devotional-screen');loadDevotional()}">
-        <i class="fas fa-book-open" style="color:#f39c12;" aria-hidden="true"></i>
-        <h3 data-i18n="dailyDevotionalCardTitle">Daily Devotional</h3>
-        <p data-i18n="dailyDevotionalCardDesc">Verse, reflection &amp; prayer</p>
-        <span class="feature-badge" style="background:rgba(243,156,18,0.2);color:#f39c12;" data-i18n="badge52Topics">52 TOPICS</span>
-      </div>
-      <div class="feature-card" onclick="showScreen('training-screen');loadTraining()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(52,152,219,0.15),rgba(41,128,185,0.15));"
-        aria-label="Evangelism Training" onkeydown="if(event.key==='Enter'){showScreen('training-screen');loadTraining()}">
-        <i class="fas fa-graduation-cap" style="color:#3498db;" aria-hidden="true"></i>
-        <h3 data-i18n="trainingTitle">Evangelism Training</h3>
-        <p data-i18n="trainingDesc3Methods">3 proven gospel methods</p>
-        <span class="feature-badge" style="background:rgba(52,152,219,0.2);color:#3498db;" data-i18n="freeBadge">FREE</span>
-      </div>
-      <div class="feature-card" onclick="showScreen('newbeliever-screen');loadNewBeliever()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.15));"
-        aria-label="New Believer Guide" onkeydown="if(event.key==='Enter'){showScreen('newbeliever-screen');loadNewBeliever()}">
-        <i class="fas fa-seedling" style="color:#2ecc71;" aria-hidden="true"></i>
-        <h3 data-i18n="newBelieverCardTitle">New Believer Guide</h3>
-        <p data-i18n="newBelieverCardDesc">7-day journey for new faith</p>
-        <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;" data-i18n="badge7Days">7 DAYS</span>
-      </div>
-      <div class="feature-card" onclick="openAskAI()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(142,68,173,0.2),rgba(52,152,219,0.15));"
-        aria-label="Ask AI" onkeydown="if(event.key==='Enter')openAskAI()">
-        <i class="fas fa-comments" style="color:#9b59b6;" aria-hidden="true"></i>
-        <h3 data-i18n="askAICardTitle">Ask AI</h3>
-        <p data-i18n="askAICardDesc">Gospel answers, offline</p>
-        <span class="feature-badge" style="background:rgba(155,89,182,0.22);color:#c39bd3;" data-i18n="askAIBadge">NEW</span>
-      </div>
-      <div class="feature-card" onclick="showAudioModal()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(52,152,219,0.15),rgba(41,128,185,0.15));"
-        aria-label="Scripture Audio Mode" onkeydown="if(event.key==='Enter')showAudioModal()">
-        <i class="fas fa-volume-up" style="color:#3498db;" aria-hidden="true"></i>
-        <h3 data-i18n="audioModeCardTitle">Audio Mode</h3>
-        <p data-i18n="audioModeCardDesc">Hear slides &amp; devotionals</p>
-        <span class="feature-badge" style="background:rgba(52,152,219,0.2);color:#3498db;" data-i18n="offlineBadgeText">OFFLINE</span>
-      </div>
-
-      <div class="feature-card" onclick="showTractGenerator()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.15));"
-        aria-label="Gospel Tracts" onkeydown="if(event.key==='Enter')showTractGenerator()">
-        <i class="fas fa-share-nodes" style="color:#2ecc71;" aria-hidden="true"></i>
-        <h3 data-i18n="gospelTractsCardTitle">Gospel Tracts</h3>
-        <p data-i18n="gospelTractsCardDesc">200 powerful written tracts</p>
-        <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;" data-i18n="badge200Tracts">200 TRACTS</span>
-      </div>
-
-      <div class="feature-card" onclick="showScreen('livingfaith-screen');loadLivingFaith()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(155,89,182,0.15),rgba(142,68,173,0.15));"
-        aria-label="Living Faith" onkeydown="if(event.key==='Enter'){showScreen('livingfaith-screen');loadLivingFaith()}">
-        <i class="fas fa-fire" style="color:#9b59b6;" aria-hidden="true"></i>
-        <h3 data-i18n="livingFaithCardTitle">Living Faith</h3>
-        <p data-i18n="livingFaithCardDesc">Real thoughts. Deep roots.</p>
-        <span class="feature-badge" style="background:rgba(155,89,182,0.2);color:#9b59b6;" data-i18n="badge52Weeks">52 WEEKS</span>
-      </div>
-
-      <div class="feature-card" onclick="showScreen('thread-screen');loadThread()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(52,152,219,0.15),rgba(41,128,185,0.15));"
-        aria-label="The Thread" onkeydown="if(event.key==='Enter'){showScreen('thread-screen');loadThread()}">
-        <i class="fas fa-link" style="color:#3498db;" aria-hidden="true"></i>
-        <h3 data-i18n="theThreadCardTitle">The Thread</h3>
-        <p data-i18n="theThreadCardDesc">Bible themes, Genesis to Revelation</p>
-        <span class="feature-badge" style="background:rgba(52,152,219,0.2);color:#3498db;" data-i18n="badge60Themes">60 THEMES</span>
-      </div>
-
-      <div class="feature-card" onclick="showScreen('stats-screen')" role="listitem" tabindex="0"
-        aria-label="View progress stats" onkeydown="if(event.key==='Enter')showScreen('stats-screen')">
-        <i class="fas fa-chart-line" aria-hidden="true"></i>
-        <h3 data-i18n="myProgress">Progress</h3>
-        <p data-i18n="progressDesc">Track journey</p>
-      </div>
-      <div class="feature-card" onclick="showLanguageSettings()" role="listitem" tabindex="0"
-        aria-label="Change language" onkeydown="if(event.key==='Enter')showLanguageSettings()">
-        <i class="fas fa-language" aria-hidden="true"></i>
-        <h3 data-i18n="multiLanguage">Languages</h3>
-        <p data-i18n="langDesc">8 supported</p>
-      </div>
-      <div class="feature-card" onclick="shareApp()" role="listitem" tabindex="0"
-        aria-label="Share the app" onkeydown="if(event.key==='Enter')shareApp()">
-        <i class="fas fa-share-alt" aria-hidden="true"></i>
-        <h3 data-i18n="shareGospel">Share</h3>
-        <p data-i18n="shareDesc">Invite others</p>
-      </div>
-      <div class="feature-card" onclick="showPrayerAssistant()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(52,152,219,0.15),rgba(142,68,173,0.15));"
-        aria-label="Prayer guide" onkeydown="if(event.key==='Enter')showPrayerAssistant()">
-        <i class="fas fa-robot" style="color:#3498db;" aria-hidden="true"></i>
-        <h3 data-i18n="aiPrayerGuide">Prayer Guide</h3>
-        <p data-i18n="aiPrayerDesc">200 prayers</p>
-        <span class="feature-badge" data-i18n="badge200Prayers">200 PRAYERS</span>
-      </div>
-      <div class="feature-card" onclick="showPremiumDetails()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(155,89,182,0.15),rgba(142,68,173,0.15));"
-        aria-label="Premium features" onkeydown="if(event.key==='Enter')showPremiumDetails()">
-        <i class="fas fa-crown" style="color:#9b59b6;" aria-hidden="true"></i>
-        <h3 data-i18n="premiumFeatures">Premium</h3>
-        <p data-i18n="premiumDesc">Unlock more</p>
-        <span class="premium-badge">$1.99/mo</span>
-      </div>
-      <div class="feature-card" onclick="activateVOMMode()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(231,76,60,0.15),rgba(192,57,43,0.15));"
-        aria-label="Persecution mode" onkeydown="if(event.key==='Enter')activateVOMMode()">
-        <i class="fas fa-shield-halved" style="color:#e74c3c;" aria-hidden="true"></i>
-        <h3 data-i18n="persecutionMode">VOM Mode</h3>
-        <p data-i18n="vomDesc">Encryption</p>
-        <span class="feature-badge" style="background:rgba(231,76,60,0.2);color:#e74c3c;" data-i18n="martyrsBadge">MARTYRS</span>
-      </div>
-      <div class="feature-card" onclick="shareGospelWhatsApp()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(37,211,102,0.15),rgba(18,140,126,0.15));"
-        aria-label="Invite someone via WhatsApp" onkeydown="if(event.key==='Enter')shareGospelWhatsApp()">
-        <i class="fab fa-whatsapp" style="color:#25d366;" aria-hidden="true"></i>
-        <h3 data-i18n="whatsappInviteCardTitle">WhatsApp Invite</h3>
-        <p data-i18n="whatsappInviteCardDesc">Send gospel link</p>
-        <span class="feature-badge" style="background:rgba(37,211,102,0.2);color:#25d366;" data-i18n="instantBadge">INSTANT</span>
-      </div>
-      <div class="feature-card" onclick="showEvangelismJournal()" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(46,204,113,0.15),rgba(39,174,96,0.15));"
-        aria-label="Evangelism Journal" onkeydown="if(event.key==='Enter')showEvangelismJournal()">
-        <i class="fas fa-book-open" style="color:#2ecc71;" aria-hidden="true"></i>
-        <h3 data-i18n="soulJournalCardTitle">Soul Journal</h3>
-        <p data-i18n="soulJournalCardDesc">Track every conversation</p>
-        <span class="feature-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;" data-i18n="badgeNew">NEW</span>
-      </div>
-
-      <!-- ===========================
-           COMING SOON MODULES (5) — full mockup screens, clearly labeled
-      =========================== -->
-      <div class="feature-card coming-soon-card" onclick="showScreen('discipleship-cs-screen')" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(46,204,113,0.13),rgba(39,174,96,0.08));"
-        aria-label="30/60/90-Day Discipleship Track — Coming Soon" onkeydown="if(event.key==='Enter')showScreen('discipleship-cs-screen')">
-        <div class="coming-soon-ribbon" data-i18n="comingSoonBadge">COMING SOON</div>
-        <i class="fas fa-seedling" style="color:#2ecc71;" aria-hidden="true"></i>
-        <h3 data-i18n="discipleshipTrackTitle">30/60/90-Day Discipleship Track</h3>
-        <p data-i18n="futureFeaturePreview">Tap to preview</p>
-      </div>
-
-      <div class="feature-card coming-soon-card" onclick="showScreen('churchfinder-cs-screen')" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(155,89,182,0.13),rgba(142,68,173,0.08));"
-        aria-label="Local Church Finder — Coming Soon" onkeydown="if(event.key==='Enter')showScreen('churchfinder-cs-screen')">
-        <div class="coming-soon-ribbon" data-i18n="comingSoonBadge">COMING SOON</div>
-        <i class="fas fa-map-location-dot" style="color:#9b59b6;" aria-hidden="true"></i>
-        <h3 data-i18n="churchFinderTitle">Local Church Finder</h3>
-        <p data-i18n="futureFeaturePreview">Tap to preview</p>
-      </div>
-
-      <div class="feature-card coming-soon-card" onclick="showScreen('impactdash-cs-screen')" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(243,156,18,0.13),rgba(230,126,34,0.08));"
-        aria-label="Live Public Impact Dashboard — Coming Soon" onkeydown="if(event.key==='Enter')showScreen('impactdash-cs-screen')">
-        <div class="coming-soon-ribbon" data-i18n="comingSoonBadge">COMING SOON</div>
-        <i class="fas fa-chart-line" style="color:#f39c12;" aria-hidden="true"></i>
-        <h3 data-i18n="impactDashboardTitle">Live Public Impact Dashboard</h3>
-        <p data-i18n="futureFeaturePreview">Tap to preview</p>
-      </div>
-
-      <div class="feature-card coming-soon-card" onclick="showScreen('smsaccess-cs-screen')" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(52,152,219,0.13),rgba(41,128,185,0.08));"
-        aria-label="SMS / USSD Gospel Access — Coming Soon" onkeydown="if(event.key==='Enter')showScreen('smsaccess-cs-screen')">
-        <div class="coming-soon-ribbon" data-i18n="comingSoonBadge">COMING SOON</div>
-        <i class="fas fa-comment-sms" style="color:#3498db;" aria-hidden="true"></i>
-        <h3 data-i18n="smsAccessTitle">SMS / USSD Gospel Access</h3>
-        <p data-i18n="futureFeaturePreview">Tap to preview</p>
-      </div>
-
-      <div class="feature-card coming-soon-card" onclick="showScreen('testimonywall-cs-screen')" role="listitem" tabindex="0"
-        style="background:linear-gradient(135deg,rgba(231,76,60,0.13),rgba(192,57,43,0.08));"
-        aria-label="Testimony Wall & Prayer Campaigns — Coming Soon" onkeydown="if(event.key==='Enter')showScreen('testimonywall-cs-screen')">
-        <div class="coming-soon-ribbon" data-i18n="comingSoonBadge">COMING SOON</div>
-        <i class="fas fa-comments" style="color:#e74c3c;" aria-hidden="true"></i>
-        <h3 data-i18n="testimonyWallTitle">Testimony Wall & Prayer Campaigns</h3>
-        <p data-i18n="futureFeaturePreview">Tap to preview</p>
-      </div>
-    </div>
-
-    <!-- Bottom Buttons -->
     <div class="home-bottom-buttons">
-      <div class="install-info" data-i18n="installInfo">🔒 Offline First • ⚡ Instant Load • 📱 PWA • Zero Tracking</div>
+      <div class="install-info" data-i18n="installInfo">Offline first · Instant load · Zero tracking</div>
       <button onclick="showInstallPopup()" id="installBtn" class="install-btn" aria-label="Install app">
         <i class="fas fa-download" aria-hidden="true"></i>
         <span data-i18n="installApp">Add to Home Screen</span>
       </button>
     </div>
+
+  </div>
+
+  <!-- ===== ASK AI — full page (same pattern as tracts) ===== -->
+  <div id="askai-screen" class="screen" role="region" aria-label="Ask about the gospel">
+    <div class="journal-header">
+      <h2><i class="fas fa-comments" style="color:#3AA3B8;" aria-hidden="true"></i> <span id="gsAiTitle" data-i18n="askAIHeading">Ask about the gospel</span></h2>
+      <button type="button" class="close-btn" id="gsAiClose" onclick="closeAskAI()" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <p class="gs-ai-sub" id="gsAiSub">Offline answers from Scripture. No tracking.</p>
+    <form id="gsAiForm" class="gs-ai-form" autocomplete="off">
+      <input id="gsAiInput" type="text" maxlength="240" enterkeyhint="go" />
+      <button type="submit" class="gs-ai-go" id="gsAiGo" aria-label="Ask"><i class="fas fa-arrow-up"></i></button>
+    </form>
+    <div class="gs-ai-chip-wrap">
+      <div class="gs-ai-chip-row" id="gsAiChips" role="list"></div>
+    </div>
+    <div class="gs-ai-body" id="gsAiBody"></div>
   </div>
 
   <!-- ===== DAILY DEVOTIONAL SCREEN ===== -->
@@ -664,22 +690,11 @@
         </select>
       </div>
       <div class="settings-option" style="flex-direction:column;align-items:stretch;gap:10px;">
-        <label data-i18n="voiceGender">Voice · English · used everywhere</label>
-        <div class="gs-gender-row">
-          <button type="button" class="gs-gender-btn" id="gsGenderF" onclick="gsSetGender('female')">
-            <i class="fas fa-venus"></i> <span data-i18n="voiceFemale">Female</span>
-          </button>
-          <button type="button" class="gs-gender-btn" id="gsGenderM" onclick="gsSetGender('male')">
-            <i class="fas fa-mars"></i> <span data-i18n="voiceMale">Male</span>
-          </button>
-        </div>
+        <label data-i18n="voiceEnglishOnly">English voice · used everywhere</label>
         <button type="button" class="gs-voice-preview-btn" onclick="gsPreviewCurrent()">
           <i class="fas fa-volume-up"></i> <span data-i18n="voicePreview">Hear a sample</span>
         </button>
-        <label for="voiceSelect" data-i18n="voicePick">English voices on this phone</label>
-        <select id="voiceSelect" onchange="gsOnVoiceSelectChange()" aria-label="Choose an English voice"
-          style="width:100%;max-width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);color:#fff;padding:11px 14px;border-radius:14px;font-size:0.88rem;font-family:inherit;"></select>
-        <p style="font-size:0.75rem;opacity:0.5;line-height:1.45;margin:0;" data-i18n="voiceEverywhereNote">English female or male — the same natural voice reads slides, devotionals, Living Faith, and Ask AI.</p>
+        <p style="font-size:0.75rem;opacity:0.5;line-height:1.45;margin:0;" data-i18n="voiceEverywhereNote">One natural English voice reads slides, devotionals, Living Faith, and Ask AI.</p>
       </div>
       <div class="settings-option">
         <label for="autoPlayToggle" data-i18n="autoPlayAudio">Auto-play Audio</label>
@@ -751,7 +766,7 @@
     </div>
 
     <div class="gs-app-version" id="appVersionFooter">
-      GospelSwipe Pro v2.1.1<br>
+      GospelSwipe Pro v2.2.2<br>
       Made in Nigeria 🇳🇬 · GP Tech Studio
     </div>
   </div>
@@ -1353,12 +1368,14 @@
 
 <!-- Scripts — order matters: prayers + translations first, then app -->
 <script src="prayers.js"></script>
+<script src="prayers_i18n.js"></script>
 <script src="translations.js"></script>
 <script src="devotionals.js"></script>
 <script src="devotionals_i18n.js"></script>
 <script src="livingfaith.js"></script>
 <script src="livingfaith_i18n.js"></script>
 <script src="thread.js"></script>
+<script src="thread_i18n.js"></script>
 <script src="tracts.js"></script>
 <script src="tracts_ext.js"></script>
 <script src="training_i18n.js"></script>
