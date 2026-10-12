@@ -98,6 +98,36 @@
   </div>
 </div>
 
+<!-- ===== Install prompt — browser only, hidden once installed as an app ===== -->
+<div id="gsInstallOverlay" class="gs-install-overlay" role="dialog" aria-modal="true" aria-labelledby="gsInstallTitle" aria-describedby="gsInstallBody">
+  <div class="gs-install-card">
+    <img src="icon.png" alt="" class="gs-install-icon" width="72" height="72">
+    <div class="gs-install-kicker" data-i18n="installPromptKicker">Free · Offline · No tracking</div>
+    <h2 id="gsInstallTitle" data-i18n="installPromptTitle">Keep the gospel in your pocket</h2>
+    <p id="gsInstallBody" class="gs-install-body" data-i18n="installPromptBody">Install GospelSwipe so it opens like an app. Works without data. No ads. No tracking.</p>
+    <ul class="gs-install-perks">
+      <li><i class="fas fa-bolt" aria-hidden="true"></i><span data-i18n="installPerkFast">Opens instantly from your home screen</span></li>
+      <li><i class="fas fa-signal" aria-hidden="true"></i><span data-i18n="installPerkOffline">Works even when there is no signal</span></li>
+      <li><i class="fas fa-shield-halved" aria-hidden="true"></i><span data-i18n="installPerkPrivate">Zero tracking. Your phone, your data.</span></li>
+    </ul>
+    <button type="button" id="gsInstallCta" class="gs-install-cta" onclick="gsAcceptInstall()">
+      <i class="fas fa-download" aria-hidden="true"></i>
+      <span id="gsInstallCtaLabel" data-i18n="installPromptCta">Install this app</span>
+    </button>
+    <button type="button" class="gs-install-later" onclick="gsDismissInstall()">
+      <span data-i18n="installPromptLater">Not now — continue in the browser</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== Update bar — shown if a new version is waiting ===== -->
+<div id="gsUpdateBar" class="gs-update-bar" role="status" aria-live="polite">
+  <span data-i18n="updateReadyTitle">A new version is ready</span>
+  <button type="button" onclick="gsApplyUpdate()">
+    <span data-i18n="updateReadyCta">Refresh now</span>
+  </button>
+</div>
+
 <!-- ===== App Container ===== -->
 <div class="app-container" id="appContainer">
 
@@ -126,6 +156,20 @@
           <i class="fas fa-cog" aria-hidden="true"></i>
         </button>
       </div>
+    </div>
+
+    <div id="gsInstallBanner" class="gs-install-banner" role="region" aria-label="Install GospelSwipe">
+      <img src="icon.png" alt="">
+      <div class="gs-install-banner-copy">
+        <strong data-i18n="installSmartTitle">Install GospelSwipe</strong>
+        <span data-i18n="installSmartBody">Add to your home screen — works offline</span>
+      </div>
+      <button type="button" class="gs-install-banner-cta" onclick="gsAcceptInstall()">
+        <span data-i18n="installBannerCta">Install</span>
+      </button>
+      <button type="button" class="gs-install-banner-x" onclick="gsDismissInstall()" aria-label="Dismiss">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
     </div>
 
     <p class="home-greeting" id="homeGreeting"></p>
@@ -295,12 +339,14 @@
     </section>
     </div>
 
-    <div class="home-bottom-buttons">
-      <div class="install-info" data-i18n="installInfo">Offline first · Instant load · Zero tracking</div>
-      <button onclick="showInstallPopup()" id="installBtn" class="install-btn" aria-label="Install app">
-        <i class="fas fa-download" aria-hidden="true"></i>
-        <span data-i18n="installApp">Add to Home Screen</span>
-      </button>
+    <div class="home-bottom-buttons" id="homeInstallBlock">
+      <div class="gs-home-install-card">
+        <p class="install-info" data-i18n="installHomeHint">One tap. Instant open. The gospel, always with you.</p>
+        <button type="button" onclick="gsAcceptInstall()" id="installBtn" class="install-btn" aria-label="Install app">
+          <i class="fas fa-download" aria-hidden="true"></i>
+          <span data-i18n="installApp">Add to Home Screen</span>
+        </button>
+      </div>
     </div>
 
   </div>
@@ -766,7 +812,7 @@
     </div>
 
     <div class="gs-app-version" id="appVersionFooter">
-      GospelSwipe Pro v2.2.2<br>
+      GospelSwipe Pro v2.2.3<br>
       Made in Nigeria 🇳🇬 · GP Tech Studio
     </div>
   </div>
@@ -1389,13 +1435,48 @@
 <script src="ai_engine.js"></script>
 <script src="app.js"></script>
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('SW registered:', reg.scope))
-        .catch(err => console.warn('SW registration failed:', err));
+  window.GS_APP_VERSION = '2.2.3';
+  (function gsServiceWorkerSync() {
+    if (!('serviceWorker' in navigator)) return;
+    var reloading = false;
+    var hadController = !!navigator.serviceWorker.controller;
+    function reloadOnce() {
+      if (!hadController || reloading) return;
+      reloading = true;
+      location.reload();
+    }
+    navigator.serviceWorker.addEventListener('controllerchange', reloadOnce);
+    navigator.serviceWorker.addEventListener('message', function (event) {
+      var data = event.data || {};
+      if (data.type === 'GS_UPDATED') reloadOnce();
     });
-  }
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js')
+        .then(function (reg) {
+          try { reg.update(); } catch (e) {}
+          if (reg.waiting) {
+            try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch (e) {}
+          }
+          reg.addEventListener('updatefound', function () {
+            var nw = reg.installing;
+            if (!nw) return;
+            nw.addEventListener('statechange', function () {
+              if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                try { nw.postMessage({ type: 'SKIP_WAITING' }); } catch (e) {}
+              }
+            });
+          });
+          setInterval(function () { try { reg.update(); } catch (e) {} }, 15 * 60 * 1000);
+        })
+        .catch(function (err) { console.warn('SW registration failed:', err); });
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState !== 'visible') return;
+      navigator.serviceWorker.getRegistration().then(function (reg) {
+        if (reg) try { reg.update(); } catch (e) {}
+      });
+    });
+  })();
 </script>
 </body>
 </html>

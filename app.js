@@ -1,5 +1,5 @@
 // ==========================================
-// GospelSwipe Pro v2.2.2 — Main Application
+// GospelSwipe Pro v2.2.3 — Main Application
 // Offline-first · Multi-language · IndexedDB
 // All bugs fixed · Production ready
 // ==========================================
@@ -265,6 +265,7 @@ async function changeLanguage(lang) {
   localStorage.setItem('language', lang);
   if (typeof gsStop === 'function') gsStop();
   applyTranslations();
+  try { gsSetInstallCtaLabel(); } catch (e) {}
   refreshCurrentScreenContent();
   if (typeof gsPopulateVoiceSelect === 'function') gsPopulateVoiceSelect();
   if (typeof gsSyncGenderButtons === 'function') gsSyncGenderButtons();
@@ -1584,13 +1585,155 @@ function isIOS() {
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 function isInStandaloneMode() {
-  return window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true;
+  try {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+      window.matchMedia('(display-mode: fullscreen)').matches ||
+      window.matchMedia('(display-mode: minimal-ui)').matches ||
+      window.navigator.standalone === true;
+  } catch (e) {
+    return window.navigator.standalone === true;
+  }
+}
+
+function gsIsInstalled() {
+  return isInStandaloneMode() || localStorage.getItem('gsAppInstalled') === '1';
+}
+
+function gsShouldPromptInstall() {
+  if (AppState.vomMode) return false;
+  if (gsIsInstalled()) return false;
+  return true;
+}
+
+function gsSetInstallCtaLabel() {
+  const label = document.getElementById('gsInstallCtaLabel');
+  if (!label) return;
+  label.textContent = isIOS()
+    ? (t('installPromptHow') || 'Show me how')
+    : (t('installPromptCta') || 'Install this app');
+}
+
+function gsHideInstallUI() {
+  const overlay = document.getElementById('gsInstallOverlay');
+  const banner  = document.getElementById('gsInstallBanner');
+  const block   = document.getElementById('homeInstallBlock');
+  const btn     = document.getElementById('installBtn');
+  if (overlay) overlay.classList.remove('show');
+  if (banner)  banner.classList.remove('show');
+  document.body.classList.remove('gs-install-open');
+  if (block) block.style.display = 'none';
+  if (btn) btn.style.display = 'none';
+}
+
+function gsShowInstallOverlay() {
+  const overlay = document.getElementById('gsInstallOverlay');
+  if (!overlay) return;
+  gsSetInstallCtaLabel();
+  overlay.classList.add('show');
+  document.body.classList.add('gs-install-open');
+  const banner = document.getElementById('gsInstallBanner');
+  if (banner) banner.classList.remove('show');
+}
+
+function gsShowInstallBannerOnly() {
+  const overlay = document.getElementById('gsInstallOverlay');
+  const banner  = document.getElementById('gsInstallBanner');
+  if (overlay) overlay.classList.remove('show');
+  document.body.classList.remove('gs-install-open');
+  if (banner) banner.classList.add('show');
+}
+
+function gsSyncInstallUI() {
+  if (!gsShouldPromptInstall()) {
+    gsHideInstallUI();
+    return;
+  }
+  const block = document.getElementById('homeInstallBlock');
+  const btn   = document.getElementById('installBtn');
+  if (block) block.style.display = '';
+  if (btn) btn.style.display = 'flex';
+  gsSetInstallCtaLabel();
+  if (sessionStorage.getItem('gsInstallDismissedSession') === '1') {
+    gsShowInstallBannerOnly();
+  }
+}
+
+function gsShowInstallPrompt() {
+  if (!gsShouldPromptInstall()) {
+    gsHideInstallUI();
+    return;
+  }
+  gsSyncInstallUI();
+  if (sessionStorage.getItem('gsInstallDismissedSession') === '1') {
+    gsShowInstallBannerOnly();
+    return;
+  }
+  gsShowInstallOverlay();
+}
+
+function gsDismissInstall() {
+  sessionStorage.setItem('gsInstallDismissedSession', '1');
+  try { localStorage.setItem('gsInstallDismissedAt', String(Date.now())); } catch (e) {}
+  gsShowInstallBannerOnly();
+}
+
+function gsAcceptInstall() {
+  if (gsIsInstalled()) {
+    showToast(t('alreadyInstalledMsg') || '✅ App is already installed!', 'success');
+    gsHideInstallUI();
+    return;
+  }
+  if (AppState.deferredPrompt) {
+    const promptEvent = AppState.deferredPrompt;
+    promptEvent.prompt();
+    promptEvent.userChoice.then(result => {
+      if (result.outcome === 'accepted') {
+        localStorage.setItem('gsAppInstalled', '1');
+        showToast(t('installedSuccessMsg') || '🎉 GospelSwipe Pro installed!', 'success');
+        gsHideInstallUI();
+        closeInstallPopup();
+      }
+      AppState.deferredPrompt = null;
+    }).catch(() => {
+      AppState.deferredPrompt = null;
+    });
+    return;
+  }
+  sessionStorage.setItem('gsInstallDismissedSession', '1');
+  const overlay = document.getElementById('gsInstallOverlay');
+  if (overlay) overlay.classList.remove('show');
+  document.body.classList.remove('gs-install-open');
+  const popup = document.getElementById('installPopupOverlay');
+  if (popup && popup.style.display === 'flex') {
+    showToast(t('useMenuInstallMsg') || 'Use your browser menu → "Add to Home Screen"', 'info');
+    return;
+  }
+  showInstallPopup();
+}
+
+function gsApplyUpdate() {
+  showToast(t('updatingAppMsg') || 'Updating GospelSwipe…', 'info');
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg && reg.waiting) {
+        try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch (e) {}
+      }
+      setTimeout(() => location.reload(), 400);
+    }).catch(() => location.reload());
+  } else {
+    location.reload();
+  }
+}
+
+function showUpdateBar() {
+  const bar = document.getElementById('gsUpdateBar');
+  if (bar) bar.classList.add('show');
 }
 
 function showInstallPopup() {
   if (isInStandaloneMode()) {
-    showToast('✅ App is already installed!', 'success');
+    showToast(t('alreadyInstalledMsg') || '✅ App is already installed!', 'success');
+    gsHideInstallUI();
     return;
   }
   const overlay = document.getElementById('installPopupOverlay');
@@ -1599,15 +1742,13 @@ function showInstallPopup() {
   const ios     = document.getElementById('installIOS');
   if (!overlay) return;
 
-  // Show correct section
   if (isIOS()) {
     if (android) android.style.display = 'none';
     if (ios)     ios.style.display = 'block';
   } else {
-    // Android/Desktop — show native button or fallback
     const nativeBtn = document.getElementById('installNativeBtn');
     if (!AppState.deferredPrompt && nativeBtn) {
-      nativeBtn.innerHTML = '<i class="fas fa-info-circle"></i> Use browser menu → "Add to Home Screen"';
+      nativeBtn.innerHTML = '<i class="fas fa-info-circle"></i> ' + (t('useMenuInstallMsg') || 'Use browser menu → "Add to Home Screen"');
       nativeBtn.style.background = 'rgba(52,152,219,0.2)';
     }
     if (android) android.style.display = 'block';
@@ -1630,29 +1771,13 @@ function closeInstallPopup() {
 }
 
 function doNativeInstall() {
-  if (AppState.deferredPrompt) {
-    AppState.deferredPrompt.prompt();
-    AppState.deferredPrompt.userChoice.then(result => {
-      if (result.outcome === 'accepted') {
-        showToast('🎉 GospelSwipe Pro installed!', 'success');
-        closeInstallPopup();
-        const btn = document.getElementById('installBtn');
-        if (btn) btn.style.display = 'none';
-      }
-      AppState.deferredPrompt = null;
-    });
-  } else {
-    closeInstallPopup();
-    showToast('Use your browser menu → "Add to Home Screen"', 'info');
-  }
+  gsAcceptInstall();
 }
 
-// Legacy: keep installApp pointing to popup
-function installApp() { showInstallPopup(); }
+function installApp() { gsAcceptInstall(); }
 
 function checkInstallPrompt() {
-  const btn = document.getElementById('installBtn');
-  if (btn) btn.style.display = 'flex';
+  gsSyncInstallUI();
 }
 
 // ========== Toast ==========
@@ -1784,12 +1909,25 @@ function setupEventListeners() {
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
       else if (e.key === 'Escape') { e.preventDefault(); exitPresentation(); }
+    } else if (e.key === 'Escape' && document.getElementById('gsInstallOverlay') && document.getElementById('gsInstallOverlay').classList.contains('show')) {
+      e.preventDefault();
+      gsDismissInstall();
     } else if (e.key === 'Escape' && activeModal) {
       closeModal();
     }
   });
 
-  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); AppState.deferredPrompt = e; checkInstallPrompt(); });
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    AppState.deferredPrompt = e;
+    checkInstallPrompt();
+  });
+  window.addEventListener('appinstalled', () => {
+    localStorage.setItem('gsAppInstalled', '1');
+    AppState.deferredPrompt = null;
+    gsHideInstallUI();
+    showToast(t('installedSuccessMsg') || '🎉 GospelSwipe Pro installed!', 'success');
+  });
   document.addEventListener('visibilitychange', () => { if (document.hidden) saveAllData(); });
   window.addEventListener('beforeunload', () => saveAllData());
   window.addEventListener('online', updateOnlineStatus);
@@ -2830,14 +2968,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         try { updateUserStats(); }      catch(e) {}
         try { checkStreak(); }          catch(e) {}
         try { updateStatsDisplay(); }   catch(e) {}
-        try { showToast(t('welcomeMessage') || '🙏 Welcome to GospelSwipe Pro!', 'success'); } catch(e) {}
         try {
           const params = new URLSearchParams(location.search);
           const action = params.get('action');
           if (action === 'present') setTimeout(() => startPresentation(), 400);
           else if (action === 'prayer') setTimeout(() => showScreen('prayer-screen'), 400);
           else if (action === 'journal') setTimeout(() => showEvangelismJournal(), 400);
-        } catch(e) {}
+          const deepLink = action === 'present' || action === 'prayer' || action === 'journal';
+          if (!deepLink && gsShouldPromptInstall() && sessionStorage.getItem('gsInstallDismissedSession') !== '1') {
+            setTimeout(() => { try { gsShowInstallPrompt(); } catch (e) {} }, 280);
+          } else {
+            try { showToast(t('welcomeMessage') || '🙏 Welcome to GospelSwipe Pro!', 'success'); } catch (e) {}
+            if (!deepLink) { try { gsSyncInstallUI(); } catch (e) {} }
+          }
+        } catch(e) {
+          try { showToast(t('welcomeMessage') || '🙏 Welcome to GospelSwipe Pro!', 'success'); } catch (err) {}
+        }
       }, 250);
     }, 300);
   };
@@ -3245,6 +3391,10 @@ window.showInstallPopup  = showInstallPopup;
 window.closeInstallPopup = closeInstallPopup;
 window.doNativeInstall   = doNativeInstall;
 window.installApp        = installApp;
+window.gsAcceptInstall   = gsAcceptInstall;
+window.gsDismissInstall  = gsDismissInstall;
+window.gsShowInstallPrompt = gsShowInstallPrompt;
+window.gsApplyUpdate     = gsApplyUpdate;
 window.exportData = exportData;
 window.clearData = clearData;
 window.exportReport = exportReport;
