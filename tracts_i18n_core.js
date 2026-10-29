@@ -12,7 +12,11 @@ const TRACTS_I18N_ALL = {};
 //   mergeTractsI18n(TRACTS_I18N_STRUGGLE_P1);
 function mergeTractsI18n(batch) {
   for (const lang in batch) {
-    TRACTS_I18N_ALL[lang] = Object.assign(TRACTS_I18N_ALL[lang] || {}, batch[lang]);
+    TRACTS_I18N_ALL[lang] = TRACTS_I18N_ALL[lang] || {};
+    const incoming = batch[lang] || {};
+    for (const id in incoming) {
+      TRACTS_I18N_ALL[lang][id] = Object.assign({}, TRACTS_I18N_ALL[lang][id] || {}, incoming[id]);
+    }
   }
 }
 
@@ -25,7 +29,9 @@ function getLocalizedTracts() {
   const overrides = TRACTS_I18N_ALL[lang] || {};
   if (!Object.keys(overrides).length) return base;
   return base.map(tr => {
-    const o = overrides[tr.id];
-    return o ? Object.assign({}, tr, o) : tr;
+    const o = overrides[String(tr.id)] || overrides[tr.id];
+    const merged = o ? Object.assign({}, tr, o) : Object.assign({}, tr);
+    merged.title_en = tr.title;
+    return merged;
   });
 }

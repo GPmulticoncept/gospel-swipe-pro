@@ -1,5 +1,5 @@
 // ==========================================
-// GospelSwipe Pro v2.2.3 — Main Application
+// GospelSwipe Pro v2.2.4 — Main Application
 // Offline-first · Multi-language · IndexedDB
 // All bugs fixed · Production ready
 // ==========================================
@@ -152,7 +152,10 @@ function t(key) {
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const val = t(el.getAttribute('data-i18n'));
-    if (val) el.textContent = val;
+    if (!val) return;
+    // Never wipe icons / nested markup — keep data-i18n on text-only nodes
+    if (el.children.length) return;
+    el.textContent = val;
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const val = t(el.getAttribute('data-i18n-placeholder'));
@@ -614,7 +617,7 @@ function getPrayerPack() {
 
 function showPrayerAssistant() {
   if (typeof PRAYER_CATEGORIES === 'undefined' || typeof PRAYERS === 'undefined') {
-    showToast('Prayer database not loaded', 'error'); return;
+    showToast(t('prayerDbMissing') || 'Prayer database not loaded', 'error'); return;
   }
   const pack = getPrayerPack();
   const cards = Object.keys(PRAYER_CATEGORIES).map(key => {
@@ -653,13 +656,13 @@ function showPrayerAssistant() {
 
 function showPrayerCategory(categoryKey) {
   if (typeof PRAYER_CATEGORIES === 'undefined' || typeof PRAYERS === 'undefined') {
-    showToast('Prayer database not loaded', 'error'); return;
+    showToast(t('prayerDbMissing') || 'Prayer database not loaded', 'error'); return;
   }
   const cat = getLocalizedPrayerCategory(categoryKey);
   const pack = getPrayerPack();
   const prayerArr = pack[categoryKey] || PRAYERS[categoryKey];
   if (!cat || !prayerArr || !prayerArr.length) {
-    showToast('No prayers found', 'error'); return;
+    showToast(t('noPrayersFound') || 'No prayers found', 'error'); return;
   }
 
   // Show ALL prayers directly — no intermediate "See All" step needed
@@ -957,7 +960,7 @@ function recordVoicePrayer() {
     const input = document.getElementById('prayerInput');
     if (input) input.placeholder = t('prayerPlaceholder') || 'Pour out your heart...';
   };
-  recognition.onerror = () => showToast('Voice error. Try again.', 'error');
+  recognition.onerror = () => showToast(t('voiceErrorRetry') || 'Voice error. Try again.', 'error');
   recognition.start();
 }
 
@@ -1311,7 +1314,7 @@ function showWallet() {
 function showImpact() { showScreen('impact-screen'); }
 
 // ========== Icon Constants ==========
-const NORMAL_ICON = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMmMzZTUwIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzFhMjYzNCIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iY3Jvc3MiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMzQ5OGRiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzJlY2M3MSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9InVybCgjYmcpIi8+CiAgPHJlY3QgeD0iMjIwIiB5PSI4MCIgd2lkdGg9IjcyIiBoZWlnaHQ9IjM1MiIgcng9IjIwIiBmaWxsPSJ1cmwoI2Nyb3NzKSIvPgogIDxyZWN0IHg9IjEwMCIgeT0iMTcwIiB3aWR0aD0iMzEyIiBoZWlnaHQ9IjcyIiByeD0iMjAiIGZpbGw9InVybCgjY3Jvc3MpIi8+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA2KSIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPg==';
+const NORMAL_ICON = 'icon.png';
 
 const VOM_ICON = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjgwIiBmaWxsPSIjMmQyZDJkIi8+CiAgPHJlY3QgeD0iNjAiIHk9IjYwIiB3aWR0aD0iMzkyIiBoZWlnaHQ9IjM5MiIgcng9IjQwIiBmaWxsPSIjM2EzYTNhIi8+CiAgPHJlY3QgeD0iODAiIHk9IjgwIiB3aWR0aD0iMzUyIiBoZWlnaHQ9IjEyMCIgcng9IjIwIiBmaWxsPSIjNTU1Ii8+CiAgPHRleHQgeD0iMzkwIiB5PSIxNzgiIGZvbnQtZmFtaWx5PSJtb25vc3BhY2UiIGZvbnQtc2l6ZT0iODAiIGZpbGw9IiMyZWNjNzEiIHRleHQtYW5jaG9yPSJlbmQiPjA8L3RleHQ+CiAgPHJlY3QgeD0iOTAiIHk9IjIzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiM2NjYiLz4KICA8cmVjdCB4PSIxNzUiIHk9IjIzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiM2NjYiLz4KICA8cmVjdCB4PSIyNjAiIHk9IjIzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiNlNzRjM2MiLz4KICA8cmVjdCB4PSIzNDUiIHk9IjIzMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IiNmMzljMTIiLz4KICA8cmVjdCB4PSI5MCIgeT0iMjk1IiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzY2NiIvPgogIDxyZWN0IHg9IjE3NSIgeT0iMjk1IiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzY2NiIvPgogIDxyZWN0IHg9IjI2MCIgeT0iMjk1IiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzY2NiIvPgogIDxyZWN0IHg9IjM0NSIgeT0iMjk1IiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iI2YzOWMxMiIvPgogIDxyZWN0IHg9IjkwIiB5PSIzNjAiIHdpZHRoPSIxNTUiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzY2NiIvPgogIDxyZWN0IHg9IjI2MCIgeT0iMzYwIiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzY2NiIvPgogIDxyZWN0IHg9IjM0NSIgeT0iMzYwIiB3aWR0aD0iNzAiIGhlaWdodD0iNTAiIHJ4PSIxMCIgZmlsbD0iIzM0OThkYiIvPgo8L3N2Zz4=';
 
@@ -2705,9 +2708,13 @@ let _tractSearch   = '';
 function _getTracts() {
   const all = typeof getLocalizedTracts === 'function' ? getLocalizedTracts() : (typeof GOSPEL_TRACTS !== 'undefined' ? GOSPEL_TRACTS : []);
   if (_tractCat === 'all' && !_tractSearch) return all;
-  return all.filter(t =>
-    (_tractCat === 'all' || t.category === _tractCat) &&
-    (!_tractSearch || t.title.toLowerCase().includes(_tractSearch.toLowerCase()))
+  const q = (_tractSearch || '').toLowerCase();
+  return all.filter(tr =>
+    (_tractCat === 'all' || tr.category === _tractCat) &&
+    (!q ||
+      (tr.title || '').toLowerCase().includes(q) ||
+      (tr.title_en || '').toLowerCase().includes(q) ||
+      (tr.hook || '').toLowerCase().includes(q))
   );
 }
 
@@ -2808,69 +2815,65 @@ let _lastOpenedTractId = null;
 
 function openTract(id) {
   const all = typeof getLocalizedTracts === 'function' ? getLocalizedTracts() : (typeof GOSPEL_TRACTS !== 'undefined' ? GOSPEL_TRACTS : []);
-  const t = all.find(x => x.id === id);
-  if (!t) return;
+  const tract = all.find(x => x.id === id);
+  if (!tract) return;
   _lastOpenedTractId = id;
   vibrate(15);
 
-  const rgb = (typeof hexToRgb === 'function' && t.color) ? hexToRgb(t.color) : '150,150,150';
+  const rgb = (typeof hexToRgb === 'function' && tract.color) ? hexToRgb(tract.color) : '150,150,150';
   const gel = i => document.getElementById(i);
 
   const s = document.getElementById('tract-detail-screen');
   if (!s) return;
 
-  // Header colours
   const colorCard = gel('tdColor');
   if (colorCard) {
     colorCard.style.background = `rgba(${rgb},0.1)`;
     colorCard.style.borderColor = `rgba(${rgb},0.25)`;
   }
-  if (gel('tdColorBar')) gel('tdColorBar').style.background = t.color;
+  if (gel('tdColorBar')) gel('tdColorBar').style.background = tract.color;
   if (gel('tdCat')) {
-    const catMeta = TRACT_CAT_META[t.category];
-    gel('tdCat').textContent = (catMeta ? catMeta.label() : (t.category || '')).toUpperCase();
-    gel('tdCat').style.color = t.color;
+    const catMeta = TRACT_CAT_META[tract.category];
+    gel('tdCat').textContent = (catMeta ? catMeta.label() : (tract.category || '')).toUpperCase();
+    gel('tdCat').style.color = tract.color;
   }
-  if (gel('tdTitle'))  gel('tdTitle').textContent  = t.title || '';
-  if (gel('tdHook'))   gel('tdHook').textContent   = t.hook  || '';
+  if (gel('tdTitle'))  gel('tdTitle').textContent  = tract.title || '';
+  if (gel('tdHook'))   gel('tdHook').textContent   = tract.hook  || '';
 
-  // Body — safely convert double newlines to paragraphs
   if (gel('tdBody')) {
-    const paras = (t.body || '').split(/\n\n+/);
+    const paras = (tract.body || '').split(/\n\n+/);
     gel('tdBody').innerHTML = paras.map(p =>
       `<p style="margin-bottom:14px;font-size:0.9rem;line-height:1.8;color:rgba(255,255,255,0.88);">${escapeHtml(p.trim())}</p>`
     ).join('');
   }
 
-  if (gel('tdVerses'))     gel('tdVerses').textContent     = (t.verses || []).join(' · ');
-  if (gel('tdRepentance')) gel('tdRepentance').textContent = t.repentance || '';
-  if (gel('tdPrayer'))     gel('tdPrayer').textContent     = t.prayer || '';
+  if (gel('tdVerses'))     gel('tdVerses').textContent     = (tract.verses || []).join(' · ');
+  if (gel('tdRepentance')) gel('tdRepentance').textContent = tract.repentance || '';
+  if (gel('tdPrayer'))     gel('tdPrayer').textContent     = tract.prayer || '';
 
-  // Share button
   const shareBtn = gel('tdShareBtn');
   if (shareBtn) {
     shareBtn.onclick = () => {
       vibrate(20);
-      const preview = (t.body || '').substring(0, 280).replace(/\n\n/g, ' ');
+      const preview = (tract.body || '').substring(0, 280).replace(/\n\n/g, ' ');
       const msg =
-        `✝️ *${t.title}*\n\n_"${t.hook}"_\n\n${preview}...\n\n` +
-        `📖 *${(t.verses || []).join(' · ')}*\n\n` +
-        `🙏 *Prayer:* ${(t.prayer || '').substring(0, 150)}...\n\n` +
-        `📱 Read 200 gospel tracts free & offline:\n*gospelswipe.app*`;
+        `✝️ *${tract.title}*\n\n_"${tract.hook}"_\n\n${preview}...\n\n` +
+        `📖 *${(tract.verses || []).join(' · ')}*\n\n` +
+        `🙏 *${t('prayerSectionLabel') || 'Prayer'}:* ${(tract.prayer || '').substring(0, 150)}...\n\n` +
+        `📱 gospelswipe.app`;
       if (navigator.share) {
-        navigator.share({ title: t.title, text: msg }).catch(() =>
+        navigator.share({ title: tract.title, text: msg }).catch(() =>
           window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank'));
       } else {
         window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
       }
       AppState.userStats.shares = (AppState.userStats.shares || 0) + 1;
       refreshStats();
-      showToast('📤 Sharing tract...', 'success');
+      showToast(t('sharingTractMsg') || '📤 Sharing tract...', 'success');
     };
   }
 
   showScreen('tract-detail-screen');
-  // Scroll detail screen to top
   setTimeout(() => { if (s) s.scrollTop = 0; }, 50);
 }
 

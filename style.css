@@ -1,6 +1,6 @@
 /* ==========================================
-   GospelSwipe Pro v2.2.3 — Complete Stylesheet
-   Navy + teal/green (logo blend) · no gold
+   GospelSwipe Pro v2.2.4 — Complete Stylesheet
+   Navy + teal/green (new 3D logo) · no gold
    Fluid layout · Install prompt · Always-sync
    ========================================== */
 
@@ -71,6 +71,12 @@ body.dark-mode {
 @keyframes spin { to { transform:rotate(360deg); } }
 #loading h2 { font-family:var(--serif); font-size:1.7rem; font-weight:700; margin-bottom:8px; }
 #loadingProgress { font-size:0.85rem; opacity:0.6; }
+.loading-logo {
+  width: 88px; height: 88px; border-radius: 22px;
+  object-fit: cover; display: block;
+  margin: 0 auto 18px;
+  box-shadow: 0 12px 32px rgba(47,163,106,0.35);
+}
 
 /* ===== App Container ===== */
 .app-container {
@@ -1546,3 +1552,105 @@ body.gs-install-open .bottom-nav { pointer-events: none; }
 [dir="rtl"] .gs-install-perks li,
 [dir="rtl"] .gs-install-banner { text-align: right; }
 [dir="rtl"] .gs-install-banner-copy { text-align: right; }
+
+/* =========================================================
+   v2.2.4 — Feel-it responsive: every screen, every width
+   ========================================================= */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+input, textarea, select, button {
+  font-size: 16px;
+  max-width: 100%;
+}
+textarea, input[type="text"], input[type="search"], input[type="password"], input[type="number"] {
+  font-size: 16px;
+}
+.slide-content {
+  width: min(95%, 680px);
+  max-width: 100%;
+  padding: clamp(16px, 4vw, 28px) clamp(14px, 3.5vw, 24px);
+}
+.slide-title { font-size: clamp(1.15rem, 4.4vw, 1.85rem); overflow-wrap: anywhere; }
+.slide-verse { font-size: clamp(0.92rem, 3.4vw, 1.12rem); overflow-wrap: anywhere; }
+.slide-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.slide-btn { min-height: 44px; }
+
+.journal-header h2 { font-size: clamp(1.05rem, 3.8vw, 1.4rem); overflow-wrap: anywhere; }
+#prayerInput, textarea, .gs-ai-form input {
+  font-size: 16px !important;
+  width: 100%;
+  max-width: 100%;
+}
+.settings-option {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.settings-option select { max-width: 100%; }
+
+#tractList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+#tractList > div { margin-bottom: 0 !important; }
+
+.modal-content, .modal {
+  width: min(100% - 24px, 520px);
+  max-height: min(90dvh, 720px);
+  overflow-y: auto;
+}
+
+#calc-disguise-screen .calc-btn { min-height: 0; }
+@media (max-width: 360px) {
+  .calc-btn { font-size: 1.35rem; }
+  .brand-name { font-size: 0.98rem; }
+  .nav-btn span { font-size: 0.62rem; }
+  .loading-logo { width: 72px; height: 72px; border-radius: 18px; }
+}
+@media (min-width: 600px) {
+  #tractList { grid-template-columns: 1fr 1fr; }
+  .slide-actions { gap: 10px; }
+}
+@media (min-width: 860px) {
+  #tractList { grid-template-columns: 1fr 1fr; }
+  #devotional-screen > *,
+  #livingfaith-screen > *,
+  #thread-screen > *,
+  #prayer-screen > *,
+  #settings-screen > *,
+  #stats-screen > *,
+  #training-screen > *,
+  #newbeliever-screen > *,
+  #tracts-screen > *,
+  #tract-detail-screen > *,
+  #askai-screen > * {
+    width: 100%;
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+@media (min-width: 1100px) {
+  #tractList { grid-template-columns: 1fr 1fr 1fr; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .tool-tile:hover { border-color: var(--secondary); transform: translateY(-2px); }
+  .hero-cta:hover { filter: brightness(1.06); }
+}
+@media (hover: none) {
+  .feature-card:hover, .tool-tile:hover, .install-btn:hover { transform: none; }
+}
+
+/* Safe wrapping everywhere user text appears */
+p, h1, h2, h3, h4, li, .tool-tile, .hero-convo {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.bottom-nav { z-index: 1000; }
+.nav-btn { min-height: 48px; }
+
+/* Install overlay on very small / landscape */
+@media (max-width: 340px) {
+  .gs-install-card { padding: 18px 14px 14px; border-radius: 22px; }
+  .gs-install-cta { font-size: 0.95rem; padding: 14px; }
+}

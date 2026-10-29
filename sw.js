@@ -1,11 +1,11 @@
 // ==========================================
-// GospelSwipe Pro v2.2.3 — Service Worker
+// GospelSwipe Pro v2.2.4 — Service Worker
 // Offline-first · Always-sync on update
 // ==========================================
 
-const APP_VERSION = '2.2.3';
-const CACHE_NAME = 'gospel-swipe-v2.2.3';
-const CONTENT_CACHE = 'gospel-swipe-content-v2.2.3';
+const APP_VERSION = '2.2.4';
+const CACHE_NAME = 'gospel-swipe-v2.2.4';
+const CONTENT_CACHE = 'gospel-swipe-content-v2.2.4';
 
 const PRECACHE_URLS = [
   './',
@@ -24,6 +24,8 @@ const PRECACHE_URLS = [
   './icon.png',
   './icon-192.png',
   './icon-512.png',
+  './apple-touch-icon.png',
+  './tracts_i18n_yo.js',
   './tracts.js',
   './tracts_ext.js',
   './prayers.js',

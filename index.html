@@ -31,9 +31,9 @@
   <meta name="twitter:description" content="Free offline gospel app. 15 slides, 200 tracts, 8 languages. Made in Nigeria.">
   <meta name="twitter:image" content="https://gospelswipe.app/og.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" id="appFavicon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMGUxYTI0Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzBhMTQxYyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iY3Jvc3MiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI5IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZDRBMDE3Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6I2U2YzA1NiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMjAiIGZpbGw9InVybCgjYmcpIi8+CiAgPHJlY3QgeD0iMjIwIiB5PSI4MCIgd2lkdGg9IjcyIiBoZWlnaHQ9IjM1MiIgcng9IjIwIiBmaWxsPSJ1cmwoI2Nyb3NzKSIvPgogIDxyZWN0IHg9IjEwMCIgeT0iMTcwIiB3aWR0aD0iMzEyIiBoZWlnaHQ9IjcyIiByeD0iMjAiIGZpbGw9InVybCgjY3Jvc3MpIi8+Cjwvc3ZnPg==" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.png">
   <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -90,6 +90,7 @@
 
 <!-- ===== Loading Screen ===== -->
 <div id="loading" role="status" aria-live="polite">
+  <img src="icon.png" alt="" class="loading-logo" width="88" height="88">
   <div class="loader" aria-hidden="true"></div>
   <h2 data-i18n="appName" style="margin-bottom:8px;">GospelSwipe Pro</h2>
   <p data-i18n="tagline" style="opacity:0.65;font-size:0.9rem;text-align:center;max-width:260px;font-family:Georgia,serif;">The gospel. In every pocket.</p>
@@ -812,7 +813,7 @@
     </div>
 
     <div class="gs-app-version" id="appVersionFooter">
-      GospelSwipe Pro v2.2.3<br>
+      GospelSwipe Pro v2.2.4<br>
       Made in Nigeria 🇳🇬 · GP Tech Studio
     </div>
   </div>
@@ -1430,12 +1431,13 @@
 <script src="tracts_i18n_struggle_p1.js"></script>
 <script src="tracts_i18n_struggle_p2.js"></script>
 <script src="tracts_i18n_struggle_p3.js"></script>
+<script src="tracts_i18n_yo.js"></script>
 <script src="voice_engine.js"></script>
 <script src="ai_i18n.js"></script>
 <script src="ai_engine.js"></script>
 <script src="app.js"></script>
 <script>
-  window.GS_APP_VERSION = '2.2.3';
+  window.GS_APP_VERSION = '2.2.4';
   (function gsServiceWorkerSync() {
     if (!('serviceWorker' in navigator)) return;
     var reloading = false;
